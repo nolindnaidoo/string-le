@@ -1,0 +1,48 @@
+{"key": "value", "number": 42}
+/orders/{id}
+/payments
+/users
+08:30:00
+12345
+2.1.3
+2024-08-17T10:30:00Z
+3.14159
+admin
+admin@example.com
+app_user
+Contains - dashes - everywhere
+Contains [brackets] and {braces}
+Contains: colons and semicolons;
+Contains: quotes="value" & other stuff
+db-cluster.example.com
+Deep configuration setting
+editor
+Enterprise Application Config
+even more
+Found at maximum depth
+guest
+Hello 世界! 🌍
+https://api.example.com/v2
+https://auth.example.com/token
+https://example.com/path?param=value
+info
+more text
+My Production Application
+null
+oauth_12345
+oauth_secret_abcdef
+oauth2
+padded content
+postgresql://user:pass@localhost:5432/myapp
+production
+Production configuration with all TOML data types
+production_database
+SELECT * FROM users WHERE active = true
+Something went wrong during processing
+Special: !@#$%^&*()_+-=[]{}|;:,.<>?
+super!@#$%secret
+text
+true
+user
+v2.1
+very!@#secret$%^key&*(

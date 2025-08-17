@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "Ekstrak string dari JSON, YAML, CSV (+ streaming), TOML, INI, dan .ENV",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "Ekstrak",
+	"manifest.command.csv.toggle-streaming.title": "Aktifkan/Nonaktifkan CSV",
+	"manifest.command.dedupe.title": "Hapus duplikat",
+	"manifest.command.sort.title": "Urutkan",
+	"manifest.command.settings.title": "Pengaturan",
+	"manifest.command.help.title": "Pemecahan Masalah",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "Salin hasil ke clipboard secara otomatis. Dinonaktifkan untuk CSV.",
+	"manifest.settings.csv.streaming.desc": "Hanya CSV. Tampilkan hasil secara bertahap. Dinonaktifkan secara default.",
+	"manifest.settings.dedupe.desc": "Hapus string duplikat dari hasil.",
+	"manifest.settings.notifications.level.desc": "Pilih tingkat pemberitahuan: ‘Semua’, ‘Penting’, atau ‘Diam’.",
+	"manifest.settings.open.new-file.desc": "Buka hasil pemrosesan pasca di editor baru alih-alih mengganti file.",
+	"manifest.settings.open.side-by-side.desc": "Buka hasil ekstraksi di editor baru di samping alih-alih mengganti editor saat ini.",
+	"manifest.settings.safety.enabled.desc": "Aktifkan pemeriksaan keamanan untuk file besar, output, dan pembagian dokumen.",
+	"manifest.settings.safety.warn.file-size.desc": "Peringatkan jika ukuran file melebihi ambang batas ini.",
+	"manifest.settings.safety.warn.large-output.desc": "Peringatkan jika baris output melebihi ambang batas ini.",
+	"manifest.settings.safety.warn.many-documents.desc": "Peringatkan jika dokumen output melebihi ambang batas ini.",
+	"manifest.settings.parse-errors.desc": "Tampilkan pesan kesalahan jika parsing gagal.",
+	"manifest.settings.sort.enabled.desc": "Sortir string yang diekstraksi secara otomatis.",
+	"manifest.settings.sort.mode.desc": "Pilih metode penyortiran untuk string yang diekstraksi.",
+	"manifest.settings.statusbar.enabled.desc": "Tampilkan item bilah status dengan pesan status cepat dan eksekusi satu klik.",
+	"manifest.settings.telemetry.desc": "Aktifkan telemetri lokal saja (tanpa jaringan). Log ke saluran keluaran ‘String-LE’.",
+
+	"manifest.settings.sort.mode.option.off": "Mati",
+	"manifest.settings.sort.mode.option.alpha-asc": "Abjad (A → Z)",
+	"manifest.settings.sort.mode.option.alpha-desc": "Abjad (Z → A)",
+	"manifest.settings.sort.mode.option.length-asc": "Berdasarkan Panjang (Pendek → Panjang)",
+	"manifest.settings.sort.mode.option.length-desc": "Berdasarkan Panjang (Panjang → Pendek)",
+
+	"manifest.settings.notifications.level.option.all": "Semua",
+	"manifest.settings.notifications.level.option.important": "Penting",
+	"manifest.settings.notifications.level.option.silent": "Senyap",
+
+	"manifest.capability.untrusted-workspaces.desc": "Ekstraksi dijalankan secara lokal dan tidak pernah menjalankan alat eksternal.",
+
+	"runtime.message.error.no-editor": "Tidak ada editor aktif",
+	"runtime.message.error.open-results": "Tidak dapat membuka hasil",
+	"runtime.message.info.file-empty": "File kosong",
+	"runtime.message.info.no-strings": "Tidak ditemukan string",
+	"runtime.message.info.copied": "Dicopy ke clipboard",
+	"runtime.message.info.csv-streamed": "CSV streaming",
+	"runtime.message.warn.clipboard-failed": "Tidak dapat dicopy ke clipboard",
+	"runtime.message.warn.large-file": "File besar terdeteksi ({0} byte). Ekstraksi mungkin memakan waktu lebih lama.",
+
+	"runtime.dialog.large-output.message": "Output besar ({0} baris). Lanjutkan?",
+	"runtime.dialog.many-docs.message": "Banyak hasil — membuka {0} dokumen (~{1} baris total). Lanjutkan?",
+	"runtime.dialog.action.open": "Buka hasil",
+	"runtime.dialog.action.copy": "Salin saja",
+	"runtime.dialog.action.cancel": "Batal",
+
+	"runtime.progress.extract.title": "Mengekstrak...",
+
+	"runtime.status.tooltip": "Jalankan String-LE: Ekstrak",
+	"runtime.status.extracted": "Diekstrak {0}",
+	"runtime.status.csv-streamed": "CSV streaming",
+
+	"runtime.csv.columns.all": "Semua kolom",
+	"runtime.csv.columns.all.desc": "Ekstrak dari semua kolom",
+	"runtime.csv.column.default": "(Kolom {0})",
+	"runtime.csv.column.index": "Indeks {0}",
+	"runtime.csv.picker.placeholder": "Pilih kolom CSV atau semua kolom",
+	"runtime.csv.input.prompt": "Masukkan indeks kolom (dipisahkan koma), atau biarkan kosong untuk semua kolom",
+	"runtime.csv.input.validation": "Masukkan indeks kolom yang valid yang dipisahkan koma, atau biarkan kosong",
+	"runtime.csv.error.out-of-range": "Indeks kolom di luar rentang ({0}). Menggunakan semua kolom sebagai gantinya",
+	"runtime.csv.streaming.enabled": "Streaming CSV diaktifkan",
+	"runtime.csv.streaming.disabled": "Streaming CSV dinonaktifkan",
+
+	"runtime.picker.filetype.fallback": "Cadangan (string yang diapit tanda kutip)",
+	"runtime.picker.filetype.placeholder": "Pilih jenis file untuk ekstraksi",
+
+	"runtime.sort.option.alpha-asc": "Abjad (A → Z)",
+	"runtime.sort.option.alpha-desc": "Abjad (Z → A)",
+	"runtime.sort.option.length-asc": "Berdasarkan panjang (pendek → panjang)",
+	"runtime.sort.option.length-desc": "Berdasarkan panjang (panjang → pendek)",
+	"runtime.sort.picker.placeholder": "Pilih mode penyortiran",
+
+	"runtime.codeaction.extract.title": "Ekstrak string",
+
+	"runtime.help.title": "Pemecahan masalah",
+
+	"runtime.status.multiline-risk": "String multi-baris terdeteksi",
+	"runtime.status.csv-opened": "Berkas CSV dibuka (tanpa salin otomatis)",
+	"runtime.status.postprocess": "Operasi dedupe/sort diterapkan",
+
+	"runtime.info.multiline-detected": "String multi-baris terdeteksi. Pemisahan baris mungkin tampil berbeda antar format.",
+	"runtime.info.csv-no-clipboard": "Hasil CSV tidak disalin otomatis saat streaming atau mengekstrak semua kolom.",
+	"runtime.info.postprocess-semantics": "Operasi sort dan dedupe diterapkan pada string yang diekstrak",
+
+	"runtime.warn.multiline-instability": "String multi-baris mungkin digabung atau dipecah secara tidak terduga.",
+
+	"runtime.prompt.multiline-review.title": "String multi-baris terdeteksi",
+	"runtime.prompt.multiline-review.body": "Ditemukan {0} string multi-baris. Lanjutkan ekstraksi?",
+	"runtime.prompt.large-output.title": "Output besar terdeteksi",
+	"runtime.prompt.large-output.body": "Ditemukan {0} string. Bagaimana Anda ingin melanjutkan?",
+	"runtime.note.postprocess-footnote": "Catatan: Operasi penyortiran dan penghapusan duplikat berlaku untuk daftar string yang diekstraksi."
+}

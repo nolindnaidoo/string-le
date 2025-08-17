@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "从JSON、YAML、CSV（支持流式处理）、TOML、INI和.ENV文件中提取字符串",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "提取",
+	"manifest.command.csv.toggle-streaming.title": "切换CSV",
+	"manifest.command.dedupe.title": "去重",
+	"manifest.command.sort.title": "排序",
+	"manifest.command.settings.title": "设置",
+	"manifest.command.help.title": "故障排除",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "自动将结果复制到剪贴板。CSV格式默认禁用。",
+	"manifest.settings.csv.streaming.desc": "仅限 CSV。增量流式传输结果。默认禁用。",
+	"manifest.settings.dedupe.desc": "从结果中移除重复字符串。",
+	"manifest.settings.notifications.level.desc": "选择通知级别：‘全部’、'重要' 或 ‘静默’。",
+	"manifest.settings.open.new-file.desc": "在新的编辑器中打开后处理结果，而非替换文件。",
+	"manifest.settings.open.side-by-side.desc": "在新的编辑器中打开提取结果，而非替换当前编辑器。",
+	"manifest.settings.safety.enabled.desc": "启用对大型文件、输出和文档分割的安全检查。",
+	"manifest.settings.safety.warn.file-size.desc": "若文件大小超过此阈值则发出警告。",
+	"manifest.settings.safety.warn.large-output.desc": "若输出行数超过此阈值则发出警告。",
+	"manifest.settings.safety.warn.many-documents.desc": "若输出文档数超过此阈值则发出警告。",
+	"manifest.settings.parse-errors.desc": "若解析失败则显示错误消息。",
+	"manifest.settings.sort.enabled.desc": "自动对提取的字符串进行排序。",
+	"manifest.settings.sort.mode.desc": "选择提取字符串的排序方法。",
+	"manifest.settings.statusbar.enabled.desc": "显示状态栏项，包含快速状态消息和一键运行功能。",
+	"manifest.settings.telemetry.desc": "启用仅本地遥测（无网络连接）。日志记录到 ‘String-LE’ 输出通道。",
+
+	"manifest.settings.sort.mode.option.off": "关闭",
+	"manifest.settings.sort.mode.option.alpha-asc": "按字母顺序（A → Z）",
+	"manifest.settings.sort.mode.option.alpha-desc": "按字母顺序（Z → A）",
+	"manifest.settings.sort.mode.option.length-asc": "按长度排序（短 → 长）",
+	"manifest.settings.sort.mode.option.length-desc": "按长度排序（长 → 短）",
+
+	"manifest.settings.notifications.level.option.all": "全部",
+	"manifest.settings.notifications.level.option.important": "重要",
+	"manifest.settings.notifications.level.option.silent": "静默",
+
+	"manifest.capability.untrusted-workspaces.desc": "提取在本地运行且从不执行外部工具。",
+
+	"runtime.message.error.no-editor": "无活动编辑器",
+	"runtime.message.error.open-results": "无法打开结果",
+	"runtime.message.info.file-empty": "文件为空",
+	"runtime.message.info.no-strings": "未找到字符串",
+	"runtime.message.info.copied": "已复制到剪贴板",
+	"runtime.message.info.csv-streamed": "CSV流式传输",
+	"runtime.message.warn.clipboard-failed": "无法复制到剪贴板",
+	"runtime.message.warn.large-file": "检测到大文件（{0}字节）。提取可能需要更长时间。",
+
+	"runtime.dialog.large-output.message": "输出较大（{0}行）。继续？",
+	"runtime.dialog.many-docs.message": "结果较多——打开{0}个文档（~{1}总行数）。继续？",
+	"runtime.dialog.action.open": "打开结果",
+	"runtime.dialog.action.copy": "仅复制",
+	"runtime.dialog.action.cancel": "取消",
+
+	"runtime.progress.extract.title": "正在提取...",
+
+	"runtime.status.tooltip": "运行 String-LE：提取",
+	"runtime.status.extracted": "已提取 {0}",
+	"runtime.status.csv-streamed": "CSV 流式传输",
+
+	"runtime.csv.columns.all": "所有列",
+	"runtime.csv.columns.all.desc": "从所有列提取",
+	"runtime.csv.column.default": "（列 {0}）",
+	"runtime.csv.column.index": "索引 {0}",
+	"runtime.csv.picker.placeholder": "选择 CSV 列或所有列",
+	"runtime.csv.input.prompt": "输入列索引（用逗号分隔），或留空以选择所有列",
+	"runtime.csv.input.validation": "输入有效的列索引（用逗号分隔），或留空",
+	"runtime.csv.error.out-of-range": "列索引超出范围（{0}）。将使用所有列代替",
+	"runtime.csv.streaming.enabled": "CSV流式传输已启用",
+	"runtime.csv.streaming.disabled": "CSV流式传输已禁用",
+
+	"runtime.picker.filetype.fallback": "备用（带引号的字符串）",
+	"runtime.picker.filetype.placeholder": "选择提取的文件类型",
+
+	"runtime.sort.option.alpha-asc": "按字母顺序（A → Z）",
+	"runtime.sort.option.alpha-desc": "按字母顺序（Z → A）",
+	"runtime.sort.option.length-asc": "按长度（短 → 长）",
+	"runtime.sort.option.length-desc": "按长度（长 → 短）",
+	"runtime.sort.picker.placeholder": "选择排序模式",
+
+	"runtime.codeaction.extract.title": "提取字符串",
+
+	"runtime.help.title": "故障排除",
+
+	"runtime.status.multiline-risk": "检测到多行字符串",
+	"runtime.status.csv-opened": "CSV 文件已打开（不自动复制）",
+	"runtime.status.postprocess": "已应用去重/排序操作",
+
+	"runtime.info.multiline-detected": "检测到多行字符串。换行符在不同格式中可能显示不同。",
+	"runtime.info.csv-no-clipboard": "在流式处理或提取所有列时，CSV 结果不会自动复制。",
+	"runtime.info.postprocess-semantics": "排序和去重操作适用于提取的字符串",
+
+	"runtime.warn.multiline-instability": "多行字符串可能意外合并或拆分。",
+
+	"runtime.prompt.multiline-review.title": "检测到多行字符串",
+	"runtime.prompt.multiline-review.body": "检测到 {0} 个多行字符串。继续提取吗？",
+	"runtime.prompt.large-output.title": "检测到大量输出",
+	"runtime.prompt.large-output.body": "检测到 {0} 个字符串。您希望如何继续？",
+	"runtime.note.postprocess-footnote": "注意：排序和去重操作适用于提取的字符串列表。"
+}

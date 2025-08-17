@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "Zeichenfolgen aus JSON, YAML, CSV (+ Streaming), TOML, INI und .ENV extrahieren",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "Extrahieren",
+	"manifest.command.csv.toggle-streaming.title": "CSV umschalten",
+	"manifest.command.dedupe.title": "Duplikate entfernen",
+	"manifest.command.sort.title": "Sortieren",
+	"manifest.command.settings.title": "Einstellungen",
+	"manifest.command.help.title": "Fehlerbehebung",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "Ergebnisse automatisch in die Zwischenablage kopieren. Für CSV deaktiviert.",
+	"manifest.settings.csv.streaming.desc": "Nur CSV. Ergebnisse schrittweise streamen. Standardmäßig deaktiviert.",
+	"manifest.settings.dedupe.desc": "Doppelte Zeichenfolgen aus den Ergebnissen entfernen.",
+	"manifest.settings.notifications.level.desc": "Benachrichtigungsstufe auswählen: „Alle“, „Wichtig“ oder „Still“.",
+	"manifest.settings.open.new-file.desc": "Nachbearbeitungsergebnisse in einem neuen Editor öffnen, anstatt die Datei zu ersetzen.",
+	"manifest.settings.open.side-by-side.desc": "Extraktionsergebnisse in einem neuen Editor neben dem aktuellen Editor öffnen, anstatt den aktuellen Editor zu ersetzen.",
+	"manifest.settings.safety.enabled.desc": "Sicherheitsprüfungen für große Dateien, Ausgaben und Dokumentaufteilungen aktivieren.",
+	"manifest.settings.safety.warn.file-size.desc": "Warnung ausgeben, wenn die Dateigröße diesen Schwellenwert überschreitet.",
+	"manifest.settings.safety.warn.large-output.desc": "Warnung ausgeben, wenn die Ausgabzeilen diesen Schwellenwert überschreiten.",
+	"manifest.settings.safety.warn.many-documents.desc": "Warnung ausgeben, wenn die Ausgabedokumente diesen Schwellenwert überschreiten.",
+	"manifest.settings.parse-errors.desc": "Fehlermeldungen anzeigen, wenn die Analyse fehlschlägt.",
+	"manifest.settings.sort.enabled.desc": "Extrahierte Zeichenfolgen automatisch sortieren.",
+	"manifest.settings.sort.mode.desc": "Sortiermethode für extrahierte Zeichenfolgen auswählen.",
+	"manifest.settings.statusbar.enabled.desc": "Statusleistenelement mit Schnellstatusmeldungen und Ein-Klick-Ausführung anzeigen.",
+	"manifest.settings.telemetry.desc": "Lokale Telemetrie aktivieren (kein Netzwerk). Protokolliert im Ausgabekanal „String-LE“.",
+
+	"manifest.settings.sort.mode.option.off": "Aus",
+	"manifest.settings.sort.mode.option.alpha-asc": "Alphabetisch (A → Z)",
+	"manifest.settings.sort.mode.option.alpha-desc": "Alphabetisch (Z → A)",
+	"manifest.settings.sort.mode.option.length-asc": "Nach Länge (kurz → lang)",
+	"manifest.settings.sort.mode.option.length-desc": "Nach Länge (lang → kurz)",
+
+	"manifest.settings.notifications.level.option.all": "Alle",
+	"manifest.settings.notifications.level.option.important": "Wichtig",
+	"manifest.settings.notifications.level.option.silent": "Still",
+
+	"manifest.capability.untrusted-workspaces.desc": "Die Extraktion wird lokal ausgeführt und es werden keine externen Tools ausgeführt.",
+
+	"runtime.message.error.no-editor": "Kein aktiver Editor",
+	"runtime.message.error.open-results": "Ergebnisse konnten nicht geöffnet werden",
+	"runtime.message.info.file-empty": "Datei ist leer",
+	"runtime.message.info.no-strings": "Keine Zeichenfolgen gefunden",
+	"runtime.message.info.copied": "In die Zwischenablage kopiert",
+	"runtime.message.info.csv-streamed": "CSV gestreamt",
+	"runtime.message.warn.clipboard-failed": "Kopieren in die Zwischenablage nicht möglich",
+	"runtime.message.warn.large-file": "Große Datei erkannt ({0} Bytes). Die Extraktion kann länger dauern.",
+
+	"runtime.dialog.large-output.message": "Große Ausgabe ({0} Zeilen). Fortfahren?",
+	"runtime.dialog.many-docs.message": "Viele Ergebnisse – Öffnen von {0} Dokumenten (~{1} Zeilen insgesamt). Fortfahren?",
+	"runtime.dialog.action.open": "Ergebnisse öffnen",
+	"runtime.dialog.action.copy": "Nur kopieren",
+	"runtime.dialog.action.cancel": "Abbrechen",
+
+	"runtime.progress.extract.title": "Extrahieren...",
+
+	"runtime.status.tooltip": "String-LE ausführen: Extrahieren",
+	"runtime.status.extracted": "{0} extrahiert",
+	"runtime.status.csv-streamed": "CSV gestreamt",
+
+	"runtime.csv.columns.all": "Alle Spalten",
+	"runtime.csv.columns.all.desc": "Aus allen Spalten extrahieren",
+	"runtime.csv.column.default": "(Spalte {0})",
+	"runtime.csv.column.index": "Index {0}",
+	"runtime.csv.picker.placeholder": "Wählen Sie eine CSV-Spalte oder alle Spalten aus",
+	"runtime.csv.input.prompt": "Geben Sie Spaltenindizes ein (durch Kommas getrennt) oder lassen Sie das Feld leer, um alle Spalten auszuwählen",
+	"runtime.csv.input.validation": "Geben Sie gültige Spaltenindizes durch Kommas getrennt ein oder lassen Sie das Feld leer",
+	"runtime.csv.error.out-of-range": "Spaltenindex außerhalb des Bereichs ({0}). Stattdessen alle Spalten verwenden",
+	"runtime.csv.streaming.enabled": "CSV-Streaming aktiviert",
+	"runtime.csv.streaming.disabled": "CSV-Streaming deaktiviert",
+
+	"runtime.picker.filetype.fallback": "Fallback (in Anführungszeichen gesetzte Zeichenfolgen)",
+	"runtime.picker.filetype.placeholder": "Dateityp für die Extraktion auswählen",
+
+	"runtime.sort.option.alpha-asc": "Alphabetisch (A → Z)",
+	"runtime.sort.option.alpha-desc": "Alphabetisch (Z → A)",
+	"runtime.sort.option.length-asc": "Nach Länge (kurz → lang)",
+	"runtime.sort.option.length-desc": "Nach Länge (lang → kurz)",
+	"runtime.sort.picker.placeholder": "Sortiermodus auswählen",
+
+	"runtime.codeaction.extract.title": "Zeichenfolgen extrahieren",
+
+	"runtime.help.title": "Fehlerbehebung",
+
+	"runtime.status.multiline-risk": "Mehrzeilige Zeichenfolgen erkannt",
+	"runtime.status.csv-opened": "CSV geöffnet (kein automatisches Kopieren)",
+	"runtime.status.postprocess": "Deduplizierung/Sortierung angewendet",
+
+	"runtime.info.multiline-detected": "Mehrzeilige Zeichenfolgen erkannt. Zeilenumbrüche können je nach Format unterschiedlich dargestellt werden.",
+	"runtime.info.csv-no-clipboard": "CSV-Ergebnisse werden beim Streamen oder Extrahieren aller Spalten nicht automatisch kopiert.",
+	"runtime.info.postprocess-semantics": "Sortier- und Deduplizierungsvorgänge gelten für extrahierte Zeichenfolgen.",
+
+	"runtime.warn.multiline-instability": "Mehrzeilige Zeichenfolgen können unerwartet zusammengeführt oder geteilt werden.",
+
+	"runtime.prompt.multiline-review.title": "Mehrzeilige Zeichenfolgen erkannt.",
+	"runtime.prompt.multiline-review.body": "{0} mehrzeilige Zeichenfolgen gefunden. Extrahierung fortsetzen?",
+	"runtime.prompt.large-output.title": "Große Ausgabe erkannt.",
+	"runtime.prompt.large-output.body": "{0} Zeichenfolgen gefunden. Wie möchten Sie fortfahren?",
+	"runtime.note.postprocess-footnote": "Hinweis: Sortier- und Deduplizierungsvorgänge gelten für die extrahierte Zeichenfolgenliste."
+}

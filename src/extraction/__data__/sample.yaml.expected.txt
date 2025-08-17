@@ -1,0 +1,91 @@
+{"key": "value", "number": 42}
+@username and @mentions
+/orders/{id}
+/payments
+/users
+#hashtags and #comments
+0
+1000/hour
+12345
+2.1.3
+2024-01-15
+24h
+3.14159
+42
+7d
+admin
+admin@example.com
+api-gateway:v1.5.2
+app_user
+auth-service:v2.1.3
+Basic quoted string
+Contains - dashes - everywhere
+Contains "quotes" and \backslashes\
+Contains [brackets] and {braces}
+Contains & ampersands & references
+Contains % percent % signs
+Contains | pipes | for separation
+Contains: colons and semicolons;
+content with padding
+debug
+editor
+Enterprise Application
+even more
+false
+First item
+Fourth item
+guest
+Hello 世界! Здравствуй мир! 🌍
+https://admin.example.com
+https://api.example.com
+https://api.example.com/v2/users
+https://app.example.com
+https://hooks.example.com/notify
+https://monitoring.example.com
+info
+Item with mapping
+jwt_super_secret_key_12345
+localhost
+more text
+Multiple words without quotes
+no
+notification-service:v1.2.1
+notifications@example.com
+null
+oauth_12345
+oauth_secret_abcdef
+oauth2
+off
+on
+one
+orders:*
+orders:read
+orders:write
+production
+Production configuration with all YAML data types
+production_database
+read
+readonly_user
+replica_database
+replica_secret
+Second item with "quotes"
+Single quoted string
+smtp.example.com
+Some value
+Special: !@#$%^&*()_+-=[]{}|;:,.<>?
+super!@#secret
+system:admin
+text
+Third item with colon
+This is an unquoted string
+three
+true
+two
+user
+users:delete
+users:read
+users:write
+v2.1
+warning
+write
+yes

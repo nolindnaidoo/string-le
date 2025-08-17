@@ -1,0 +1,59 @@
+# Source TypeScript files  
+src/**/*
+
+# Assets (exclude all except required icon)
+src/assets/**/*
+!src/assets/images/icon.png
+
+# TypeScript config
+tsconfig.json
+
+# Development tools
+.biomeignore
+.cursorrules
+biome.json
+.vscode/
+.gitignore
+
+# Test files
+**/*.test.ts
+**/*.test.js
+**/__tests__/**
+**/__data__/**
+
+
+# Backup files
+*.backup
+*-original.*
+
+# Exclude all node_modules except runtime dependencies
+node_modules/**
+!node_modules/csv-parse/package.json
+!node_modules/csv-parse/LICENSE
+!node_modules/csv-parse/dist/cjs/**
+!node_modules/csv-parse/lib/**
+!node_modules/ini/**
+!node_modules/js-yaml/package.json
+!node_modules/js-yaml/LICENSE
+!node_modules/js-yaml/index.js
+!node_modules/js-yaml/lib/**
+!node_modules/toml/**
+!node_modules/vscode-nls/**
+!node_modules/@types/js-yaml/**
+
+# Coverage and logs
+coverage/
+*.log
+.nyc_output/
+
+# Documentation that's not needed in the package
+*.md
+!README.md
+!CHANGELOG.md
+
+# CI and repository metadata
+.github/**
+.vscodeignore
+
+# Package lock
+package-lock.json

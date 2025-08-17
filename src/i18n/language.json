@@ -1,0 +1,70 @@
+String-LE
+Extract strings from JSON, YAML, CSV (+ streaming), TOML, INI, and .ENV
+String-LE
+String-LE: Extract
+String-LE: Toggle CSV
+String-LE: Dedupe
+String-LE: Sort
+String-LE: Settings
+String-LE: Troubleshooting
+String-LE
+Copy results to the clipboard automatically. Disabled for CSV.
+CSV only. Stream results incrementally. Disabled by default.
+Remove duplicate strings from results.
+Choose notification level: 'All', 'Important', or 'Silent'.
+Open post-processing results in a new editor instead of replacing the file.
+Open extraction results in a new editor to the side instead of replacing the current editor.
+Enable safety checks for large files, outputs, and document splits.
+Warn if file size exceeds this threshold.
+Warn if output lines exceed this threshold.
+Warn if output documents exceed this threshold.
+Show error messages if parsing fails.
+Automatically sort extracted strings.
+Select sorting method for extracted strings.
+Show a status bar item with quick status messages and one-click run.
+Enable local-only telemetry (no network). Logs to the 'String-LE' Output Channel.
+Off
+Alphabetical (A → Z)
+Alphabetical (Z → A)
+By Length (Short → Long)
+By Length (Long → Short)
+All
+Important
+Silent
+Extraction runs locally and never executes external tools.
+No active editor
+Could not open results
+File is empty
+No strings found
+Copied to clipboard
+CSV streamed
+Could not copy to clipboard
+Large file detected ({0} bytes). Extraction may take longer.
+Large output ({0} lines). Proceed?
+Many results — opening {0} documents (~{1} total lines). Proceed?
+Open results
+Copy only
+Cancel
+Extracting...
+Run String-LE: Extract
+Extracted {0}
+CSV streamed
+All columns
+Extract from all columns
+(Column {0})
+Index {0}
+Select a CSV column or all columns
+Enter column indexes (comma-separated), or leave empty for all columns
+Enter valid column indexes separated by commas, or leave empty
+Column index out of range ({0}). Using all columns instead
+CSV streaming enabled
+CSV streaming disabled
+Fallback (quoted strings)
+Choose file type for extraction
+Alphabetical (A → Z)
+Alphabetical (Z → A)
+By length (short → long)
+By length (long → short)
+Choose sort mode
+Extract strings
+Troubleshooting

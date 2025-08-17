@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "JSON、YAML、CSV（ストリーム対応）、TOML、INI、および.ENVから文字列を抽出します",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "抽出",
+	"manifest.command.csv.toggle-streaming.title": "CSVの切り替え",
+	"manifest.command.dedupe.title": "重複削除",
+	"manifest.command.sort.title": "並べ替え",
+	"manifest.command.settings.title": "設定",
+	"manifest.command.help.title": "トラブルシューティング",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "結果をクリップボードに自動的にコピーします。CSVでは無効です。",
+	"manifest.settings.csv.streaming.desc": "CSVのみ。結果を段階的にストリーム出力します。デフォルトで無効です。",
+	"manifest.settings.dedupe.desc": "結果から重複する文字列を削除します。",
+	"manifest.settings.notifications.level.desc": "通知レベルを選択：『すべて』、『重要』、または『サイレント』。",
+	"manifest.settings.open.new-file.desc": "ファイルを上書きせずに、後処理結果を新しいエディターで開きます。",
+	"manifest.settings.open.side-by-side.desc": "現在のエディターを上書きせずに、抽出結果を新しいエディターで横に開きます。",
+	"manifest.settings.safety.enabled.desc": "大容量ファイル、出力、ドキュメント分割に対する安全チェックを有効にします。",
+	"manifest.settings.safety.warn.file-size.desc": "ファイルサイズがこの閾値を超える場合に警告を表示します。",
+	"manifest.settings.safety.warn.large-output.desc": "出力行がこの閾値を超える場合に警告を表示します。",
+	"manifest.settings.safety.warn.many-documents.desc": "出力ドキュメントがこの閾値を超える場合に警告を表示します。",
+	"manifest.settings.parse-errors.desc": "パースに失敗した場合にエラーメッセージを表示します。",
+	"manifest.settings.sort.enabled.desc": "抽出された文字列を自動的に並べ替えます。",
+	"manifest.settings.sort.mode.desc": "抽出された文字列の並べ替え方法を選択します。",
+	"manifest.settings.statusbar.enabled.desc": "クイックステータスメッセージとワンクリック実行を表示するステータスバーアイテムを表示します。",
+	"manifest.settings.telemetry.desc": "ローカルのみのテレメトリを有効化（ネットワークなし）。ログは『String-LE』出力チャネルに記録されます。",
+
+	"manifest.settings.sort.mode.option.off": "オフ",
+	"manifest.settings.sort.mode.option.alpha-asc": "アルファベット順（A → Z）",
+	"manifest.settings.sort.mode.option.alpha-desc": "アルファベット順（Z → A）",
+	"manifest.settings.sort.mode.option.length-asc": "長さ順（短い → 長い）",
+	"manifest.settings.sort.mode.option.length-desc": "長さ順（長い → 短い）",
+
+	"manifest.settings.notifications.level.option.all": "すべて",
+	"manifest.settings.notifications.level.option.important": "重要",
+	"manifest.settings.notifications.level.option.silent": "サイレント",
+
+	"manifest.capability.untrusted-workspaces.desc": "抽出はローカルで実行され、外部ツールを実行しません。",
+
+	"runtime.message.error.no-editor": "アクティブなエディターなし",
+	"runtime.message.error.open-results": "結果を開くことができませんでした",
+	"runtime.message.info.file-empty": "ファイルが空です",
+	"runtime.message.info.no-strings": "文字列が見つかりませんでした",
+	"runtime.message.info.copied": "クリップボードにコピーされました",
+	"runtime.message.info.csv-streamed": "CSVストリーム",
+	"runtime.message.warn.clipboard-failed": "クリップボードにコピーできませんでした",
+	"runtime.message.warn.large-file": "大容量ファイル検出（{0} バイト）。抽出に時間がかかる可能性があります。",
+
+	"runtime.dialog.large-output.message": "大容量出力（{0} 行）。続行しますか？",
+	"runtime.dialog.many-docs.message": "多くの結果 — {0} ファイルを開きます（約{1} 行）。続行しますか？",
+	"runtime.dialog.action.open": "結果を開く",
+	"runtime.dialog.action.copy": "コピーのみ",
+	"runtime.dialog.action.cancel": "キャンセル",
+
+	"runtime.progress.extract.title": "抽出中...",
+
+	"runtime.status.tooltip": "String-LEを実行: 抽出",
+	"runtime.status.extracted": "{0}を抽出",
+	"runtime.status.csv-streamed": "CSVストリーム",
+
+	"runtime.csv.columns.all": "すべての列",
+	"runtime.csv.columns.all.desc": "すべての列から抽出",
+	"runtime.csv.column.default": "(列{0})",
+	"runtime.csv.column.index": "インデックス{0}",
+	"runtime.csv.picker.placeholder": "CSV列またはすべての列を選択",
+	"runtime.csv.input.prompt": "コンマ区切りの列インデックスを入力、またはすべての列を選択する場合は空欄に",
+	"runtime.csv.input.validation": "有効な列インデックスをコンマ区切りで入力、または空欄に",
+	"runtime.csv.error.out-of-range": "列インデックスが範囲外です（{0}）。代わりにすべての列を使用します",
+	"runtime.csv.streaming.enabled": "CSVストリーム有効",
+	"runtime.csv.streaming.disabled": "CSVストリーム無効",
+
+	"runtime.picker.filetype.fallback": "フォールバック（引用符付き文字列）",
+	"runtime.picker.filetype.placeholder": "抽出用のファイル形式を選択",
+
+	"runtime.sort.option.alpha-asc": "アルファベット順（A → Z）",
+	"runtime.sort.option.alpha-desc": "アルファベット順（Z → A）",
+	"runtime.sort.option.length-asc": "長さ順（短い → 長い）",
+	"runtime.sort.option.length-desc": "長さ順（長い → 短い）",
+	"runtime.sort.picker.placeholder": "並べ替えモードを選択",
+
+	"runtime.codeaction.extract.title": "文字列を抽出",
+
+	"runtime.help.title": "トラブルシューティング",
+
+	"runtime.status.multiline-risk": "複数行の文字列が検出されました",
+	"runtime.status.csv-opened": "CSVファイルが開かれました（自動コピーなし）",
+	"runtime.status.postprocess": "重複削除/並べ替えが適用されました",
+
+	"runtime.info.multiline-detected": "複数行の文字列が検出されました。改行はフォーマットによって異なる表示になる可能性があります。",
+	"runtime.info.csv-no-clipboard": "ストリーミングまたはすべての列を抽出する際、CSVの結果は自動コピーされません。",
+	"runtime.info.postprocess-semantics": "並べ替えと重複削除の操作は抽出された文字列に適用されます",
+
+	"runtime.warn.multiline-instability": "複数行の文字列は予期せず結合または分割される可能性があります。",
+
+	"runtime.prompt.multiline-review.title": "複数行の文字列が検出されました",
+	"runtime.prompt.multiline-review.body": "{0}個の複数行の文字列が検出されました。抽出を続行しますか？",
+	"runtime.prompt.large-output.title": "大規模な出力が検出されました",
+	"runtime.prompt.large-output.body": "{0}個の文字列が検出されました。どのように進めますか？",
+	"runtime.note.postprocess-footnote": "注：ソートと重複削除操作は、抽出された文字列リストに適用されます。"
+}

@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "Извлечение строк из JSON, YAML, CSV (+ потоковое), TOML, INI и .ENV",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "Извлечение",
+	"manifest.command.csv.toggle-streaming.title": "Переключение CSV",
+	"manifest.command.dedupe.title": "Дедупликация",
+	"manifest.command.sort.title": "Сортировка",
+	"manifest.command.settings.title": "Настройки",
+	"manifest.command.help.title": "Устранение неполадок",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "Автоматическое копирование результатов в буфер обмена. Отключено для CSV.",
+	"manifest.settings.csv.streaming.desc": "Только для CSV. Потоковая передача результатов постепенно. По умолчанию отключено.",
+	"manifest.settings.dedupe.desc": "Удаление дубликатов строк из результатов.",
+	"manifest.settings.notifications.level.desc": "Выбор уровня уведомлений: «Все», «Важно» или «Без уведомлений».",
+	"manifest.settings.open.new-file.desc": "Открытие результатов постобработки в новом редакторе вместо замены файла.",
+	"manifest.settings.open.side-by-side.desc": "Открытие результатов извлечения в новом редакторе сбоку вместо замены текущего редактора.",
+	"manifest.settings.safety.enabled.desc": "Включение проверок безопасности для больших файлов, вывода и разделения документов.",
+	"manifest.settings.safety.warn.file-size.desc": "Предупреждать, если размер файла превышает этот порог.",
+	"manifest.settings.safety.warn.large-output.desc": "Предупреждать, если количество строк в выводе превышает этот порог.",
+	"manifest.settings.safety.warn.many-documents.desc": "Предупреждать, если количество документов в выводе превышает этот порог.",
+	"manifest.settings.parse-errors.desc": "Показывать сообщения об ошибках, если разбор не удался.",
+	"manifest.settings.sort.enabled.desc": "Автоматически сортировать извлеченные строки.",
+	"manifest.settings.sort.mode.desc": "Выбрать метод сортировки для извлеченных строк.",
+	"manifest.settings.statusbar.enabled.desc": "Показывать элемент панели состояния с быстрыми сообщениями о состоянии и запуском в один клик.",
+	"manifest.settings.telemetry.desc": "Включить локальную телеметрию (без сети). Вести журнал в выходном канале «String-LE».",
+
+	"manifest.settings.sort.mode.option.off": "Выкл.",
+	"manifest.settings.sort.mode.option.alpha-asc": "По алфавиту (A → Z)",
+	"manifest.settings.sort.mode.option.alpha-desc": "По алфавиту (Z → A)",
+	"manifest.settings.sort.mode.option.length-asc": "По длине (короткий → длинный)",
+	"manifest.settings.sort.mode.option.length-desc": "По длине (длинный → короткий)",
+
+	"manifest.settings.notifications.level.option.all": "Все",
+	"manifest.settings.notifications.level.option.important": "Важно",
+	"manifest.settings.notifications.level.option.silent": "Без звука",
+
+	"manifest.capability.untrusted-workspaces.desc": "Извлечение выполняется локально и никогда не запускает внешние инструменты.",
+
+	"runtime.message.error.no-editor": "Нет активного редактора",
+	"runtime.message.error.open-results": "Не удалось открыть результаты",
+	"runtime.message.info.file-empty": "Файл пуст",
+	"runtime.message.info.no-strings": "Строки не найдены",
+	"runtime.message.info.copied": "Скопировано в буфер обмена",
+	"runtime.message.info.csv-streamed": "CSV передается потоком",
+	"runtime.message.warn.clipboard-failed": "Не удалось скопировать в буфер обмена",
+	"runtime.message.warn.large-file": "Обнаружен большой файл ({0} байт). Извлечение может занять больше времени.",
+
+	"runtime.dialog.large-output.message": "Большой объем вывода ({0} строк). Продолжить?",
+	"runtime.dialog.many-docs.message": "Много результатов — открытие {0} документов (~{1} строк всего). Продолжить?",
+	"runtime.dialog.action.open": "Открыть результаты",
+	"runtime.dialog.action.copy": "Только копировать",
+	"runtime.dialog.action.cancel": "Отмена",
+
+	"runtime.progress.extract.title": "Извлечение...",
+
+	"runtime.status.tooltip": "Запустить String-LE: извлечение",
+	"runtime.status.extracted": "Извлечено {0}",
+	"runtime.status.csv-streamed": "CSV передается потоком",
+
+	"runtime.csv.columns.all": "Все столбцы",
+	"runtime.csv.columns.all.desc": "Извлечь из всех столбцов",
+	"runtime.csv.column.default": "(Столбец {0})",
+	"runtime.csv.column.index": "Индекс {0}",
+	"runtime.csv.picker.placeholder": "Выберите столбец CSV или все столбцы",
+	"runtime.csv.input.prompt": "Введите индексы столбцов (разделенные запятыми) или оставьте поле пустым для всех столбцов",
+	"runtime.csv.input.validation": "Введите действительные индексы столбцов, разделенные запятыми, или оставьте поле пустым",
+	"runtime.csv.error.out-of-range": "Индекс столбца вне диапазона ({0}). Вместо этого используются все столбцы",
+	"runtime.csv.streaming.enabled": "Потоковая передача CSV включена",
+	"runtime.csv.streaming.disabled": "Потоковая передача CSV отключена",
+
+	"runtime.picker.filetype.fallback": "Резервный вариант (строки в кавычках)",
+	"runtime.picker.filetype.placeholder": "Выберите тип файла для извлечения",
+
+	"runtime.sort.option.alpha-asc": "По алфавиту (A → Z)",
+	"runtime.sort.option.alpha-desc": "По алфавиту (Z → A)",
+	"runtime.sort.option.length-asc": "По длине (короткий → длинный)",
+	"runtime.sort.option.length-desc": "По длине (длинный → короткий)",
+	"runtime.sort.picker.placeholder": "Выберите режим сортировки",
+
+	"runtime.codeaction.extract.title": "Извлечь строки",
+
+	"runtime.help.title": "Устранение неполадок",
+
+	"runtime.status.multiline-risk": "Обнаружены многострочные строки.",
+	"runtime.status.csv-opened": "CSV открыт (без автоматического копирования).",
+	"runtime.status.postprocess": "Применено удаление дубликатов/сортировка.",
+
+	"runtime.info.multiline-detected": "Обнаружены многострочные строки. Разрывы строк могут отображаться по-разному в разных форматах.",
+	"runtime.info.csv-no-clipboard": "Результаты CSV не копируются автоматически при потоковой передаче или извлечении всех столбцов.",
+	"runtime.info.postprocess-semantics": "Операции сортировки и удаления дубликатов применяются к извлеченным строкам.",
+
+	"runtime.warn.multiline-instability": "Многострочные строки могут неожиданно объединяться или разделяться.",
+
+	"runtime.prompt.multiline-review.title": "Обнаружены многострочные строки.",
+	"runtime.prompt.multiline-review.body": "Обнаружено {0} многострочных строк. Продолжить извлечение?",
+	"runtime.prompt.large-output.title": "Обнаружен большой объем вывода.",
+	"runtime.prompt.large-output.body": "Обнаружено {0} строк. Как вы хотите продолжить?",
+	"runtime.note.postprocess-footnote": "Примечание. Операции сортировки и дедупликации применяются к извлеченному списку строк."
+}

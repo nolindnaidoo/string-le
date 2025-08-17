@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "Витягування рядків із JSON, YAML, CSV (+ потокове передавання), TOML, INI та .ENV",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "Витягування",
+	"manifest.command.csv.toggle-streaming.title": "Перемикання CSV",
+	"manifest.command.dedupe.title": "Видалення дублікатів",
+	"manifest.command.sort.title": "Сортування",
+	"manifest.command.settings.title": "Налаштування",
+	"manifest.command.help.title": "Усунення несправностей",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "Автоматичне копіювання результатів до буфера обміну. Вимкнено для CSV.",
+	"manifest.settings.csv.streaming.desc": "Тільки для CSV. Потокове передавання результатів. Вимкнено за замовчуванням.",
+	"manifest.settings.dedupe.desc": "Видалення дублікатів рядків із результатів.",
+	"manifest.settings.notifications.level.desc": "Вибір рівня сповіщень: «Усі», «Важливі» або «Без сповіщень».",
+	"manifest.settings.open.new-file.desc": "Відкриття результатів постобробки в новому редакторі замість заміни файлу.",
+	"manifest.settings.open.side-by-side.desc": "Відкриття результатів вилучення в новому редакторі збоку замість заміни поточного редактора.",
+	"manifest.settings.safety.enabled.desc": "Увімкнення перевірок безпеки для великих файлів, вихідних даних та розділення документів.",
+	"manifest.settings.safety.warn.file-size.desc": "Попереджати, якщо розмір файлу перевищує цей поріг.",
+	"manifest.settings.safety.warn.large-output.desc": "Попереджати, якщо вихідні рядки перевищують цей поріг.",
+	"manifest.settings.safety.warn.many-documents.desc": "Попереджати, якщо вихідні документи перевищують цей поріг.",
+	"manifest.settings.parse-errors.desc": "Показувати повідомлення про помилки, якщо аналіз не вдався.",
+	"manifest.settings.sort.enabled.desc": "Автоматично сортувати витягнуті рядки.",
+	"manifest.settings.sort.mode.desc": "Вибрати метод сортування для витягнутих рядків.",
+	"manifest.settings.statusbar.enabled.desc": "Показувати елемент панелі стану з короткими повідомленнями про стан та запуском одним клацанням.",
+	"manifest.settings.telemetry.desc": "Увімкнути лише локальну телеметрію (без мережі). Журнали в каналі виводу «String-LE».",
+
+	"manifest.settings.sort.mode.option.off": "Вимкнено",
+	"manifest.settings.sort.mode.option.alpha-asc": "За алфавітом (A → Z)",
+	"manifest.settings.sort.mode.option.alpha-desc": "За алфавітом (Z → A)",
+	"manifest.settings.sort.mode.option.length-asc": "За довжиною (короткий → довгий)",
+	"manifest.settings.sort.mode.option.length-desc": "За довжиною (довгий → короткий)",
+
+	"manifest.settings.notifications.level.option.all": "Усі",
+	"manifest.settings.notifications.level.option.important": "Важливі",
+	"manifest.settings.notifications.level.option.silent": "Тихо",
+
+	"manifest.capability.untrusted-workspaces.desc": "Вилучення виконується локально і ніколи не запускає зовнішні інструменти.",
+
+	"runtime.message.error.no-editor": "Немає активного редактора",
+	"runtime.message.error.open-results": "Не вдалося відкрити результати",
+	"runtime.message.info.file-empty": "Файл порожній",
+	"runtime.message.info.no-strings": "Не знайдено рядків",
+	"runtime.message.info.copied": "Скопійовано до буфера обміну",
+	"runtime.message.info.csv-streamed": "Потік CSV",
+	"runtime.message.warn.clipboard-failed": "Не вдалося скопіювати до буфера обміну",
+	"runtime.message.warn.large-file": "Виявлено великий файл ({0} байт). Витяг може зайняти більше часу.",
+
+	"runtime.dialog.large-output.message": "Великий вихідний файл ({0} рядків). Продовжити?",
+	"runtime.dialog.many-docs.message": "Багато результатів — відкриття {0} документів (~{1} рядків загалом). Продовжити?",
+	"runtime.dialog.action.open": "Відкрити результати",
+	"runtime.dialog.action.copy": "Тільки копіювати",
+	"runtime.dialog.action.cancel": "Скасувати",
+
+	"runtime.progress.extract.title": "Витяг...",
+
+	"runtime.status.tooltip": "Запустити String-LE: Витягнути",
+	"runtime.status.extracted": "Витягнуто {0}",
+	"runtime.status.csv-streamed": "CSV передано",
+
+	"runtime.csv.columns.all": "Усі стовпці",
+	"runtime.csv.columns.all.desc": "Витягнути з усіх стовпців",
+	"runtime.csv.column.default": "(Стовпець {0})",
+	"runtime.csv.column.index": "Індекс {0}",
+	"runtime.csv.picker.placeholder": "Виберіть стовпець CSV або всі стовпці",
+	"runtime.csv.input.prompt": "Введіть індекси стовпців (розділені комами) або залиште порожнім для всіх стовпців",
+	"runtime.csv.input.validation": "Введіть дійсні індекси стовпців, розділені комами, або залиште порожнім",
+	"runtime.csv.error.out-of-range": "Індекс стовпця поза межами діапазону ({0}). Замість цього використовуються всі стовпці",
+	"runtime.csv.streaming.enabled": "Потік CSV увімкнено",
+	"runtime.csv.streaming.disabled": "Потік CSV вимкнено",
+
+	"runtime.picker.filetype.fallback": "Резервний варіант (рядки в лапках)",
+	"runtime.picker.filetype.placeholder": "Виберіть тип файлу для вилучення",
+
+	"runtime.sort.option.alpha-asc": "За алфавітом (A → Z)",
+	"runtime.sort.option.alpha-desc": "За алфавітом (Z → A)",
+	"runtime.sort.option.length-asc": "За довжиною (короткий → довгий)",
+	"runtime.sort.option.length-desc": "За довжиною (довгий → короткий)",
+	"runtime.sort.picker.placeholder": "Виберіть режим сортування",
+
+	"runtime.codeaction.extract.title": "Вилучити рядки",
+
+	"runtime.help.title": "Усунення несправностей",
+
+	"runtime.status.multiline-risk": "Виявлено багаторядкові рядки.",
+	"runtime.status.csv-opened": "Відкрито CSV-файл (без автоматичного копіювання).",
+	"runtime.status.postprocess": "Застосовано дедуплікацію/сортування.",
+
+	"runtime.info.multiline-detected": "Виявлено багаторядкові рядки. Розриви рядків можуть відображатися по-різному в різних форматах.",
+	"runtime.info.csv-no-clipboard": "Результати CSV не копіюються автоматично під час потокової передачі або вилучення всіх стовпців.",
+	"runtime.info.postprocess-semantics": "Операції сортування та дедуплікації застосовуються до вилучених рядків.",
+
+	"runtime.warn.multiline-instability": "Багаторядкові рядки можуть несподівано об'єднуватися або розділятися.",
+
+	"runtime.prompt.multiline-review.title": "Виявлено багаторядкові рядки.",
+	"runtime.prompt.multiline-review.body": "Знайдено {0} багаторядкових рядків. Продовжити вилучення?",
+	"runtime.prompt.large-output.title": "Виявлено великий обсяг вихідних даних.",
+	"runtime.prompt.large-output.body": "Знайдено {0} рядків. Як ви хочете продовжити?",
+	"runtime.note.postprocess-footnote": "Примітка: операції сортування та дедуплікації застосовуються до вилученого списку рядків."
+}

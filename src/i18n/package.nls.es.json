@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "Extraiga cadenas de JSON, YAML, CSV (+ streaming), TOML, INI y .ENV",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "Extraer",
+	"manifest.command.csv.toggle-streaming.title": "Alternar CSV",
+	"manifest.command.dedupe.title": "Eliminar duplicados",
+	"manifest.command.sort.title": "Ordenar",
+	"manifest.command.settings.title": "Configuración",
+	"manifest.command.help.title": "Solución de problemas",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "Copie los resultados al portapapeles automáticamente. Desactivado para CSV.",
+	"manifest.settings.csv.streaming.desc": "Solo CSV. Transmite los resultados de forma incremental. Desactivado por defecto.",
+	"manifest.settings.dedupe.desc": "Elimina las cadenas duplicadas de los resultados.",
+	"manifest.settings.notifications.level.desc": "Elige el nivel de notificación: «Todo», «Importante» o «Silencioso».",
+	"manifest.settings.open.new-file.desc": "Abre los resultados del posprocesamiento en un nuevo editor en lugar de sustituir el archivo.",
+	"manifest.settings.open.side-by-side.desc": "Abre los resultados de la extracción en un nuevo editor al lado en lugar de sustituir el editor actual.",
+	"manifest.settings.safety.enabled.desc": "Activa las comprobaciones de seguridad para archivos grandes, salidas y divisiones de documentos.",
+	"manifest.settings.safety.warn.file-size.desc": "Advertir si el tamaño del archivo supera este umbral.",
+	"manifest.settings.safety.warn.large-output.desc": "Advertir si las líneas de salida superan este umbral.",
+	"manifest.settings.safety.warn.many-documents.desc": "Advertir si los documentos de salida superan este umbral.",
+	"manifest.settings.parse-errors.desc": "Mostrar mensajes de error si falla el análisis.",
+	"manifest.settings.sort.enabled.desc": "Ordenar automáticamente las cadenas extraídas.",
+	"manifest.settings.sort.mode.desc": "Seleccionar el método de ordenación de las cadenas extraídas.",
+	"manifest.settings.statusbar.enabled.desc": "Mostrar un elemento en la barra de estado con mensajes de estado rápidos y ejecución con un solo clic.",
+	"manifest.settings.telemetry.desc": "Habilitar telemetría solo local (sin red). Registros en el canal de salida «String-LE».",
+
+	"manifest.settings.sort.mode.option.off": "Desactivado",
+	"manifest.settings.sort.mode.option.alpha-asc": "Alfabético (A → Z)",
+	"manifest.settings.sort.mode.option.alpha-desc": "Alfabético (Z → A)",
+	"manifest.settings.sort.mode.option.length-asc": "Por longitud (corto → largo)",
+	"manifest.settings.sort.mode.option.length-desc": "Por longitud (largo → corto)",
+
+	"manifest.settings.notifications.level.option.all": "Todos",
+	"manifest.settings.notifications.level.option.important": "Importantes",
+	"manifest.settings.notifications.level.option.silent": "Silenciosos",
+
+	"manifest.capability.untrusted-workspaces.desc": "La extracción se ejecuta localmente y nunca ejecuta herramientas externas.",
+
+	"runtime.message.error.no-editor": "No hay editor activo",
+	"runtime.message.error.open-results": "No se pudieron abrir los resultados",
+	"runtime.message.info.file-empty": "El archivo está vacío.",
+	"runtime.message.info.no-strings": "No se han encontrado cadenas.",
+	"runtime.message.info.copied": "Copiado al portapapeles.",
+	"runtime.message.info.csv-streamed": "CSV transmitido.",
+	"runtime.message.warn.clipboard-failed": "No se ha podido copiar al portapapeles.",
+	"runtime.message.warn.large-file": "Se ha detectado un archivo grande ({0} bytes). La extracción puede tardar más tiempo.",
+
+	"runtime.dialog.large-output.message": "Salida grande ({0} líneas). ¿Continuar?",
+	"runtime.dialog.many-docs.message": "Muchos resultados: abriendo {0} documentos (~{1} líneas en total). ¿Continuar?",
+	"runtime.dialog.action.open": "Abrir resultados.",
+	"runtime.dialog.action.copy": "Solo copiar.",
+	"runtime.dialog.action.cancel": "Cancelar.",
+
+	"runtime.progress.extract.title": "Extrayendo...",
+
+	"runtime.status.tooltip": "Ejecutar String-LE: Extraer",
+	"runtime.status.extracted": "Extraído {0}",
+	"runtime.status.csv-streamed": "CSV transmitido",
+
+	"runtime.csv.columns.all": "Todas las columnas",
+	"runtime.csv.columns.all.desc": "Extraer de todas las columnas",
+	"runtime.csv.column.default": "(Columna {0})",
+	"runtime.csv.column.index": "Índice {0}",
+	"runtime.csv.picker.placeholder": "Seleccionar una columna CSV o todas las columnas",
+	"runtime.csv.input.prompt": "Introducir índices de columna (separados por comas) o dejar vacío para todas las columnas",
+	"runtime.csv.input.validation": "Introducir índices de columna válidos separados por comas o dejar vacío",
+	"runtime.csv.error.out-of-range": "Índice de columna fuera de rango ({0}). Usando todas las columnas en su lugar",
+	"runtime.csv.streaming.enabled": "Transmisión CSV habilitada",
+	"runtime.csv.streaming.disabled": "Transmisión CSV deshabilitada",
+
+	"runtime.picker.filetype.fallback": "Reserva (cadenas entre comillas)",
+	"runtime.picker.filetype.placeholder": "Elija el tipo de archivo para la extracción",
+
+	"runtime.sort.option.alpha-asc": "Alfabético (A → Z)",
+	"runtime.sort.option.alpha-desc": "Alfabético (Z → A)",
+	"runtime.sort.option.length-asc": "Por longitud (corto → largo)",
+	"runtime.sort.option.length-desc": "Por longitud (largo → corto)",
+	"runtime.sort.picker.placeholder": "Elija el modo de ordenación",
+
+	"runtime.codeaction.extract.title": "Extraer cadenas",
+
+	"runtime.help.title": "Solución de problemas",
+
+	"runtime.status.multiline-risk": "Se han detectado cadenas multilínea.",
+	"runtime.status.csv-opened": "Se ha abierto el archivo CSV (sin copia automática).",
+	"runtime.status.postprocess": "Se ha aplicado la deduplicación/ordenación.",
+
+	"runtime.info.multiline-detected": "Se han detectado cadenas multilínea. Los saltos de línea pueden mostrarse de forma diferente en distintos formatos.",
+	"runtime.info.csv-no-clipboard": "Los resultados CSV no se copian automáticamente al transmitir o extraer todas las columnas.",
+	"runtime.info.postprocess-semantics": "Las operaciones de ordenación y deduplicación se aplican a las cadenas extraídas.",
+
+	"runtime.warn.multiline-instability": "Las cadenas multilínea pueden fusionarse o dividirse de forma inesperada.",
+
+	"runtime.prompt.multiline-review.title": "Se han detectado cadenas multilínea.",
+	"runtime.prompt.multiline-review.body": "Se han encontrado {0} cadenas multilínea. ¿Desea continuar con la extracción?",
+	"runtime.prompt.large-output.title": "Se ha detectado una salida grande.",
+	"runtime.prompt.large-output.body": "Se han encontrado {0} cadenas. ¿Cómo desea continuar?",
+	"runtime.note.postprocess-footnote": "Nota: Las operaciones de ordenación y deduplicación se aplican a la lista de cadenas extraídas."
+}

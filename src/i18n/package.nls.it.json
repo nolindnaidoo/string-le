@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "Estrai stringhe da JSON, YAML, CSV (+ streaming), TOML, INI e .ENV",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "Estrai",
+	"manifest.command.csv.toggle-streaming.title": "Attiva/disattiva CSV",
+	"manifest.command.dedupe.title": "Dedup",
+	"manifest.command.sort.title": "Ordina",
+	"manifest.command.settings.title": "Impostazioni",
+	"manifest.command.help.title": "Risoluzione dei problemi",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "Copia automaticamente i risultati negli appunti. Disabilitato per CSV.",
+	"manifest.settings.csv.streaming.desc": "Solo CSV. Trasmetti i risultati in modo incrementale. Disabilitato per impostazione predefinita.",
+	"manifest.settings.dedupe.desc": "Rimuovi le stringhe duplicate dai risultati.",
+	"manifest.settings.notifications.level.desc": "Scegli il livello di notifica: “Tutto”, ‘Importante’ o “Silenzioso”.",
+	"manifest.settings.open.new-file.desc": "Apri i risultati della post-elaborazione in un nuovo editor invece di sostituire il file.",
+	"manifest.settings.open.side-by-side.desc": "Apri i risultati dell'estrazione in un nuovo editor a lato invece di sostituire l'editor corrente.",
+	"manifest.settings.safety.enabled.desc": "Abilita i controlli di sicurezza per file di grandi dimensioni, output e divisioni di documenti.",
+	"manifest.settings.safety.warn.file-size.desc": "Avvisa se la dimensione del file supera questa soglia.",
+	"manifest.settings.safety.warn.large-output.desc": "Avvisa se le righe di output superano questa soglia.",
+	"manifest.settings.safety.warn.many-documents.desc": "Avvisa se i documenti di output superano questa soglia.",
+	"manifest.settings.parse-errors.desc": "Mostra messaggi di errore se l'analisi fallisce.",
+	"manifest.settings.sort.enabled.desc": "Ordina automaticamente le stringhe estratte.",
+	"manifest.settings.sort.mode.desc": "Seleziona il metodo di ordinamento per le stringhe estratte.",
+	"manifest.settings.statusbar.enabled.desc": "Mostra una barra di stato con messaggi di stato rapidi ed esecuzione con un clic.",
+	"manifest.settings.telemetry.desc": "Abilita telemetria solo locale (senza rete). Registra nel canale di output “String-LE”.",
+
+	"manifest.settings.sort.mode.option.off": "Disattivato",
+	"manifest.settings.sort.mode.option.alpha-asc": "Alfabetico (A → Z)",
+	"manifest.settings.sort.mode.option.alpha-desc": "Alfabetico (Z → A)",
+	"manifest.settings.sort.mode.option.length-asc": "Per lunghezza (breve → lungo)",
+	"manifest.settings.sort.mode.option.length-desc": "Per lunghezza (lungo → breve)",
+
+	"manifest.settings.notifications.level.option.all": "Tutto",
+	"manifest.settings.notifications.level.option.important": "Importante",
+	"manifest.settings.notifications.level.option.silent": "Silenzioso",
+
+	"manifest.capability.untrusted-workspaces.desc": "L'estrazione viene eseguita localmente e non esegue mai strumenti esterni.",
+
+	"runtime.message.error.no-editor": "Nessun editor attivo",
+	"runtime.message.error.open-results": "Impossibile aprire i risultati",
+	"runtime.message.info.file-empty": "Il file è vuoto",
+	"runtime.message.info.no-strings": "Nessuna stringa trovata",
+	"runtime.message.info.copied": "Copiato negli appunti",
+	"runtime.message.info.csv-streamed": "CSV in streaming",
+	"runtime.message.warn.clipboard-failed": "Impossibile copiare negli appunti",
+	"runtime.message.warn.large-file": "Rilevato file di grandi dimensioni ({0} byte). L'estrazione potrebbe richiedere più tempo.",
+
+	"runtime.dialog.large-output.message": "Output di grandi dimensioni ({0} righe). Procedere?",
+	"runtime.dialog.many-docs.message": "Molti risultati: apertura di {0} documenti (~{1} righe totali). Procedere?",
+	"runtime.dialog.action.open": "Apri risultati",
+	"runtime.dialog.action.copy": "Copia solo",
+	"runtime.dialog.action.cancel": "Annulla",
+
+	"runtime.progress.extract.title": "Estrazione in corso...",
+
+	"runtime.status.tooltip": "Esegui String-LE: Estrai",
+	"runtime.status.extracted": "Estratto {0}",
+	"runtime.status.csv-streamed": "CSV in streaming",
+
+	"runtime.csv.columns.all": "Tutte le colonne",
+	"runtime.csv.columns.all.desc": "Estrai da tutte le colonne",
+	"runtime.csv.column.default": "(Colonna {0})",
+	"runtime.csv.column.index": "Indice {0}",
+	"runtime.csv.picker.placeholder": "Seleziona una colonna CSV o tutte le colonne",
+	"runtime.csv.input.prompt": "Inserisci gli indici delle colonne (separati da virgola) o lascia vuoto per tutte le colonne",
+	"runtime.csv.input.validation": "Inserisci indici di colonna validi separati da virgola o lascia vuoto",
+	"runtime.csv.error.out-of-range": "Indice colonna fuori intervallo ({0}). Utilizzo di tutte le colonne al posto",
+	"runtime.csv.streaming.enabled": "Streaming CSV abilitato",
+	"runtime.csv.streaming.disabled": "Streaming CSV disabilitato",
+
+	"runtime.picker.filetype.fallback": "Fallback (stringhe tra virgolette)",
+	"runtime.picker.filetype.placeholder": "Scegliere il tipo di file per l'estrazione",
+
+	"runtime.sort.option.alpha-asc": "Alfabetico (A → Z)",
+	"runtime.sort.option.alpha-desc": "Alfabetico (Z → A)",
+	"runtime.sort.option.length-asc": "Per lunghezza (breve → lungo)",
+	"runtime.sort.option.length-desc": "Per lunghezza (lungo → breve)",
+	"runtime.sort.picker.placeholder": "Scegliere la modalità di ordinamento",
+
+	"runtime.codeaction.extract.title": "Estrai stringhe",
+
+	"runtime.help.title": "Risoluzione dei problemi",
+
+	"runtime.status.multiline-risk": "Stringhe multilinea rilevate.",
+	"runtime.status.csv-opened": "CSV aperto (nessuna copia automatica).",
+	"runtime.status.postprocess": "Deduplicazione/ordinamento applicati.",
+
+	"runtime.info.multiline-detected": "Stringhe multilinea rilevate. Le interruzioni di riga potrebbero essere visualizzate in modo diverso a seconda del formato.",
+	"runtime.info.csv-no-clipboard": "I risultati CSV non vengono copiati automaticamente durante lo streaming o l'estrazione di tutte le colonne.",
+	"runtime.info.postprocess-semantics": "Le operazioni di ordinamento e deduplicazione si applicano alle stringhe estratte.",
+
+	"runtime.warn.multiline-instability": "Le stringhe multilinea potrebbero essere unite o divise in modo imprevisto.",
+
+	"runtime.prompt.multiline-review.title": "Stringhe multilinea rilevate.",
+	"runtime.prompt.multiline-review.body": "Trovate {0} stringhe multilinea. Continuare l'estrazione?",
+	"runtime.prompt.large-output.title": "Rilevato output di grandi dimensioni.",
+	"runtime.prompt.large-output.body": "Trovate {0} stringhe. Come desideri procedere?",
+	"runtime.note.postprocess-footnote": "Nota: le operazioni di ordinamento e deduplicazione si applicano all'elenco delle stringhe estratte."
+}

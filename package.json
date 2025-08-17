@@ -1,0 +1,284 @@
+{
+  "name": "string-le",
+  "publisher": "nolindnaidoo",
+  "displayName": "String-LE",
+  "description": "Zero Hassle Extraction from JSON, YAML, CSV, TOML, INI, and .ENV",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": {
+    "name": "Nolin D Naidoo",
+    "url": "https://github.com/nolindnaidoo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nolindnaidoo/string-le.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nolindnaidoo/string-le/issues"
+  },
+  "homepage": "https://github.com/nolindnaidoo/string-le#readme",
+  "engines": {
+    "vscode": "^1.70.0",
+    "node": ">=18.0.0"
+  },
+  "categories": [
+    "Other",
+    "Data Science",
+    "Formatters"
+  ],
+  "keywords": [
+    "vscode-extension",
+    "string extraction",
+    "localization",
+    "i18n",
+    "json",
+    "yaml",
+    "csv",
+    "toml",
+    "ini",
+    "env",
+    "data extraction"
+  ],
+  "icon": "src/assets/images/icon.png",
+  "main": "./dist/extension.js",
+  "l10n": "./package.nls.json",
+  "activationEvents": [
+    "onLanguage:json",
+    "onLanguage:yaml",
+    "onLanguage:yml",
+    "onLanguage:csv",
+    "onLanguage:toml",
+    "onLanguage:ini",
+    "onCommand:string-le.extractStrings",
+    "onCommand:string-le.postProcess.dedupe",
+    "onCommand:string-le.postProcess.sort",
+    "onCommand:string-le.csv.toggleStreaming",
+    "onCommand:string-le.openSettings",
+    "onCommand:string-le.help"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "%manifest.capability.untrusted-workspaces.desc%"
+    },
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "%manifest.capability.untrusted-workspaces.desc%"
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "string-le.extractStrings",
+        "title": "%manifest.command.extract.title%",
+        "category": "%manifest.command.category%"
+      },
+      {
+        "command": "string-le.postProcess.dedupe",
+        "title": "%manifest.command.dedupe.title%",
+        "category": "%manifest.command.category%"
+      },
+      {
+        "command": "string-le.postProcess.sort",
+        "title": "%manifest.command.sort.title%",
+        "category": "%manifest.command.category%"
+      },
+      {
+        "command": "string-le.csv.toggleStreaming",
+        "title": "%manifest.command.csv.toggle-streaming.title%",
+        "category": "%manifest.command.category%"
+      },
+      {
+        "command": "string-le.openSettings",
+        "title": "%manifest.command.settings.title%",
+        "category": "%manifest.command.category%"
+      },
+      {
+        "command": "string-le.help",
+        "title": "%manifest.command.help.title%",
+        "category": "%manifest.command.category%"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "string-le.extractStrings",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "string-le.extractStrings",
+          "when": "resourceExtname in .json || resourceExtname in .yaml || resourceExtname in .yml || resourceExtname in .csv || resourceExtname in .toml || resourceExtname in .ini || resourceExtname in .env",
+          "group": "1_modification@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "string-le.extractStrings"
+        },
+        {
+          "command": "string-le.postProcess.dedupe"
+        },
+        {
+          "command": "string-le.postProcess.sort"
+        },
+        {
+          "command": "string-le.csv.toggleStreaming"
+        },
+        {
+          "command": "string-le.openSettings"
+        },
+        {
+          "command": "string-le.help"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "%manifest.settings.title%",
+      "properties": {
+        "string-le.copyToClipboardEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.copy.clipboard.desc%"
+        },
+        "string-le.csv.streamingEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.csv.streaming.desc%"
+        },
+        "string-le.dedupeEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.dedupe.desc%"
+        },
+        "string-le.notificationsLevel": {
+          "type": "string",
+          "default": "all",
+          "enum": [
+            "all",
+            "important",
+            "silent"
+          ],
+          "enumDescriptions": [
+            "%manifest.settings.notifications.level.option.all%",
+            "%manifest.settings.notifications.level.option.important%",
+            "%manifest.settings.notifications.level.option.silent%"
+          ],
+          "description": "%manifest.settings.notifications.level.desc%"
+        },
+        "string-le.postProcess.openInNewFile": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.open.new-file.desc%"
+        },
+        "string-le.openResultsSideBySide": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.open.side-by-side.desc%"
+        },
+        "string-le.safety.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%manifest.settings.safety.enabled.desc%"
+        },
+        "string-le.safety.fileSizeWarnBytes": {
+          "type": "number",
+          "default": 1000000,
+          "minimum": 1000,
+          "description": "%manifest.settings.safety.warn.file-size.desc%"
+        },
+        "string-le.safety.largeOutputLinesThreshold": {
+          "type": "number",
+          "default": 50000,
+          "minimum": 100,
+          "description": "%manifest.settings.safety.warn.large-output.desc%"
+        },
+        "string-le.safety.manyDocumentsThreshold": {
+          "type": "number",
+          "default": 8,
+          "minimum": 1,
+          "description": "%manifest.settings.safety.warn.many-documents.desc%"
+        },
+        "string-le.showParseErrors": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.parse-errors.desc%"
+        },
+        "string-le.sortEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.sort.enabled.desc%"
+        },
+        "string-le.sortMode": {
+          "type": "string",
+          "default": "off",
+          "enum": [
+            "off",
+            "alpha-asc",
+            "alpha-desc",
+            "length-asc",
+            "length-desc"
+          ],
+          "enumDescriptions": [
+            "%manifest.settings.sort.mode.option.off%",
+            "%manifest.settings.sort.mode.option.alpha-asc%",
+            "%manifest.settings.sort.mode.option.alpha-desc%",
+            "%manifest.settings.sort.mode.option.length-asc%",
+            "%manifest.settings.sort.mode.option.length-desc%"
+          ],
+          "description": "%manifest.settings.sort.mode.desc%"
+        },
+        "string-le.statusBar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%manifest.settings.statusbar.enabled.desc%"
+        },
+        "string-le.telemetryEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%manifest.settings.telemetry.desc%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "prebuild": "npm run clean && npm run lint && npm run test:coverage",
+    "build": "tsc -p ./",
+    "clean": "rm -rf dist coverage release/*.vsix",
+    "clean:i18n": "rm -rf package.nls.*.json vsix/",
+    "copy:i18n": "cp src/i18n/package.nls.*.json .",
+    "watch": "tsc -watch -p ./",
+    "test": "node --import tsx --test $(find src -name '*.test.ts' | sort)",
+    "test:coverage": "npm run clean && c8 --reporter=text --reporter=html npm test",
+    "test:performance": "node --import tsx --test src/extraction/performance.test.ts",
+    "performance:report": "npm run test:performance 2>&1 | tee performance-report.txt",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "vscode:prepublish": "npm run build && npm run copy:i18n",
+    "package": "npm run clean:i18n && mkdir -p release && npx vsce package --out release/${npm_package_name}-${npm_package_version}.vsix && npm run clean:i18n",
+    "package:ls": "vsce ls release/${npm_package_name}-${npm_package_version}.vsix --tree | cat",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@iarna/toml": "^2.2.5",
+    "@types/ini": "^4.1.1",
+    "@types/node": "^24.3.0",
+    "@types/vscode": "^1.70.0",
+    "@vscode/vsce": "^3.6.0",
+    "c8": "^10.1.2",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "csv-parse": "^6.1.0",
+    "ini": "^5.0.0",
+    "js-yaml": "^4.1.0",
+    "@iarna/toml": "^2.2.5",
+    "vscode-nls": "^5.2.0"
+  }
+}

@@ -1,0 +1,5 @@
+{
+	"greeting": "Hello",
+	"nested": { "farewell": "Goodbye" },
+	"list": ["One", "Two", 3]
+}

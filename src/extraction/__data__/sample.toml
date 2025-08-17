@@ -1,0 +1,87 @@
+# TOML Configuration Demo - Comprehensive Test
+title = "Enterprise Application Config"
+description = "Production configuration with all TOML data types"
+version = "2.1.3"
+
+# Numeric values (should be ignored by string extractor)
+port = 8080
+timeout = 30.5
+max_connections = 1000
+pi = 3.14159
+large_number = 1000000
+negative_number = -42
+
+# Boolean values (should be ignored)
+debug_mode = true
+ssl_enabled = false
+maintenance = false
+
+# String values (should be extracted)
+app_name = "My Production Application"
+environment = "production" 
+log_level = "info"
+error_message = "Something went wrong during processing"
+quoted_with_spaces = " padded content "
+unicode_text = "Hello 世界! 🌍"
+special_chars = "Contains: quotes=\"value\" & other stuff"
+empty_string = ""
+
+# Date strings (extracted as strings when quoted)
+start_time = "08:30:00"
+created_date = "2024-08-17T10:30:00Z"
+
+# Arrays of different types
+string_array = ["admin", "user", "editor", "guest"]
+number_array = [1, 2, 3, 5, 8, 13]
+boolean_array = [true, false, true]
+mixed_strings = ["text", "more text", "even more"]
+
+# Database configuration
+[database]
+host = "db-cluster.example.com"
+port = 5432
+name = "production_database"
+username = "app_user"
+password = "super!@#$%secret"
+ssl_required = true
+connection_string = "postgresql://user:pass@localhost:5432/myapp"
+
+# API configuration
+[api]
+base_url = "https://api.example.com/v2"
+version = "v2.1"
+timeout = 5000
+
+[api.auth]
+type = "oauth2"
+client_id = "oauth_12345"
+client_secret = "oauth_secret_abcdef"
+token_url = "https://auth.example.com/token"
+
+[api.endpoints]
+users = "/users"
+orders = "/orders/{id}"
+payments = "/payments"
+
+# Deep nesting demonstration
+[deep.level1.level2.level3]
+deeply_nested_string = "Found at maximum depth"
+config_value = "Deep configuration setting"
+secret_key = "very!@#secret$%^key&*("
+
+# Edge cases that demonstrate robustness
+[edge_cases]
+colon_in_value = "Contains: colons and semicolons;"
+dash_in_value = "Contains - dashes - everywhere"  
+bracket_in_value = "Contains [brackets] and {braces}"
+special_symbols = "Special: !@#$%^&*()_+-=[]{}|;:,.<>?"
+email = "admin@example.com"
+url = "https://example.com/path?param=value"
+json_like = '{"key": "value", "number": 42}'
+sql_query = "SELECT * FROM users WHERE active = true"
+
+# Numeric strings (should be extracted because they're quoted)
+string_number = "12345"
+string_float = "3.14159"
+string_boolean = "true"
+string_null = "null"

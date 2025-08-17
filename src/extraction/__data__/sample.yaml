@@ -1,0 +1,195 @@
+# YAML Configuration Demo - Comprehensive Test
+# This demonstrates all YAML features and edge cases without multiline complexity
+
+# Application metadata
+app:
+  name: &app_name "Enterprise Application"
+  version: "2.1.3"
+  description: "Production configuration with all YAML data types"
+  environment: "production"
+
+# Numeric values (should be ignored by string extractor)
+config:
+  port: 8080
+  timeout: 30.5
+  max_connections: 1000
+  pi: 3.14159
+  large_number: 1000000
+  negative: -42
+  
+# Boolean values (should be ignored)
+flags:
+  debug_mode: true
+  ssl_enabled: false
+  maintenance: false
+  beta_features: true
+  yes_value: yes
+  no_value: no
+  on_value: on
+  off_value: off
+
+# Null and empty values
+nulls_and_empties:
+  null_explicit: null
+  null_tilde: ~
+  null_implicit:
+  empty_string: ""
+  quoted_empty: ''
+  spaces_only: "   "
+
+# String values with various quote styles
+strings:
+  basic: "Basic quoted string"
+  single_quoted: 'Single quoted string'
+  unquoted: This is an unquoted string
+  with_escapes: "Contains \"quotes\" and \\backslashes\\"
+  unicode: "Hello 世界! Здравствуй мир! 🌍"
+  special_chars: "Special: !@#$%^&*()_+-=[]{}|;:,.<>?"
+  json_like: '{"key": "value", "number": 42}'
+  url: "https://api.example.com/v2/users"
+  email: "admin@example.com"
+  multiword: Multiple words without quotes
+  padded: " content with padding "
+
+# String representations of other types (should be extracted)
+string_representations:
+  string_number: "12345"
+  string_float: "3.14159"
+  string_boolean: "true"
+  string_false: "false"
+  string_null: "null"
+  string_date: "2024-01-15"
+  string_zero: "0"
+  quoted_number: "42"
+
+# Arrays and sequences
+arrays:
+  simple_strings: ["admin", "user", "editor", "guest"]
+  numbers: [1, 2, 3, 5, 8, 13, 21]
+  booleans: [true, false, true, false]
+  mixed_strings: ["text", "more text", "even more"]
+  flow_style: [one, two, three]
+  
+# Block sequences
+block_sequence:
+  - First item
+  - Second item with "quotes"
+  - Third item with colon
+  - Fourth item
+  - name: Item with mapping
+    value: "Some value"
+
+# Anchors and references
+base_config: &base
+  host: "localhost"
+  port: 5432
+  ssl: true
+  
+database:
+  primary:
+    <<: *base
+    name: "production_database"
+    username: "app_user"
+    password: "super!@#secret"
+    
+  replica:
+    <<: *base
+    name: "replica_database"
+    username: "readonly_user"
+    password: "replica_secret"
+    port: 5433
+
+# Merge keys with overrides
+common_settings: &common
+  environment: *app_name
+  debug: false
+  version: "2.1.3"
+
+environments:
+  production:
+    <<: *common
+    log_level: "warning"
+    monitoring: "https://monitoring.example.com"
+    
+  staging:
+    <<: *common
+    log_level: "info"
+    test_mode: true
+    
+  development:
+    <<: *common
+    debug: true
+    log_level: "debug"
+
+# Complex nested structures
+api:
+  base_url: "https://api.example.com"
+  version: "v2.1"
+  auth:
+    type: "oauth2"
+    client_id: "oauth_12345"
+    client_secret: "oauth_secret_abcdef"
+    scopes: ["read", "write", "admin"]
+  endpoints:
+    users: "/users"
+    orders: "/orders/{id}"
+    payments: "/payments"
+  timeouts:
+    connect: 5000
+    read: 30000
+    total: 60000
+
+# Edge cases and problematic content
+edge_cases:
+  colon_in_value: "Contains: colons and semicolons;"
+  dash_in_value: "Contains - dashes - everywhere"  
+  bracket_in_value: "Contains [brackets] and {braces}"
+  pipe_in_value: "Contains | pipes | for separation"
+  ampersand_in_value: "Contains & ampersands & references"
+  percent_in_value: "Contains % percent % signs"
+  at_symbol: "@username and @mentions"
+  hash_symbol: "#hashtags and #comments"
+  
+# Complex real-world examples
+user_permissions:
+  admin: &admin_perms
+    - "users:read"
+    - "users:write"
+    - "users:delete"
+    - "orders:*"
+    - "system:admin"
+    
+  editor:
+    - "users:read"
+    - "users:write"
+    - "orders:read"
+    - "orders:write"
+    
+  viewer:
+    - "users:read"
+    - "orders:read"
+
+# Microservices configuration
+microservices:
+  auth:
+    image: "auth-service:v2.1.3"
+    replicas: 3
+    config:
+      jwt_secret: "jwt_super_secret_key_12345"
+      token_expiry: "24h"
+      refresh_expiry: "7d"
+      
+  api_gateway:
+    image: "api-gateway:v1.5.2"
+    replicas: 2
+    config:
+      rate_limit: "1000/hour"
+      cors_origins: ["https://app.example.com", "https://admin.example.com"]
+      
+  notification:
+    image: "notification-service:v1.2.1"
+    replicas: 1
+    config:
+      smtp_host: "smtp.example.com"
+      smtp_user: "notifications@example.com"
+      webhook_url: "https://hooks.example.com/notify"

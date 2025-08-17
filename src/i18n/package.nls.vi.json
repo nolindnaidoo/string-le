@@ -1,0 +1,102 @@
+{
+	"manifest.ext.name": "String-LE",
+	"manifest.ext.desc": "Trích xuất chuỗi từ JSON, YAML, CSV (+ streaming), TOML, INI và .ENV",
+
+	"manifest.command.category": "String-LE",
+	"manifest.command.extract.title": "Trích xuất",
+	"manifest.command.csv.toggle-streaming.title": "Bật/tắt CSV",
+	"manifest.command.dedupe.title": "Loại bỏ trùng lặp",
+	"manifest.command.sort.title": "Sắp xếp",
+	"manifest.command.settings.title": "Cài đặt",
+	"manifest.command.help.title": "Khắc phục sự cố",
+
+	"manifest.settings.title": "String-LE",
+	"manifest.settings.copy.clipboard.desc": "Sao chép kết quả vào khay nhớ tạm tự động. Tính năng này bị vô hiệu hóa cho CSV.",
+	"manifest.settings.csv.streaming.desc": "Chỉ CSV. Truyền kết quả theo từng phần. Tắt theo mặc định.",
+	"manifest.settings.dedupe.desc": "Loại bỏ các chuỗi trùng lặp khỏi kết quả.",
+	"manifest.settings.notifications.level.desc": "Chọn mức thông báo: 'Tất cả', 'Quan trọng' hoặc 'Im lặng'.",
+	"manifest.settings.open.new-file.desc": "Mở kết quả xử lý sau trong trình soạn thảo mới thay vì ghi đè tệp.",
+	"manifest.settings.open.side-by-side.desc": "Mở kết quả trích xuất trong trình soạn thảo mới bên cạnh thay vì ghi đè trình soạn thảo hiện tại.",
+	"manifest.settings.safety.enabled.desc": "Bật kiểm tra an toàn cho tệp lớn, đầu ra và chia tách tài liệu.",
+	"manifest.settings.safety.warn.file-size.desc": "Cảnh báo nếu kích thước tệp vượt quá ngưỡng này.",
+	"manifest.settings.safety.warn.large-output.desc": "Cảnh báo nếu số dòng đầu ra vượt quá ngưỡng này.",
+	"manifest.settings.safety.warn.many-documents.desc": "Cảnh báo nếu số tài liệu đầu ra vượt quá ngưỡng này.",
+	"manifest.settings.parse-errors.desc": "Hiển thị thông báo lỗi nếu quá trình phân tích thất bại.",
+	"manifest.settings.sort.enabled.desc": "Tự động sắp xếp các chuỗi đã trích xuất.",
+	"manifest.settings.sort.mode.desc": "Chọn phương pháp sắp xếp cho các chuỗi đã trích xuất.",
+	"manifest.settings.statusbar.enabled.desc": "Hiển thị mục thanh trạng thái với thông báo trạng thái nhanh và chạy bằng một cú nhấp chuột.",
+	"manifest.settings.telemetry.desc": "Bật telemetry chỉ cục bộ (không kết nối mạng). Ghi nhật ký vào kênh đầu ra 'String-LE'.",
+
+	"manifest.settings.sort.mode.option.off": "Tắt",
+	"manifest.settings.sort.mode.option.alpha-asc": "Theo thứ tự alphabet (A → Z)",
+	"manifest.settings.sort.mode.option.alpha-desc": "Theo thứ tự alphabet (Z → A)",
+	"manifest.settings.sort.mode.option.length-asc": "Theo độ dài (Ngắn → Dài)",
+	"manifest.settings.sort.mode.option.length-desc": "Theo độ dài (Dài → Ngắn)",
+
+	"manifest.settings.notifications.level.option.all": "Tất cả",
+	"manifest.settings.notifications.level.option.important": "Quan trọng",
+	"manifest.settings.notifications.level.option.silent": "Im lặng",
+
+	"manifest.capability.untrusted-workspaces.desc": "Quá trình trích xuất diễn ra cục bộ và không bao giờ thực thi công cụ bên ngoài.",
+
+	"runtime.message.error.no-editor": "Không có trình chỉnh sửa hoạt động",
+	"runtime.message.error.open-results": "Không thể mở kết quả",
+	"runtime.message.info.file-empty": "Tệp trống",
+	"runtime.message.info.no-strings": "Không tìm thấy chuỗi",
+	"runtime.message.info.copied": "Đã sao chép vào khay nhớ tạm",
+	"runtime.message.info.csv-streamed": "Dòng CSV",
+	"runtime.message.warn.clipboard-failed": "Không thể sao chép vào khay nhớ tạm",
+	"runtime.message.warn.large-file": "Phát hiện tệp lớn ({0} byte). Quá trình trích xuất có thể mất nhiều thời gian hơn.",
+
+	"runtime.dialog.large-output.message": "Kết quả đầu ra lớn ({0} dòng). Tiếp tục?",
+	"runtime.dialog.many-docs.message": "Nhiều kết quả — mở {0} tài liệu (~{1} dòng tổng cộng). Tiếp tục?",
+	"runtime.dialog.action.open": "Mở kết quả",
+	"runtime.dialog.action.copy": "Sao chép chỉ",
+	"runtime.dialog.action.cancel": "Hủy",
+
+	"runtime.progress.extract.title": "Đang trích xuất...",
+
+	"runtime.status.tooltip": "Chạy String-LE: Trích xuất",
+	"runtime.status.extracted": "Đã trích xuất {0}",
+	"runtime.status.csv-streamed": "Dòng CSV",
+
+	"runtime.csv.columns.all": "Tất cả cột",
+	"runtime.csv.columns.all.desc": "Trích xuất từ tất cả cột",
+	"runtime.csv.column.default": "(Cột {0})",
+	"runtime.csv.column.index": "Chỉ mục {0}",
+	"runtime.csv.picker.placeholder": "Chọn cột CSV hoặc tất cả cột",
+	"runtime.csv.input.prompt": "Nhập chỉ mục cột (cách nhau bằng dấu phẩy), hoặc để trống để chọn tất cả cột",
+	"runtime.csv.input.validation": "Nhập chỉ mục cột hợp lệ cách nhau bằng dấu phẩy, hoặc để trống",
+	"runtime.csv.error.out-of-range": "Chỉ số cột ngoài phạm vi ({0}). Sử dụng tất cả các cột thay thế",
+	"runtime.csv.streaming.enabled": "Dòng CSV được bật",
+	"runtime.csv.streaming.disabled": "Dòng CSV bị tắt",
+
+	"runtime.picker.filetype.fallback": "Chế độ dự phòng (chuỗi được trích dẫn)",
+	"runtime.picker.filetype.placeholder": "Chọn loại tệp để trích xuất",
+
+	"runtime.sort.option.alpha-asc": "Theo thứ tự alphabet (A → Z)",
+	"runtime.sort.option.alpha-desc": "Theo thứ tự alphabet (Z → A)",
+	"runtime.sort.option.length-asc": "Theo độ dài (ngắn → dài)",
+	"runtime.sort.option.length-desc": "Theo độ dài (dài → ngắn)",
+	"runtime.sort.picker.placeholder": "Chọn chế độ sắp xếp",
+
+	"runtime.codeaction.extract.title": "Trích xuất chuỗi",
+
+	"runtime.help.title": "Khắc phục sự cố",
+
+	"runtime.status.multiline-risk": "Đã phát hiện chuỗi nhiều dòng",
+	"runtime.status.csv-opened": "Tệp CSV đã được mở (không tự động sao chép)",
+	"runtime.status.postprocess": "Đã áp dụng loại bỏ trùng lặp và sắp xếp",
+
+	"runtime.info.multiline-detected": "Đã phát hiện chuỗi nhiều dòng. Dấu ngắt dòng có thể hiển thị khác nhau tùy theo định dạng.",
+	"runtime.info.csv-no-clipboard": "Kết quả CSV không được tự động sao chép khi truyền dữ liệu hoặc trích xuất tất cả cột.",
+	"runtime.info.postprocess-semantics": "Các thao tác sắp xếp và loại bỏ trùng lặp áp dụng cho các chuỗi đã trích xuất",
+
+	"runtime.warn.multiline-instability": "Chuỗi nhiều dòng có thể được hợp nhất hoặc tách ra một cách bất ngờ.",
+
+	"runtime.prompt.multiline-review.title": "Dòng văn bản nhiều dòng được phát hiện",
+	"runtime.prompt.multiline-review.body": "Phát hiện {0} dòng văn bản nhiều dòng. Tiếp tục trích xuất?",
+	"runtime.prompt.large-output.title": "Phát hiện đầu ra lớn",
+	"runtime.prompt.large-output.body": "Phát hiện {0} dòng văn bản. Bạn muốn tiếp tục như thế nào?",
+	"runtime.note.postprocess-footnote": "Lưu ý: Các thao tác sắp xếp và loại trùng lặp áp dụng cho danh sách dòng văn bản đã trích xuất."
+}
