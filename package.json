@@ -3,7 +3,7 @@
   "publisher": "nolindnaidoo",
   "displayName": "String-LE",
   "description": "Zero Hassle Extraction from JSON, YAML, CSV, TOML, INI, and .ENV",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "author": {
     "name": "Nolin D Naidoo",
@@ -245,7 +245,6 @@
     }
   },
   "scripts": {
-    "prebuild": "npm run clean && npm run lint && npm run test:coverage",
     "build": "tsc -p ./",
     "clean": "rm -rf dist coverage release/*.vsix",
     "clean:i18n": "rm -rf package.nls.*.json vsix/",
