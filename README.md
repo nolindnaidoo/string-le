@@ -1,22 +1,31 @@
 <p align="center">
-  <img src="https://github.com/nolindnaidoo/string-le/blob/main/src/assets/images/icon.png" alt="String-LE Logo" width="96" height="96"/>
+  <img src="src/assets/images/icon.png" alt="String-LE Logo" width="96" height="96"/>
 </p>
 <h1 align="center">String-LE: Zero Hassle Extraction</h1>
 <p align="center">
-  <b>Instantly extract every user-visible string</b><br/>
+  <b>Instantly extract every user-visible string in VSCode</b><br/>
   <i>JSON YAML CSV TOML INI ENV</i>
 </p>
 
 <p align="center">
+  <!-- Marketplace -->
+  <a href="https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le">
+    <img src="https://img.shields.io/visual-studio-marketplace/v/nolindnaidoo.string-le" alt="VSCode Marketplace Version" />
+  </a>
+  <!-- Build -->
+  <a href="https://github.com/nolindnaidoo/string-le/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/nolindnaidoo/string-le/ci.yml?branch=main" alt="Build Status" />
+  </a>
+  <!-- License -->
   <a href="https://github.com/nolindnaidoo/string-le/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/nolindnaidoo/string-le?label=License" alt="License" />
+    <img src="https://img.shields.io/github/license/nolindnaidoo/string-le" alt="MIT License" />
   </a>
 </p>
 
 ---
 
 <p>
-  <img src="https://github.com/nolindnaidoo/string-le/blob/main/src/assets/images/csv-streaming.gif" alt="CSV Streaming (Editor) animation" style="max-width: 100%; height: auto;" />
+  <img src="src/assets/images/preview.gif" alt="CSV Streaming (Editor) animation" style="max-width: 100%; height: auto;" />
 </p>
 
 <p align="right">
@@ -61,7 +70,7 @@ See `PERFORMANCE.md` for detailed benchmarks and optimization guidelines.
 
 See `TESTING.md`
 
-![Test Coverage Report](https://github.com/nolindnaidoo/string-le/blob/main/src/assets/images/coverage-report-text.png)
+![Test Coverage Report](src/assets/images/coverage-report-text.png)
 
 <details>
   <summary><strong>👉 Expand Detailed Documentation</strong></summary>

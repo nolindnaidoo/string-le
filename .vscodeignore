@@ -4,6 +4,8 @@ src/**/*
 # Assets (exclude all except required icon)
 src/assets/**/*
 !src/assets/images/icon.png
+!src/assets/images/preview.gif
+!src/assets/images/coverage-report-text.png
 
 # TypeScript config
 tsconfig.json
