@@ -3,7 +3,7 @@
   "publisher": "nolindnaidoo",
   "displayName": "String-LE",
   "description": "Zero Hassle Extraction from JSON, YAML, CSV, TOML, INI, and .ENV",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "author": {
     "name": "Nolin D Naidoo",
@@ -23,21 +23,25 @@
   },
   "categories": [
     "Other",
-    "Data Science",
-    "Formatters"
+    "Programming Languages",
+    "Linters"
   ],
   "keywords": [
-    "vscode-extension",
-    "string extraction",
+    "string",
+    "strings",
+    "extract",
+    "extraction",
     "localization",
+    "translation",
     "i18n",
+    "intl",
+    "locales",
     "json",
     "yaml",
     "csv",
     "toml",
     "ini",
-    "env",
-    "data extraction"
+    "env"
   ],
   "icon": "src/assets/images/icon.png",
   "main": "./dist/extension.js",
