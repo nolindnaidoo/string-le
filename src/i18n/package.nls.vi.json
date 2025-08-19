@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "Phát hiện {0} dòng văn bản nhiều dòng. Tiếp tục trích xuất?",
 	"runtime.prompt.large-output.title": "Phát hiện đầu ra lớn",
 	"runtime.prompt.large-output.body": "Phát hiện {0} dòng văn bản. Bạn muốn tiếp tục như thế nào?",
-	"runtime.note.postprocess-footnote": "Lưu ý: Các thao tác sắp xếp và loại trùng lặp áp dụng cho danh sách dòng văn bản đã trích xuất."
+	"runtime.note.postprocess-footnote": "Lưu ý: Các thao tác sắp xếp và loại trùng lặp áp dụng cho danh sách dòng văn bản đã trích xuất.",
+
+	"manifest.command.trim.title": "Loại bỏ khoảng trắng thừa",
+	"manifest.settings.trim.mode.desc": "Chọn chế độ loại bỏ khoảng trắng",
+	"manifest.settings.trim.mode.option.both": "Khoảng trắng đầu và cuối",
+	"manifest.settings.trim.mode.option.leading": "Chỉ khoảng trắng đầu",
+	"manifest.settings.trim.mode.option.trailing": "Chỉ khoảng trắng cuối"
 }

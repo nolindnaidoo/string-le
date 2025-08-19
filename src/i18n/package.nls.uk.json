@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "Знайдено {0} багаторядкових рядків. Продовжити вилучення?",
 	"runtime.prompt.large-output.title": "Виявлено великий обсяг вихідних даних.",
 	"runtime.prompt.large-output.body": "Знайдено {0} рядків. Як ви хочете продовжити?",
-	"runtime.note.postprocess-footnote": "Примітка: операції сортування та дедуплікації застосовуються до вилученого списку рядків."
+	"runtime.note.postprocess-footnote": "Примітка: операції сортування та дедуплікації застосовуються до вилученого списку рядків.",
+
+	"manifest.command.trim.title": "Обрізати пробіли",
+	"manifest.settings.trim.mode.desc": "Виберіть спосіб обрізання",
+	"manifest.settings.trim.mode.option.both": "Початок і кінець",
+	"manifest.settings.trim.mode.option.leading": "Тільки початок",
+	"manifest.settings.trim.mode.option.trailing": "Тільки кінець"
 }

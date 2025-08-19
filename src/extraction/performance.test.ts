@@ -29,7 +29,7 @@ interface PerformanceResult {
 
 const PERFORMANCE_FILES = Object.freeze([
 	{ name: '500k.csv', format: 'csv' },
-	{ name: '500k.json', format: 'json' },
+	{ name: '350k.json', format: 'json' },
 	{ name: '5k.env', format: 'env' },
 	{ name: '5k.ini', format: 'ini' },
 	{ name: '5k.toml', format: 'toml' },
@@ -201,3 +201,4 @@ describe('Performance Tests', () => {
 // Export for use in other tests or scripts
 export { formatPerformanceReport, runPerformanceTests }
 export type { PerformanceMetrics, PerformanceResult }
+

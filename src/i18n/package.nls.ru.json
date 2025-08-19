@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "Обнаружено {0} многострочных строк. Продолжить извлечение?",
 	"runtime.prompt.large-output.title": "Обнаружен большой объем вывода.",
 	"runtime.prompt.large-output.body": "Обнаружено {0} строк. Как вы хотите продолжить?",
-	"runtime.note.postprocess-footnote": "Примечание. Операции сортировки и дедупликации применяются к извлеченному списку строк."
+	"runtime.note.postprocess-footnote": "Примечание. Операции сортировки и дедупликации применяются к извлеченному списку строк.",
+
+	"manifest.command.trim.title": "Обрезать пробелы",
+	"manifest.settings.trim.mode.desc": "Выбрать тип обрезки",
+	"manifest.settings.trim.mode.option.both": "Начало и конец",
+	"manifest.settings.trim.mode.option.leading": "Только начало",
+	"manifest.settings.trim.mode.option.trailing": "Только конец"
 }

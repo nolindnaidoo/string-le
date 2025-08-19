@@ -1,7 +1,6 @@
 {
 	"manifest.ext.name": "String-LE",
 	"manifest.ext.desc": "Extract strings from JSON, YAML, CSV (+ streaming), TOML, INI, and .ENV",
-
 	"manifest.command.category": "String-LE",
 	"manifest.command.extract.title": "Extract",
 	"manifest.command.csv.toggle-streaming.title": "Toggle CSV",
@@ -9,7 +8,6 @@
 	"manifest.command.sort.title": "Sort",
 	"manifest.command.settings.title": "Settings",
 	"manifest.command.help.title": "Troubleshooting",
-
 	"manifest.settings.title": "String-LE",
 	"manifest.settings.copy.clipboard.desc": "Copy results to the clipboard automatically. Disabled for CSV.",
 	"manifest.settings.csv.streaming.desc": "CSV only. Stream results incrementally. Disabled by default.",
@@ -26,19 +24,15 @@
 	"manifest.settings.sort.mode.desc": "Select sorting method for extracted strings.",
 	"manifest.settings.statusbar.enabled.desc": "Show a status bar item with quick status messages and one-click run.",
 	"manifest.settings.telemetry.desc": "Enable local-only telemetry (no network). Logs to the 'String-LE' Output Channel.",
-
 	"manifest.settings.sort.mode.option.off": "Off",
 	"manifest.settings.sort.mode.option.alpha-asc": "Alphabetical (A → Z)",
 	"manifest.settings.sort.mode.option.alpha-desc": "Alphabetical (Z → A)",
 	"manifest.settings.sort.mode.option.length-asc": "By Length (Short → Long)",
 	"manifest.settings.sort.mode.option.length-desc": "By Length (Long → Short)",
-
 	"manifest.settings.notifications.level.option.all": "All",
 	"manifest.settings.notifications.level.option.important": "Important",
 	"manifest.settings.notifications.level.option.silent": "Silent",
-
 	"manifest.capability.untrusted-workspaces.desc": "Extraction runs locally and never executes external tools.",
-
 	"runtime.message.error.no-editor": "No active editor",
 	"runtime.message.error.open-results": "Could not open results",
 	"runtime.message.info.file-empty": "File is empty",
@@ -47,19 +41,15 @@
 	"runtime.message.info.csv-streamed": "CSV streamed",
 	"runtime.message.warn.clipboard-failed": "Could not copy to clipboard",
 	"runtime.message.warn.large-file": "Large file detected ({0} bytes). Extraction may take longer.",
-
 	"runtime.dialog.large-output.message": "Large output ({0} lines). Proceed?",
 	"runtime.dialog.many-docs.message": "Many results — opening {0} documents (~{1} total lines). Proceed?",
 	"runtime.dialog.action.open": "Open results",
 	"runtime.dialog.action.copy": "Copy only",
 	"runtime.dialog.action.cancel": "Cancel",
-
 	"runtime.progress.extract.title": "Extracting...",
-
 	"runtime.status.tooltip": "Run String-LE: Extract",
 	"runtime.status.extracted": "Extracted {0}",
 	"runtime.status.csv-streamed": "CSV streamed",
-
 	"runtime.csv.columns.all": "All columns",
 	"runtime.csv.columns.all.desc": "Extract from all columns",
 	"runtime.csv.column.default": "(Column {0})",
@@ -70,33 +60,31 @@
 	"runtime.csv.error.out-of-range": "Column index out of range ({0}). Using all columns instead",
 	"runtime.csv.streaming.enabled": "CSV streaming enabled",
 	"runtime.csv.streaming.disabled": "CSV streaming disabled",
-
 	"runtime.picker.filetype.fallback": "Fallback (quoted strings)",
 	"runtime.picker.filetype.placeholder": "Choose file type for extraction",
-
 	"runtime.sort.option.alpha-asc": "Alphabetical (A → Z)",
 	"runtime.sort.option.alpha-desc": "Alphabetical (Z → A)",
 	"runtime.sort.option.length-asc": "By length (short → long)",
 	"runtime.sort.option.length-desc": "By length (long → short)",
 	"runtime.sort.picker.placeholder": "Choose sort mode",
-
 	"runtime.codeaction.extract.title": "Extract strings",
-
 	"runtime.help.title": "Troubleshooting",
-
 	"runtime.status.multiline-risk": "Multi-line strings detected",
 	"runtime.status.csv-opened": "CSV opened (no auto-copy)",
 	"runtime.status.postprocess": "Dedupe/sort applied",
-
 	"runtime.info.multiline-detected": "Multi-line strings detected. Line breaks may render differently across formats.",
 	"runtime.info.csv-no-clipboard": "CSV results not auto-copied when streaming or extracting all columns.",
 	"runtime.info.postprocess-semantics": "Sort and dedupe operations apply to extracted strings",
-
 	"runtime.warn.multiline-instability": "Multi-line strings may merge or split unexpectedly.",
-
 	"runtime.prompt.multiline-review.title": "Multi-line strings detected",
 	"runtime.prompt.multiline-review.body": "Found {0} multi-line strings. Continue extraction?",
 	"runtime.prompt.large-output.title": "Large output detected",
 	"runtime.prompt.large-output.body": "Found {0} strings. How would you like to proceed?",
-	"runtime.note.postprocess-footnote": "Note: Sort and dedupe operations apply to the extracted string list."
+	"runtime.note.postprocess-footnote": "Note: Sort and dedupe operations apply to the extracted string list.",
+
+	"manifest.command.trim.title": "Trim Whitespace",
+	"manifest.settings.trim.mode.desc": "Choose trim behavior",
+	"manifest.settings.trim.mode.option.both": "Leading and trailing",
+	"manifest.settings.trim.mode.option.leading": "Leading only",
+	"manifest.settings.trim.mode.option.trailing": "Trailing only"
 }

@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "{0} chaînes multilignes trouvées. Continuer l'extraction ?",
 	"runtime.prompt.large-output.title": "Sortie volumineuse détectée.",
 	"runtime.prompt.large-output.body": "{0} chaînes trouvées. Comment souhaitez-vous procéder ?",
-	"runtime.note.postprocess-footnote": "Remarque : les opérations de tri et de déduplication s'appliquent à la liste des chaînes extraites."
+	"runtime.note.postprocess-footnote": "Remarque : les opérations de tri et de déduplication s'appliquent à la liste des chaînes extraites.",
+
+	"manifest.command.trim.title": "Supprimer les espaces blancs",
+	"manifest.settings.trim.mode.desc": "Choisissez le comportement de suppression",
+	"manifest.settings.trim.mode.option.both": "Début et fin",
+	"manifest.settings.trim.mode.option.leading": "Début uniquement",
+	"manifest.settings.trim.mode.option.trailing": "Fin uniquement"
 }

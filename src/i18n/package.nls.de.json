@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "{0} mehrzeilige Zeichenfolgen gefunden. Extrahierung fortsetzen?",
 	"runtime.prompt.large-output.title": "Große Ausgabe erkannt.",
 	"runtime.prompt.large-output.body": "{0} Zeichenfolgen gefunden. Wie möchten Sie fortfahren?",
-	"runtime.note.postprocess-footnote": "Hinweis: Sortier- und Deduplizierungsvorgänge gelten für die extrahierte Zeichenfolgenliste."
+	"runtime.note.postprocess-footnote": "Hinweis: Sortier- und Deduplizierungsvorgänge gelten für die extrahierte Zeichenfolgenliste.",
+
+	"manifest.command.trim.title": "Leerzeichen entfernen",
+	"manifest.settings.trim.mode.desc": "Verhalten beim Entfernen auswählen",
+	"manifest.settings.trim.mode.option.both": "Vor- und Nachlauf",
+	"manifest.settings.trim.mode.option.leading": "Nur Vorlauf",
+	"manifest.settings.trim.mode.option.trailing": "Nur Nachlauf"
 }

@@ -3,7 +3,7 @@
   "publisher": "nolindnaidoo",
   "displayName": "String-LE",
   "description": "Zero Hassle Extraction from JSON, YAML, CSV, TOML, INI, and .ENV",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "author": {
     "name": "Nolin D Naidoo",
@@ -32,27 +32,25 @@
     "extract",
     "extractor",
     "extraction",
+    "locale",
     "localization",
     "l10n",
     "translation",
     "i18n",
     "intl",
-    "locales",
     "json",
     "yaml",
     "csv",
-    "csv streaming",
+    "validation",
     "toml",
     "ini",
     "env",
     "text",
     "data",
-    "big data",
+    "flatten",
     "sort",
     "sorting",
-    "dedupe",
     "deduplication",
-    "performance",
     "compliance"
   ],
   "icon": "src/assets/images/icon.png",
@@ -100,6 +98,11 @@
         "category": "%manifest.command.category%"
       },
       {
+        "command": "string-le.postProcess.trim",
+        "title": "%manifest.command.trim.title%",
+        "category": "%manifest.command.category%"
+      },
+      {
         "command": "string-le.csv.toggleStreaming",
         "title": "%manifest.command.csv.toggle-streaming.title%",
         "category": "%manifest.command.category%"
@@ -142,6 +145,9 @@
           "command": "string-le.postProcess.sort"
         },
         {
+          "command": "string-le.postProcess.trim"
+        },
+        {
           "command": "string-le.csv.toggleStreaming"
         },
         {
@@ -172,7 +178,7 @@
         },
         "string-le.notificationsLevel": {
           "type": "string",
-          "default": "all",
+          "default": "silent",
           "enum": [
             "all",
             "important",
@@ -256,6 +262,21 @@
           "type": "boolean",
           "default": false,
           "description": "%manifest.settings.telemetry.desc%"
+        },
+        "string-le.postProcess.trimMode": {
+          "type": "string",
+          "default": "both",
+          "enum": [
+            "both",
+            "leading",
+            "trailing"
+          ],
+          "enumDescriptions": [
+            "%manifest.settings.trim.mode.option.both%",
+            "%manifest.settings.trim.mode.option.leading%",
+            "%manifest.settings.trim.mode.option.trailing%"
+          ],
+          "description": "%manifest.settings.trim.mode.desc%"
         }
       }
     }
@@ -266,8 +287,8 @@
     "clean:i18n": "rm -rf package.nls.*.json vsix/",
     "copy:i18n": "cp src/i18n/package.nls.*.json .",
     "watch": "tsc -watch -p ./",
-    "test": "node --import tsx --test $(find src -name '*.test.ts' | sort)",
-    "test:coverage": "npm run clean && c8 --reporter=text --reporter=html npm test",
+    "test": "node --import tsx --test $(find src -name '*.test.ts' -not -path '*/__performance__/*' | sort)",
+    "test:coverage": "npm run clean && c8 --reporter=text --reporter=html --exclude='**/__performance__/**' npm test",
     "test:performance": "node --import tsx --test src/extraction/performance.test.ts",
     "performance:report": "npm run test:performance 2>&1 | tee performance-report.txt",
     "lint": "biome check .",

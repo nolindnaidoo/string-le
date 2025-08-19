@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "Se han encontrado {0} cadenas multilínea. ¿Desea continuar con la extracción?",
 	"runtime.prompt.large-output.title": "Se ha detectado una salida grande.",
 	"runtime.prompt.large-output.body": "Se han encontrado {0} cadenas. ¿Cómo desea continuar?",
-	"runtime.note.postprocess-footnote": "Nota: Las operaciones de ordenación y deduplicación se aplican a la lista de cadenas extraídas."
+	"runtime.note.postprocess-footnote": "Nota: Las operaciones de ordenación y deduplicación se aplican a la lista de cadenas extraídas.",
+
+	"manifest.command.trim.title": "Recortar espacios en blanco",
+	"manifest.settings.trim.mode.desc": "Seleccionar comportamiento de recorte",
+	"manifest.settings.trim.mode.option.both": "Principio y final",
+	"manifest.settings.trim.mode.option.leading": "Solo principio",
+	"manifest.settings.trim.mode.option.trailing": "Solo final"
 }

@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "检测到 {0} 个多行字符串。继续提取吗？",
 	"runtime.prompt.large-output.title": "检测到大量输出",
 	"runtime.prompt.large-output.body": "检测到 {0} 个字符串。您希望如何继续？",
-	"runtime.note.postprocess-footnote": "注意：排序和去重操作适用于提取的字符串列表。"
+	"runtime.note.postprocess-footnote": "注意：排序和去重操作适用于提取的字符串列表。",
+
+	"manifest.command.trim.title": "修剪空白",
+	"manifest.settings.trim.mode.desc": "选择修剪行为",
+	"manifest.settings.trim.mode.option.both": "首尾空白",
+	"manifest.settings.trim.mode.option.leading": "仅首部空白",
+	"manifest.settings.trim.mode.option.trailing": "仅尾部空白"
 }

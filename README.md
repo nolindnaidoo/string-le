@@ -1,7 +1,7 @@
 <p align="center">
   <img src="src/assets/images/icon.png" alt="String-LE Logo" width="96" height="96"/>
 </p>
-<h1 align="center">String-LE: Zero Hassle Extraction</h1>
+<h1 align="center">String-LE: Zero Hassle String Extraction</h1>
 <p align="center">
   <b>Instantly extract every user-visible string in VSCode</b><br/>
   <i>JSON YAML CSV TOML INI ENV</i>
@@ -24,30 +24,73 @@
 
 ---
 
-<p>
+<p align="center">
   <img src="src/assets/images/preview.gif" alt="CSV Streaming (Editor) animation" style="max-width: 100%; height: auto;" />
 </p>
-
 <p align="right">
  <a href="https://github.com/nolindnaidoo/string-le/blob/main/docs/SCREENSHOTS.md">Screenshot Guide</a>
 </p>
 
-## ✅ Why String‑LE
+## ✅ Why String-LE
 
-- **FullStack i18n**: Extract and dedupe locale strings (`en.json`, `fr.json`, etc.).
-- **APIs**: Catalog response and validation messages from JSON, YAML, `.env`, and config files.
-- **Configs/Specs**: Flatten text in YAML, TOML, INI, and OpenAPI specs for fast, confident edits.
-- **CSVs**: Stream huge files, pick columns, and avoid UI lockups.
+**Modern projects scatter text everywhere** — APIs, configs, CSVs, and locale files across both native and web. Keeping those strings consistent is still a slow, manual grind.
+
+**String-LE makes extraction effortless.**  
+It smartly pulls out only the **true user-visible strings** (never numbers, IDs, or raw values) and gives you a clean, ordered set of text that’s ready for production.
+
+- **i18n without the hassle**  
+  Instantly extract and de-duplicate locale strings into `en.json`, `fr.json`, or any language pack. Keep translation files lean and in sync across your codebase.
+
+- **Clarity across configs & APIs**  
+  Surface every user-facing message hidden in JSON, YAML, `.env`, and more. Validation errors, system prompts, and API responses are cataloged in one place.
+
+- **Confident edits in complex specs**  
+  YAML, TOML, INI, OpenAPI… flatten nested strings into a simple list you can safely edit without breaking structure or formatting.
+
+- **Stream massive CSVs**  
+  Work with millions of rows without locking up VS Code. Select only the columns you need and stream results directly to the editor.
+
+- **Automatic cleanup built-in**  
+  - **Sort** for stable diffs and reviews  
+  - **Dedupe** to eliminate noise  
+  - **Trim whitespace** (NEW) 
+  - **Casing rules** (coming soon 1.1.0)
+  - **Chunk Splitting** (coming soon 1.1.0) 
+
+- **Fast at any scale**  
+  Benchmarked at millions of lines per second, String-LE keeps up with large datasets and enterprise monorepos without slowing you down.
+
 
 ## 🚀 Quick Start
 
-1. **Install** from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le)
-2. **Open** any supported file type `Cmd/Ctrl + P String-LE`
-3. **Quick Extract** with `Cmd+Alt+E`/`Ctrl+Alt+E`/`StatusBar`
+1. Install from the VS Code Marketplace.
+2. Open any supported file type (`Cmd/Ctrl + P String-LE`).
+3. Run Quick Extract (`Cmd+Alt+E` / `Ctrl+Alt+E` / Status Bar).
+
+## ⚙️ Configuration
+
+- `string-le.openResultsSideBySide` – Open to the side
+- `string-le.csv.streamingEnabled` – Toggle CSV streaming
+- `string-le.dedupeEnabled` – Auto-dedupe strings
+- `string-le.sortEnabled` – Auto-sort output
+- **Safety Guards** – File size warnings & thresholds
+- **Notification Levels** – Control verbosity and alerts
+
+### ⚠️ Behaviors & Limits
+
+- CSV support assumes standard delimiter/quoting; unusual dialects not supported
+- Large outputs can be slow to open — use **Copy** when prompted
+- Streaming applies only to CSV; other formats load in memory
+- Multi-line strings (e.g., YAML block scalars) are only partially supported
+- CSV multi-line and all-column extracts stream to the editor only (no auto-copy)
+- Sorting and deduplication apply to final strings, not their original positions
+- Fallback mode uses quoted-string heuristics and may include false positives
+
+See [`CONFIGURATION.md`](docs/CONFIGURATION.md).
 
 ## ⚡ Performance
 
-String‑LE is built for speed across all supported formats:
+String-LE is built for speed across all supported formats:
 
 | Format   | Throughput      | Best For               |
 | -------- | --------------- | ---------------------- |
@@ -58,71 +101,46 @@ String‑LE is built for speed across all supported formats:
 | **CSV**  | 440K+ lines/sec | Tabular data           |
 | **YAML** | 190K+ lines/sec | Human-readable configs |
 
-See `PERFORMANCE.md` for detailed benchmarks and optimization guidelines.
-
-## 📊 Test Coverage
-
-- 100% unit coverage on pure extraction and transforms
-- Contract tests for configuration side‑effects and parse‑error handling
-- Data‑driven fixtures with golden expected outputs per format
-- CSV streaming paths covered (batching, header/column selection)
-- Stable locale sorting and dedupe normalization in harness
-
-See `TESTING.md`
-
-![Test Coverage Report](src/assets/images/coverage-report-text.png)
-
-<details>
-  <summary><strong>👉 Expand Detailed Documentation</strong></summary>
-
-## 🛠 Configuration
-
-- `string-le.openResultsSideBySide` – Open to the side
-- `string-le.csv.streamingEnabled` – Toggle CSV streaming
-- `string-le.dedupeEnabled` – Auto-dedupe strings
-- `string-le.sortEnabled` – Auto-sort output
-- **Safety Guards** – File size warnings & thresholds
-- **Notification Levels** – Control verbosity and alerts
-
-#### ⚠️ Behaviors & limits
-
-- CSV support assumes standard delimiter/quoting; unusual dialects not supported
-- Large outputs can be slow to open — use **Copy** when prompted
-- Streaming applies only to CSV; other formats load in memory
-- Multi-line strings (e.g., YAML block scalars) are only partially supported
-- CSV multi-line and all-column extracts stream to the editor only (no auto-copy)
-- Sorting and deduplication apply to final strings, not their original positions
-- Fallback mode uses quoted-string heuristics and may include false positives
-
-See `CONFIGURATION.md`
+See [`PERFORMANCE.md`](docs/PERFORMANCE.md).
 
 ## 🌍 Language Support
 
-#### English + 12 translations
+English + 12 translations:
 
 - Chinese (Simplified), Spanish, French, Russian, Portuguese (Brazil)
 - Japanese, Korean, German, Italian, Vietnamese, Ukrainian, Indonesian
 
-See `I18N.md`
+See [`I18N.md`](docs/I18N.md).
 
 ## 🔒 Privacy & Telemetry
 
-This extension runs entirely locally and never sends data off your machine
-Optional, local-only logs can be enabled via `string-le.telemetryEnabled`
-To help troubleshoot (Output panel → “String-LE”)
+- Runs entirely locally; no data is sent off your machine.
+- Optional local-only logs can be enabled with `string-le.telemetryEnabled`.
+- Logs appear in Output panel → “String-LE”.
 
-See `PRIVACY.md`
+See [`PRIVACY.md`](docs/PRIVACY.md).
+
+## 📊 Test Coverage
+
+- 100% unit coverage on pure extraction and transforms
+- Contract tests for configuration side-effects and parse-error handling
+- Data-driven fixtures with golden expected outputs per format
+- CSV streaming paths covered (batching, header/column selection)
+- Stable locale sorting and dedupe normalization in harness
+
+See [`TESTING.md`](docs/TESTING.md).
+
+![Test Coverage Report](src/assets/images/coverage-report-text.png)
 
 ## 🤝 Contributing
 
-We welcome all contributions! Whether it's code, ideas, or feedback
+We welcome all contributions! Whether it's code, ideas, or feedback:
 
-- <strong>Project</strong>: [Issues](https://github.com/nolindnaidoo/string-le/issues) • [Pull Requests](https://github.com/nolindnaidoo/string-le/pulls) • [Releases](https://github.com/nolindnaidoo/string-le/releases)
-- <strong>Dev</strong>: [Spec](https://github.com/nolindnaidoo/string-le/blob/main/docs/SPECIFICATION.md) • [Architecture](https://github.com/nolindnaidoo/string-le/blob/main/docs/ARCHITECTURE.md) • [Development](https://github.com/nolindnaidoo/string-le/blob/main/docs/DEVELOPMENT.md) • [Contributing](https://github.com/nolindnaidoo/string-le/blob/main/CONTRIBUTING.md) • [Troubleshooting](https://github.com/nolindnaidoo/string-le/blob/main/docs/TROUBLESHOOTING.md)
-- <strong>Docs</strong>: [Commands](https://github.com/nolindnaidoo/string-le/blob/main/docs/COMMANDS.md) • [Notifications](https://github.com/nolindnaidoo/string-le/blob/main/docs/NOTIFICATIONS.md) • [Status Bar](https://github.com/nolindnaidoo/string-le/blob/main/docs/STATUSBAR.md) • [Config](https://github.com/nolindnaidoo/string-le/blob/main/docs/CONFIGURATION.md) • [Performance](https://github.com/nolindnaidoo/string-le/blob/main/docs/PERFORMANCE.md) • [I18N](https://github.com/nolindnaidoo/string-le/blob/main/docs/I18N.md) • [Privacy](https://github.com/nolindnaidoo/string-le/blob/main/docs/PRIVACY.md) • [Screenshots](https://github.com/nolindnaidoo/string-le/blob/main/docs/SCREENSHOTS.md) • [Workflow](https://github.com/nolindnaidoo/string-le/blob/main/docs/WORKFLOW.md)
+- [Issues](https://github.com/nolindnaidoo/string-le/issues) • [Pull Requests](https://github.com/nolindnaidoo/string-le/pulls) • [Releases](https://github.com/nolindnaidoo/string-le/releases)
+- [Spec](docs/SPECIFICATION.md) • [Architecture](docs/ARCHITECTURE.md) • [Development](docs/DEVELOPMENT.md) • [Contributing](CONTRIBUTING.md) • [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Commands](docs/COMMANDS.md) • [Notifications](docs/NOTIFICATIONS.md) • [Status Bar](docs/STATUSBAR.md) • [Config](docs/CONFIGURATION.md) • [Performance](docs/PERFORMANCE.md) • [I18N](docs/I18N.md) • [Privacy](docs/PRIVACY.md) • [Screenshots](docs/SCREENSHOTS.md) • [Workflow](docs/WORKFLOW.md)
 
-See `CONTRIBUTING.md`
+---
 
-</details></br>
-
-Copyright © 2025 [@nolindnaidoo](https://github.com/nolindnaidoo), All rights reserved.
+Copyright © 2025  
+<a href="https://github.com/nolindnaidoo">@nolindnaidoo</a>. All rights reserved.

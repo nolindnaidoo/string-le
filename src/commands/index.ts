@@ -6,6 +6,7 @@ import { registerDedupeCommand } from './dedupe'
 import { registerExtractStringsCommand } from './extract'
 import { registerSortCommand } from './sort'
 import { registerToggleCsvStreamingCommand } from './toggleCsvStreaming'
+import { registerTrimWhitespaceCommand } from './trim'
 
 // Centralized command registration to keep activation thin and testable
 export function registerAllCommands(
@@ -20,4 +21,5 @@ export function registerAllCommands(
 	registerDedupeCommand(context)
 	registerSortCommand(context)
 	registerToggleCsvStreamingCommand(context)
+	registerTrimWhitespaceCommand(context)
 }

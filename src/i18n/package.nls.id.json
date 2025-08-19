@@ -98,5 +98,11 @@
 	"runtime.prompt.multiline-review.body": "Ditemukan {0} string multi-baris. Lanjutkan ekstraksi?",
 	"runtime.prompt.large-output.title": "Output besar terdeteksi",
 	"runtime.prompt.large-output.body": "Ditemukan {0} string. Bagaimana Anda ingin melanjutkan?",
-	"runtime.note.postprocess-footnote": "Catatan: Operasi penyortiran dan penghapusan duplikat berlaku untuk daftar string yang diekstraksi."
+	"runtime.note.postprocess-footnote": "Catatan: Operasi penyortiran dan penghapusan duplikat berlaku untuk daftar string yang diekstraksi.",
+
+	"manifest.command.trim.title": "Potong Spasi Kosong",
+	"manifest.settings.trim.mode.desc": "Pilih perilaku pemotongan",
+	"manifest.settings.trim.mode.option.both": "Spasi di awal dan akhir",
+	"manifest.settings.trim.mode.option.leading": "Hanya spasi di awal",
+	"manifest.settings.trim.mode.option.trailing": "Hanya spasi di akhir"
 }
