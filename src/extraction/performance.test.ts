@@ -201,4 +201,3 @@ describe('Performance Tests', () => {
 // Export for use in other tests or scripts
 export { formatPerformanceReport, runPerformanceTests }
 export type { PerformanceMetrics, PerformanceResult }
-
