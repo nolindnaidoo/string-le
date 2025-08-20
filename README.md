@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">String-LE: Zero Hassle String Extraction</h1>
 <p align="center">
-  <b>Instantly extract every user-visible string in VSCode</b><br/>
+  <b>Instantly extract every user-visible- in precise order</b><br/>
   <i>JSON YAML CSV TOML INI ENV</i>
 </p>
 
@@ -39,26 +39,46 @@
 It smartly pulls out only the **true user-visible strings** (never numbers, IDs, or raw values) and gives you a clean, ordered set of text that’s ready for production.
 
 - **i18n without the hassle**  
+
   Instantly extract and de-duplicate locale strings into `en.json`, `fr.json`, or any language pack. Keep translation files lean and in sync across your codebase.
 
 - **Clarity across configs & APIs**  
-  Surface every user-facing message hidden in JSON, YAML, `.env`, and more. Validation errors, system prompts, and API responses are cataloged in one place.
+  Surface every user-facing message. Validation errors, system prompts, and API responses are cataloged in one place.
 
 - **Confident edits in complex specs**  
-  YAML, TOML, INI, OpenAPI… flatten nested strings into a simple list you can safely edit without breaking structure or formatting.
+  Flatten nested strings into a simple list you can safely edit without breaking structure or formatting.
 
 - **Stream massive CSVs**  
   Work with millions of rows without locking up VS Code. Select only the columns you need and stream results directly to the editor.
 
 - **Automatic cleanup built-in**  
   - **Sort** for stable diffs and reviews  
-  - **Dedupe** to eliminate noise  
+  - **Dedupe** to eliminate noise
   - **Trim whitespace** (NEW) 
-  - **Casing rules** (coming soon 1.1.0)
-  - **Chunk Splitting** (coming soon 1.1.0) 
+  
 
 - **Fast at any scale**  
   Benchmarked at millions of lines per second, String-LE keeps up with large datasets and enterprise monorepos without slowing you down.
+
+- **Coming Soon**
+  - **Chunk Splitting** (1.1.0)
+  - **Casing rules** (1.2.0)
+  
+- **Evaluating**
+  - **Filetype: xml** (1.3.0)
+  - **Filetype: plist** (1.4.0)
+  - **Filetype: stroryboard** (1.5.0)
+  - **Filetype: xib** (1.6.0)  
+  - **Filetype: arb** (1.7.0)
+  - **Filetype: .ts** (1.8.0)
+  - **Filetype: .js** (1.9.0)
+  - **Filetype: .py** (1.10.0)
+  - **Filetype: .rs** (1.11.0)
+  - **Filetype: .kt** (1.12.0)
+  - **Filetype: .swift** (1.13.0)
+  - **Filetype: .dart** (1.14.0)
+  - **Filetype: .go** (1.15.0)
+  - **Filetype: .rb** (1.16.0)
 
 
 ## 🚀 Quick Start
