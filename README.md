@@ -61,9 +61,9 @@ It smartly pulls out only the **true user-visible strings** (never numbers, IDs,
   Benchmarked at millions of lines per second, String-LE keeps up with large datasets and enterprise monorepos without slowing you down.
 
 - **Coming Soon**
-  - **Chunk Splitting** (1.1.0)
-  - **Casing rules** (1.2.0)
-  
+  - **Chunk Splitting** (1.2.0)
+  - **Casing rules** (1.3.0)
+
 - **Evaluating**
   - **Filetype: xml** (1.3.0)
   - **Filetype: plist** (1.4.0)
