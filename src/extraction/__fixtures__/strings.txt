@@ -1,0 +1,6 @@
+The "double quoted" and 'single quoted' plus `backtick quoted` forms.
+An "escaped \"inner\" quote" survives.
+"multi
+line"
+unquoted words are ignored entirely
+"" empty pair and "  spaces  " padded pair

@@ -1,0 +1,122 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`extraction characterization > strings.csv as csv 1`] = `
+[
+  "name",
+  "message",
+  "count",
+  "Alice",
+  "Hello, world",
+  "1",
+  "Bob",
+  "She said "hi"",
+  "2",
+  "empty first cell",
+  "3",
+  "Dave",
+  "4",
+  "Eve",
+  "plain text",
+  "5",
+]
+`;
+
+exports[`extraction characterization > strings.csv with csvHasHeader 1`] = `
+[
+  "Alice",
+  "Hello, world",
+  "1",
+  "Bob",
+  "She said "hi"",
+  "2",
+  "empty first cell",
+  "3",
+  "Dave",
+  "4",
+  "Eve",
+  "plain text",
+  "5",
+]
+`;
+
+exports[`extraction characterization > strings.csv with csvHasHeader and csvColumnIndex 1 1`] = `
+[
+  "Hello, world",
+  "She said "hi"",
+  "empty first cell",
+  "plain text",
+]
+`;
+
+exports[`extraction characterization > strings.env as env 1`] = `
+[
+  "https://api.example.com",
+  "quoted value",
+  "single value",
+  "value",
+  "value # not a comment",
+  "padded value",
+  "12345",
+]
+`;
+
+exports[`extraction characterization > strings.ini as ini 1`] = `
+[
+  "Quoted Value",
+  "inside a comment",
+  "single quoted greeting",
+]
+`;
+
+exports[`extraction characterization > strings.json as json 1`] = `
+[
+  "Welcome Home",
+  "https://example.com/path?query=1",
+  "usr_8f3k2j4h5g6",
+  "line one
+line two",
+  "trimmed value",
+  "Nested message",
+  "first item",
+  "second item",
+]
+`;
+
+exports[`extraction characterization > strings.toml as toml 1`] = `
+[
+  "TOML Example",
+  "literal string",
+  "Tom Preston-Werner",
+  "alpha",
+  "beta",
+  "value with # hash",
+]
+`;
+
+exports[`extraction characterization > strings.txt as fallback 1`] = `
+[
+  "double quoted",
+  "single quoted",
+  "backtick quoted",
+  "escaped \\"inner\\" quote",
+  "spaces",
+]
+`;
+
+exports[`extraction characterization > strings.yaml as yaml 1`] = `
+[
+  "Double quoted value",
+  "Single quoted value",
+  "quoted item",
+  "inline quoted",
+]
+`;
+
+exports[`extraction characterization > strings.yaml as yml 1`] = `
+[
+  "Double quoted value",
+  "Single quoted value",
+  "quoted item",
+  "inline quoted",
+]
+`;

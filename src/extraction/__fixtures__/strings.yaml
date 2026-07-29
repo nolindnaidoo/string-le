@@ -1,0 +1,14 @@
+title: Unquoted plain scalar
+quoted: "Double quoted value"
+single: 'Single quoted value'
+number: 42
+enabled: true
+list:
+  - plain item
+  - "quoted item"
+block: |
+  Block scalar line one
+  Block scalar line two
+folded: >
+  Folded scalar text
+inline: { key: "inline quoted", plain: bare }
