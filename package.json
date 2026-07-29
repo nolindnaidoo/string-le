@@ -1,24 +1,24 @@
 {
 	"name": "string-le",
-	"publisher": "OffensiveEdge",
+	"publisher": "nolindnaidoo",
 	"displayName": "Strings-LE",
 	"description": "Zero Hassle Extraction from JSON, YAML, CSV, TOML, INI, and .ENV",
 	"version": "1.8.1",
 	"license": "MIT",
 	"author": {
-		"name": "OffensiveEdge",
-		"url": "https://github.com/OffensiveEdge"
+		"name": "nolindnaidoo",
+		"url": "https://github.com/nolindnaidoo"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/OffensiveEdge/string-le.git"
+		"url": "https://github.com/nolindnaidoo/string-le.git"
 	},
 	"bugs": {
-		"url": "https://github.com/OffensiveEdge/string-le/issues"
+		"url": "https://github.com/nolindnaidoo/string-le/issues"
 	},
-	"homepage": "https://github.com/OffensiveEdge/string-le#readme",
+	"homepage": "https://github.com/nolindnaidoo/string-le#readme",
 	"engines": {
-		"vscode": "^1.70.0",
+		"vscode": "^1.90.0",
 		"node": ">=20.0.0"
 	},
 	"categories": [
@@ -58,16 +58,11 @@
 	"activationEvents": [
 		"onLanguage:json",
 		"onLanguage:yaml",
-		"onLanguage:yml",
 		"onLanguage:csv",
 		"onLanguage:toml",
 		"onLanguage:ini",
-		"onCommand:string-le.extractStrings",
-		"onCommand:string-le.postProcess.dedupe",
-		"onCommand:string-le.postProcess.sort",
-		"onCommand:string-le.csv.toggleStreaming",
-		"onCommand:string-le.openSettings",
-		"onCommand:string-le.help"
+		"onLanguage:dotenv",
+		"onLanguage:env"
 	],
 	"capabilities": {
 		"virtualWorkspaces": {
@@ -124,7 +119,7 @@
 			"editor/context": [
 				{
 					"command": "string-le.extractStrings",
-					"when": "resourceExtname in .json || resourceExtname in .yaml || resourceExtname in .yml || resourceExtname in .csv || resourceExtname in .toml || resourceExtname in .ini || resourceExtname in .env",
+					"when": "editorLangId =~ /^(json|jsonc|yaml|csv|toml|ini|dotenv|env)$/",
 					"group": "1_modification@1"
 				}
 			],
@@ -253,85 +248,6 @@
 					"type": "boolean",
 					"default": false,
 					"description": "%manifest.settings.telemetry.desc%"
-				},
-				"string-le.performance.enabled": {
-					"type": "boolean",
-					"default": true,
-					"description": "%manifest.settings.performance.enabled.desc%"
-				},
-				"string-le.performance.maxDuration": {
-					"type": "number",
-					"default": 5000,
-					"minimum": 1000,
-					"description": "%manifest.settings.performance.max-duration.desc%"
-				},
-				"string-le.performance.maxMemoryUsage": {
-					"type": "number",
-					"default": 104857600,
-					"minimum": 1048576,
-					"description": "%manifest.settings.performance.max-memory.desc%"
-				},
-				"string-le.performance.maxCpuUsage": {
-					"type": "number",
-					"default": 1000000,
-					"minimum": 100000,
-					"description": "%manifest.settings.performance.max-cpu.desc%"
-				},
-				"string-le.performance.minThroughput": {
-					"type": "number",
-					"default": 1000,
-					"minimum": 100,
-					"description": "%manifest.settings.performance.min-throughput.desc%"
-				},
-				"string-le.performance.maxCacheSize": {
-					"type": "number",
-					"default": 1000,
-					"minimum": 100,
-					"description": "%manifest.settings.performance.max-cache.desc%"
-				},
-				"string-le.keyboard.shortcuts.enabled": {
-					"type": "boolean",
-					"default": true,
-					"description": "%manifest.settings.keyboard.shortcuts.enabled.desc%"
-				},
-				"string-le.keyboard.extractShortcut": {
-					"type": "string",
-					"default": "ctrl+alt+e",
-					"description": "%manifest.settings.keyboard.extract.shortcut.desc%"
-				},
-				"string-le.keyboard.dedupeShortcut": {
-					"type": "string",
-					"default": "ctrl+alt+d",
-					"description": "%manifest.settings.keyboard.dedupe.shortcut.desc%"
-				},
-				"string-le.keyboard.sortShortcut": {
-					"type": "string",
-					"default": "ctrl+alt+s",
-					"description": "%manifest.settings.keyboard.sort.shortcut.desc%"
-				},
-				"string-le.presets.enabled": {
-					"type": "boolean",
-					"default": true,
-					"description": "%manifest.settings.presets.enabled.desc%"
-				},
-				"string-le.presets.defaultPreset": {
-					"type": "string",
-					"default": "balanced",
-					"enum": [
-						"minimal",
-						"balanced",
-						"comprehensive",
-						"performance",
-						"csv"
-					],
-					"enumDescriptions": [
-						"%manifest.settings.presets.default.option.minimal%",
-						"%manifest.settings.presets.default.option.balanced%",
-						"%manifest.settings.presets.default.option.comprehensive%",
-						"%manifest.settings.presets.default.option.performance%",
-						"%manifest.settings.presets.default.option.csv%"
-					],
-					"description": "%manifest.settings.presets.default.desc%"
 				}
 			}
 		}
@@ -357,7 +273,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.5",
 		"@types/node": "^24.7.1",
-		"@types/vscode": "^1.70.0",
+		"@types/vscode": "^1.90.0",
 		"@vscode/test-electron": "^2.3.0",
 		"@vscode/vsce": "^3.6.2",
 		"@vitest/coverage-v8": "^3.2.4",
