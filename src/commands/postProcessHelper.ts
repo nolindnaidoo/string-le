@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { readConfig } from '../config/config';
 
 /**
  * Shared helper for post-processing commands (dedupe, sort).
@@ -9,27 +10,16 @@ export async function processAndOutput(
 	editor: vscode.TextEditor,
 	processedContent: string,
 ): Promise<boolean> {
-	const config = readPostProcessConfig();
+	const config = readConfig();
 
 	if (config.openInNewFile) {
-		return await openInNewDocument(processedContent, config.openSideBySide);
+		return await openInNewDocument(
+			processedContent,
+			config.openResultsSideBySide,
+		);
 	}
 
 	return await replaceInPlace(editor, processedContent);
-}
-
-type PostProcessConfig = Readonly<{
-	openInNewFile: boolean;
-	openSideBySide: boolean;
-}>;
-
-function readPostProcessConfig(): PostProcessConfig {
-	const config = vscode.workspace.getConfiguration('string-le');
-
-	return {
-		openInNewFile: Boolean(config.get('postProcess.openInNewFile', false)),
-		openSideBySide: Boolean(config.get('openResultsSideBySide', false)),
-	};
 }
 
 async function openInNewDocument(
