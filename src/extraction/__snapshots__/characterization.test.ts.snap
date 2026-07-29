@@ -62,9 +62,12 @@ exports[`extraction characterization > strings.env as env 1`] = `
 
 exports[`extraction characterization > strings.ini as ini 1`] = `
 [
+  "John Doe",
   "Quoted Value",
-  "inside a comment",
+  "C:\\Users\\test",
+  "plain text value",
   "single quoted greeting",
+  "8080",
 ]
 `;
 
@@ -87,6 +90,8 @@ exports[`extraction characterization > strings.toml as toml 1`] = `
   "TOML Example",
   "literal string",
   "Tom Preston-Werner",
+  "Multi-line
+basic string",
   "alpha",
   "beta",
   "value with # hash",
@@ -105,18 +110,30 @@ exports[`extraction characterization > strings.txt as fallback 1`] = `
 
 exports[`extraction characterization > strings.yaml as yaml 1`] = `
 [
+  "Unquoted plain scalar",
   "Double quoted value",
   "Single quoted value",
+  "plain item",
   "quoted item",
+  "Block scalar line one
+Block scalar line two",
+  "Folded scalar text",
   "inline quoted",
+  "bare",
 ]
 `;
 
 exports[`extraction characterization > strings.yaml as yml 1`] = `
 [
+  "Unquoted plain scalar",
   "Double quoted value",
   "Single quoted value",
+  "plain item",
   "quoted item",
+  "Block scalar line one
+Block scalar line two",
+  "Folded scalar text",
   "inline quoted",
+  "bare",
 ]
 `;

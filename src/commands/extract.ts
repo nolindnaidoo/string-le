@@ -6,7 +6,7 @@ import {
 	type SupportedFileType,
 } from '../config/fileTypes';
 import { extractStrings } from '../extraction/extract';
-import { streamCsvStrings } from '../extraction/formats/csv';
+import { readCsvHeader, streamCsvStrings } from '../extraction/formats/csv';
 import type { Telemetry } from '../telemetry/telemetry';
 import {
 	chooseLargeOutputAction,
@@ -19,7 +19,6 @@ import {
 	promptForFileType,
 } from '../ui/prompts';
 import type { StatusBar } from '../ui/statusBar';
-import { splitCsvLine } from '../utils/csv';
 import { detectEnvExtension } from '../utils/filename';
 import { dedupe, sortStrings } from '../utils/text';
 
@@ -113,9 +112,7 @@ async function handleCsvMultiColumnExtraction(
 	}
 
 	// Determine target column indexes
-	const firstNonEmptyLine =
-		text.split(/\r?\n/).find((l) => l.trim().length > 0) ?? '';
-	const columnCount = splitCsvLine(firstNonEmptyLine).length;
+	const columnCount = readCsvHeader(text).length;
 	const targetIndexes: readonly number[] = csvOptions.selectAllColumns
 		? Array.from({ length: columnCount }, (_, i) => i)
 		: (csvOptions.csvColumnIndexes ?? []);

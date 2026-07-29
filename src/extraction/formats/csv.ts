@@ -40,6 +40,28 @@ function parseCsvRows(text: string): ReadonlyArray<ReadonlyArray<string>> {
 	>;
 }
 
+/**
+ * Read the first CSV record using the same parser (and options) as
+ * extraction, so column pickers and fan-out counting can never disagree
+ * with what extraction actually parses (quoted multi-line headers,
+ * embedded commas, escaped quotes).
+ */
+export function readCsvHeader(text: string): readonly string[] {
+	if (text.trim().length === 0) {
+		return EMPTY_RESULT;
+	}
+
+	try {
+		const rows = parse(text, {
+			...CSV_PARSE_OPTIONS,
+			to: 1,
+		}) as unknown as ReadonlyArray<ReadonlyArray<string>>;
+		return Object.freeze([...(rows[0] ?? [])]);
+	} catch {
+		return EMPTY_RESULT;
+	}
+}
+
 function extractFromRows(
 	rows: ReadonlyArray<ReadonlyArray<string>>,
 	hasHeader: boolean,

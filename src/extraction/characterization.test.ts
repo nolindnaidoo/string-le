@@ -61,6 +61,26 @@ describe('extraction characterization', () => {
 		expect(errors[0]).toContain('Invalid JSON');
 	});
 
+	it('invalid YAML reports parse error and returns empty', () => {
+		const errors: string[] = [];
+		const result = extractStrings('key: [unclosed', 'yaml', {
+			onParseError: (message) => errors.push(message),
+		});
+		expect(result).toEqual([]);
+		expect(errors).toHaveLength(1);
+		expect(errors[0]).toContain('Invalid YAML');
+	});
+
+	it('invalid TOML reports parse error and returns empty', () => {
+		const errors: string[] = [];
+		const result = extractStrings('plain = bare-value', 'toml', {
+			onParseError: (message) => errors.push(message),
+		});
+		expect(result).toEqual([]);
+		expect(errors).toHaveLength(1);
+		expect(errors[0]).toContain('Invalid TOML');
+	});
+
 	it('unknown file type routes to fallback', () => {
 		const text = 'body { content: "quoted css string"; }';
 		expect(extractStrings(text, 'css')).toEqual(

@@ -1,6 +1,14 @@
 import * as vscode from 'vscode';
 
-const SUPPORTED_LANGUAGES: readonly string[] = ['json', 'csv', 'env'];
+const SUPPORTED_LANGUAGES: readonly string[] = [
+	'json',
+	'yaml',
+	'csv',
+	'toml',
+	'ini',
+	'dotenv',
+	'env',
+];
 
 /**
  * Register code actions for string extraction.

@@ -11,4 +11,4 @@ basic string
 """
 tags = ["alpha", "beta"]
 hash = "value with # hash"
-plain = bare-value
+date = 2026-01-01

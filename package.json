@@ -119,7 +119,7 @@
 			"editor/context": [
 				{
 					"command": "string-le.extractStrings",
-					"when": "editorLangId =~ /^(json|jsonc|yaml|csv|toml|ini|dotenv|env)$/",
+					"when": "editorLangId =~ /^(json|yaml|csv|toml|ini|dotenv|env)$/",
 					"group": "1_modification@1"
 				}
 			],
@@ -272,6 +272,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.5",
+		"@types/ini": "^4.1.1",
+		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^24.7.1",
 		"@types/vscode": "^1.90.0",
 		"@vscode/test-electron": "^2.3.0",
@@ -282,6 +284,9 @@
 		"vitest": "^3.2.4"
 	},
 	"dependencies": {
-		"csv-parse": "^6.1.0"
+		"@iarna/toml": "^2.2.5",
+		"csv-parse": "^6.1.0",
+		"ini": "^5.0.0",
+		"js-yaml": "^4.1.0"
 	}
 }

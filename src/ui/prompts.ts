@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { splitCsvLine } from '../utils/csv';
+import type { SupportedFileType } from '../config/fileTypes';
+import { readCsvHeader } from '../extraction/formats/csv';
 
 // Helper to handle CSV header-based column selection
 async function handleCsvHeaderBasedSelection(
@@ -64,7 +65,7 @@ function findColumnIndex(
 
 // Helper to handle CSV no-header index-based selection
 async function handleCsvIndexBasedSelection(
-	lines: readonly string[],
+	headerCells: readonly string[],
 ): Promise<CsvPromptOptions> {
 	const idxStr = await vscode.window.showInputBox({
 		prompt:
@@ -95,11 +96,7 @@ async function handleCsvIndexBasedSelection(
 		.filter((n) => Number.isInteger(n) && n >= 0);
 
 	// Validate against first row cell count
-	const firstRowLine = lines[0];
-	if (!firstRowLine) return Object.freeze({});
-
-	const firstRow = splitCsvLine(firstRowLine);
-	const inRange = indices.filter((idx) => idx >= 0 && idx < firstRow.length);
+	const inRange = indices.filter((idx) => idx >= 0 && idx < headerCells.length);
 
 	if (inRange.length === 0) {
 		vscode.window.showWarningMessage(
@@ -126,13 +123,14 @@ export type CsvPromptOptions = Readonly<{
 	selectAllColumns?: boolean;
 }>;
 
-export function promptForFileType(): Promise<
-	'json' | 'csv' | 'env' | 'fallback' | undefined
-> {
+export function promptForFileType(): Promise<SupportedFileType | undefined> {
 	// Present QuickPick with supported types; returns internal value or undefined
-	const items: readonly { label: string; value: string }[] = [
+	const items: readonly { label: string; value: SupportedFileType }[] = [
 		{ label: 'JSON', value: 'json' },
+		{ label: 'YAML', value: 'yaml' },
 		{ label: 'CSV', value: 'csv' },
+		{ label: 'TOML', value: 'toml' },
+		{ label: 'INI', value: 'ini' },
 		{ label: '.env', value: 'env' },
 		{
 			label: 'Fallback (quoted strings)',
@@ -147,15 +145,7 @@ export function promptForFileType(): Promise<
 					placeHolder: 'Choose file type for extraction',
 				},
 			)
-			.then(
-				(picked) =>
-					items.find((i) => i.label === picked)?.value as
-						| 'json'
-						| 'csv'
-						| 'env'
-						| 'fallback'
-						| undefined,
-			),
+			.then((picked) => items.find((i) => i.label === picked)?.value),
 	);
 }
 
@@ -165,18 +155,16 @@ export async function promptCsvOptionsIfNeeded(
 ): Promise<CsvPromptOptions> {
 	if (extension !== 'csv') return Object.freeze({});
 
-	const lines = text.split(/\r?\n/).filter((l): boolean => l.length > 0);
-	if (lines.length === 0) return Object.freeze({});
+	// Same parser as extraction, so the picker can never disagree with
+	// what extraction actually parses
+	const headerCells = readCsvHeader(text);
+	if (headerCells.length === 0) return Object.freeze({});
 
-	const firstLine = lines[0];
-	if (!firstLine) return Object.freeze({});
-
-	const headerCells = splitCsvLine(firstLine);
 	const looksLikeHeader = headerCells.some((cell) => /[A-Za-z]/.test(cell));
 
 	if (looksLikeHeader) {
 		return await handleCsvHeaderBasedSelection(headerCells);
 	} else {
-		return await handleCsvIndexBasedSelection(lines);
+		return await handleCsvIndexBasedSelection(headerCells);
 	}
 }

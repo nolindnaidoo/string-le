@@ -1,7 +1,18 @@
 const MAX_RECURSION_DEPTH = 1000;
 
 /**
- * Recursively collect trimmed string leaf values from JSON-like structures.
+ * Shared value-collection heuristics for every parsed format (JSON,
+ * YAML, TOML, INI): recursively collect string leaf VALUES from the
+ * parsed structure. One rule set, applied uniformly:
+ *
+ * - keys are never extracted, only values
+ * - non-string primitives (numbers, booleans, null) are dropped — in
+ *   typed formats a bare 42 is a number, not a string; untyped
+ *   line-formats (INI, .env) parse every value as a string, so
+ *   numeric-looking values ARE extracted there
+ * - other non-string leaves (e.g. TOML dates) are dropped
+ * - values are trimmed; empty/whitespace-only values are dropped
+ *
  * Silently stops at MAX_RECURSION_DEPTH to prevent stack overflow.
  */
 export function collectStrings(
