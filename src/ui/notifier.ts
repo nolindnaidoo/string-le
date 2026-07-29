@@ -1,7 +1,11 @@
 import * as vscode from 'vscode';
+import { readConfig } from '../config/config';
 
-type NotificationLevel = 'all' | 'important' | 'silent';
-
+/**
+ * All user notifications route through here so notificationsLevel
+ * actually governs them: 'all' shows everything, 'important' shows
+ * warnings and errors, 'silent' shows errors only.
+ */
 export interface Notifier {
 	info(message: string): void;
 	warn(message: string): void;
@@ -14,120 +18,38 @@ export interface Notifier {
 export function createNotifier(): Notifier {
 	return Object.freeze({
 		info(message: string): void {
-			showInfo(message);
+			if (readConfig().notificationsLevel === 'all') {
+				vscode.window.showInformationMessage(message);
+			}
 		},
 		warn(message: string): void {
-			showWarning(message);
+			if (readConfig().notificationsLevel !== 'silent') {
+				vscode.window.showWarningMessage(message);
+			}
 		},
 		error(message: string): void {
-			showError(message);
+			vscode.window.showErrorMessage(message);
 		},
-		showMultilineRisk(_count: number): void {
-			showMultilineRiskMessage();
+		showMultilineRisk(count: number): void {
+			if (readConfig().notificationsLevel === 'all') {
+				vscode.window.showInformationMessage(
+					`Detected ${count} multi‑line string${count === 1 ? '' : 's'}. Rendering and joining may vary by format. Prefer quoted, single‑line strings for stable results.`,
+				);
+			}
 		},
 		showCsvNoCopy(): void {
-			showCsvNoCopyMessage();
+			if (readConfig().notificationsLevel === 'all') {
+				vscode.window.showInformationMessage(
+					"CSV results aren't auto‑copied when streaming or extracting all columns. Use the editor output or Copy manually.",
+				);
+			}
 		},
 		showPostProcessInfo(): void {
-			showPostProcessInfoMessage();
+			if (readConfig().notificationsLevel === 'all') {
+				vscode.window.showInformationMessage(
+					"Sorting and deduping operate on final strings, not structured positions. Structural order/indices aren't preserved.",
+				);
+			}
 		},
 	});
-}
-
-function readNotificationLevel(): NotificationLevel {
-	const config = vscode.workspace.getConfiguration('string-le');
-	const level = config.get('notificationsLevel', 'all') as NotificationLevel;
-	return level ?? 'all';
-}
-
-function showInfo(message: string): void {
-	const level = readNotificationLevel();
-
-	// Guard: Silent mode
-	if (level === 'silent') {
-		return;
-	}
-
-	// Guard: Important-only mode
-	if (level === 'important') {
-		return;
-	}
-
-	vscode.window.showInformationMessage(message);
-}
-
-function showWarning(message: string): void {
-	const level = readNotificationLevel();
-
-	// Guard: Silent mode
-	if (level === 'silent') {
-		return;
-	}
-
-	vscode.window.showWarningMessage(message);
-}
-
-function showError(message: string): void {
-	const level = readNotificationLevel();
-
-	// Guard: Silent mode
-	if (level === 'silent') {
-		return;
-	}
-
-	vscode.window.showErrorMessage(message);
-}
-
-function showMultilineRiskMessage(): void {
-	const level = readNotificationLevel();
-
-	// Guard: Silent mode
-	if (level === 'silent') {
-		return;
-	}
-
-	// Guard: Important-only mode
-	if (level === 'important') {
-		return;
-	}
-
-	vscode.window.showInformationMessage(
-		'Detected multi‑line strings. Rendering and joining may vary by format. Prefer quoted, single‑line strings for stable results.',
-	);
-}
-
-function showCsvNoCopyMessage(): void {
-	const level = readNotificationLevel();
-
-	// Guard: Silent mode
-	if (level === 'silent') {
-		return;
-	}
-
-	// Guard: Important-only mode
-	if (level === 'important') {
-		return;
-	}
-
-	vscode.window.showInformationMessage(
-		"CSV results aren't auto‑copied when streaming or extracting all columns. Use the editor output or Copy manually.",
-	);
-}
-
-function showPostProcessInfoMessage(): void {
-	const level = readNotificationLevel();
-
-	// Guard: Silent mode
-	if (level === 'silent') {
-		return;
-	}
-
-	// Guard: Important-only mode
-	if (level === 'important') {
-		return;
-	}
-
-	vscode.window.showInformationMessage(
-		"Sorting and deduping operate on final strings, not structured positions. Structural order/indices aren't preserved.",
-	);
 }
