@@ -139,20 +139,3 @@ export const TextEdit = {
 	insert: vi.fn(),
 	delete: vi.fn(),
 };
-
-// Mock for editor.edit functionality
-const _mockEdit = vi.fn((callback) => {
-	const edit = {
-		replace: vi.fn(),
-		insert: vi.fn(),
-		delete: vi.fn(),
-	};
-	callback(edit);
-	return Promise.resolve(true);
-});
-
-// Mock document positionAt function
-const _mockPositionAt = vi.fn((offset: number) => ({
-	line: Math.floor(offset / 10), // Simple mock calculation
-	character: offset % 10,
-}));
