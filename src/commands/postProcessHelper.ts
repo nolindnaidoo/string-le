@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { readConfig } from '../config/config';
+import { sanitizeErrorMessage } from '../utils/errors';
 
 /**
  * Shared helper for post-processing commands (dedupe, sort).
@@ -86,7 +87,9 @@ function buildFullDocumentRange(editor: vscode.TextEditor): vscode.Range {
 
 function showOpenDocumentError(error: unknown): void {
 	const message = error instanceof Error ? error.message : 'Unknown error';
-	vscode.window.showErrorMessage(`Failed to open new document: ${message}`);
+	vscode.window.showErrorMessage(
+		`Failed to open new document: ${sanitizeErrorMessage(message)}`,
+	);
 }
 
 function showEditRejectedError(): void {
@@ -97,5 +100,7 @@ function showEditRejectedError(): void {
 
 function showEditError(error: unknown): void {
 	const message = error instanceof Error ? error.message : 'Unknown error';
-	vscode.window.showErrorMessage(`Failed to edit document: ${message}`);
+	vscode.window.showErrorMessage(
+		`Failed to edit document: ${sanitizeErrorMessage(message)}`,
+	);
 }

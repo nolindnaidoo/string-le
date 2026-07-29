@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { readConfig } from '../config/config';
+import { sanitizeErrorMessage } from '../utils/errors';
 
 /**
  * All user notifications route through here so notificationsLevel
@@ -24,11 +25,11 @@ export function createNotifier(): Notifier {
 		},
 		warn(message: string): void {
 			if (readConfig().notificationsLevel !== 'silent') {
-				vscode.window.showWarningMessage(message);
+				vscode.window.showWarningMessage(sanitizeErrorMessage(message));
 			}
 		},
 		error(message: string): void {
-			vscode.window.showErrorMessage(message);
+			vscode.window.showErrorMessage(sanitizeErrorMessage(message));
 		},
 		showMultilineRisk(count: number): void {
 			if (readConfig().notificationsLevel === 'all') {
