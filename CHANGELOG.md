@@ -5,49 +5,91 @@ All notable changes to String-LE will be documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.8.1] - 2025-11-02
+## [2.0.0] - 2026-07-29
 
-### Documentation
+Full rehabilitation release. The headline: **v1.x VSIXes built from this
+repo could not activate** — the build had no bundler while the package
+excluded `node_modules`, so the extension crashed on load with
+`Cannot find module 'vscode-nls'`. 2.0.0 ships a self-contained esbuild
+bundle, verified by a packaging gate and a real extension-host
+integration suite on every CI run.
 
-- **LE Family Updates** - Added Regex-LE and Secrets-LE to the "More from the LE Family" section in README
+### Fixed
 
-## [1.8.0] - 2025-10-26
+- **Packaging**: `dist/extension.js` is now a single self-contained
+  bundle (VSIX: 53 files → 21). A bundle gate (static require scan +
+  loading the bundle with `vscode` stubbed) blocks any regression.
+- **Errors were invisible by default**: with the default
+  `notificationsLevel` of `silent`, error notifications returned before
+  showing anything. Errors now always show; `important` adds warnings;
+  `all` adds info. Error text redacts home directories and
+  credential-shaped fragments.
+- **Config**: code fallbacks silently disagreed with manifest defaults
+  (`postProcess.openInNewFile` false vs true, `openResultsSideBySide`
+  false vs true, `notificationsLevel` all vs silent) — now provably
+  identical (asserted by a parity test over every declared setting).
+  Non-numeric setting overrides no longer produce `NaN` thresholds;
+  non-boolean values are no longer truthiness-coerced.
+- **File-type detection**: was filename-only, so untitled documents
+  silently blocked on a file-type picker. The language id is now used
+  first (matching the context-menu predicate), then the filename.
+- **Context menu**: the `resourceExtname in …` when-clause never
+  matched — the editor context-menu entry had never appeared. Replaced
+  with an `editorLangId` regex.
 
-### Changed
+### Changed — extraction output
 
-- Updated README with corrected marketplace links and improved image positioning
-- Enhanced documentation for better user experience
+- **YAML, TOML, and INI are now genuinely parsed** (js-yaml,
+  @iarna/toml, ini). v1 routed them to a quoted-string regex scan:
+  unquoted values — most YAML/INI values in practice — were silently
+  missed, and quoted strings inside INI comments were extracted.
+  Now: unquoted plain scalars, block/folded scalars, multi-document
+  YAML, and TOML multiline strings all extract; comment content never
+  does; invalid syntax reports a parse error (via `showParseErrors`)
+  instead of silently degrading to a quote scan.
+- **One rule set for all parsed formats** (`extraction/collect.ts`):
+  values only (never keys), trimmed, empty dropped; typed formats
+  (JSON/YAML/TOML) drop numbers/booleans/dates; untyped line formats
+  (INI/.env) extract numeric-looking values as strings.
+- **CSV**: the column picker and multi-column fan-out now use the same
+  csv-parse parser as extraction — quoted headers containing commas or
+  newlines are handled identically everywhere (previously a hand-rolled
+  line splitter disagreed with the real parser).
 
-## [1.7.0] - 2025-01-27
+### Removed
 
-### Initial Public Release
+- 12 settings that were never read by any code path (`performance.*`,
+  `keyboard.*`, `presets.*`). 15 real settings remain.
+- The runtime "localization" layer: it never loaded a single
+  translation (broken `vscode-nls` wiring; the per-module bundles it
+  needed were never generated) — users always saw English.
+  Manifest/settings translations in 12 languages remain and now have
+  full key parity.
+- ~4,000 lines of dead code and 116 MB of tracked benchmark fixtures:
+  the never-invoked performance-monitoring module (the sink for the six
+  `performance.*` settings), benchmark files, the perf-data generator
+  that fabricated docs/PERFORMANCE.md, `sample/`, and stale docs
+  (`docs/`, `.cursorrules`) replaced by an accurate README + AGENTS.md.
+- Help content claiming JS/TS/HTML/CSS support that never existed.
 
-String-LE brings zero-hassle string extraction to VS Code. Simple, reliable, focused.
+### Infrastructure
 
-#### Supported File Types
+- `engines.vscode ^1.90.0` — current VS Code and Cursor 2.x supported.
+- Real quality gates: typecheck now covers tests, coverage thresholds
+  actually enforce (the old config used an inert Jest-style key; real
+  coverage is now 82% and enforced at 80), integration tests run in a
+  downloaded VS Code on all 3 OSes, CI packages the VSIX and uploads it.
+- Release workflow publishes to both the VS Code Marketplace and Open
+  VSX (Cursor's marketplace source).
+- Publisher/identity: `nolindnaidoo` everywhere.
 
-- **JSON** - API responses and configuration files
-- **YAML** - Configuration and data files
-- **CSV** - Data exports and analysis files
-- **TOML** - Configuration files
-- **INI** - Configuration files
-- **ENV** - Environment files
+> Entries below this line predate 2.0.0 and have been condensed: the
+> original release notes claimed features, coverage numbers, and
+> parsing behavior that the shipped code did not have (the packaged
+> extension could not activate at all).
 
-#### Features
+## [1.8.1] and earlier - 2025
 
-- **Multi-language support** - Comprehensive localization for 12+ languages
-- **Intelligent string detection** - Identifies user-visible text while filtering out numbers, IDs, URLs, and technical noise
-- **Automatic cleanup built-in**:
-  - **Sort** for stable diffs and reviews
-  - **Dedupe** to eliminate noise
-- **Stream processing** - Work with millions of rows without locking VS Code
-- **High-performance** - Efficiently processes large datasets
-- **One-command extraction** - `Ctrl+Alt+E` (`Cmd+Alt+E` on macOS)
-- **Developer-friendly** - 92 passing tests (93.64% function coverage, 91.76% line coverage), TypeScript strict mode, functional programming, MIT licensed
-
-#### Use Cases
-
-- **i18n & Localization** - Extract user-visible strings for translation files and language packs
-- **Content Management** - Pull titles, descriptions, and messages from CMS exports for auditing
-- **API Validation** - Extract user-facing messages and errors from API responses for documentation
-- **Documentation Audits** - Get all text content from docs for reviews and updates
+- 1.8.1 (2025-11-02): README LE-family updates.
+- 1.8.0 (2025-10-26): README/marketplace-link updates.
+- 1.7.0 (2025-01-27): initial public release.
