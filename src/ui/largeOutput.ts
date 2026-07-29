@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export type LargeOutputAction = 'open' | 'copy' | 'cancel';
 
@@ -10,11 +7,7 @@ export async function chooseLargeOutputAction(
 	hasContextualNotes = false,
 ): Promise<LargeOutputAction> {
 	// Enhanced warning with contextual notes
-	const baseMessage = localize(
-		'runtime.prompt.large-output.body',
-		'Detected {0} strings. Opening large results may freeze the editor. What would you like to do?',
-		count,
-	);
+	const baseMessage = `Detected ${count} strings. Opening large results may freeze the editor. What would you like to do?`;
 	const notes = hasContextualNotes
 		? [
 				'',
@@ -30,14 +23,12 @@ export async function chooseLargeOutputAction(
 	const choice = await vscode.window.showWarningMessage(
 		fullMessage,
 		{ modal: true },
-		localize('runtime.dialog.action.open', 'Open results'),
-		localize('runtime.dialog.action.copy', 'Copy only'),
-		localize('runtime.dialog.action.cancel', 'Cancel'),
+		'Open results',
+		'Copy only',
+		'Cancel',
 	);
-	if (!choice || choice === localize('runtime.dialog.action.cancel', 'Cancel'))
-		return 'cancel';
-	if (choice === localize('runtime.dialog.action.copy', 'Copy only'))
-		return 'copy';
+	if (!choice || choice === 'Cancel') return 'cancel';
+	if (choice === 'Copy only') return 'copy';
 	return 'open';
 }
 
@@ -46,17 +37,10 @@ export async function confirmManyDocuments(
 	totalLines: number,
 ): Promise<boolean> {
 	const choice = await vscode.window.showWarningMessage(
-		localize(
-			'runtime.dialog.many-docs.message',
-			'Many results — opening {0} documents (~{1} total lines). Proceed?',
-			countDocs,
-			totalLines,
-		),
+		`Many results — opening ${countDocs} documents (~${totalLines} total lines). Proceed?`,
 		{ modal: true },
-		localize('runtime.dialog.action.open', 'Open results'),
-		localize('runtime.dialog.action.cancel', 'Cancel'),
+		'Open results',
+		'Cancel',
 	);
-	return choice === localize('runtime.dialog.action.open', 'Open results');
+	return choice === 'Open results';
 }
-
-void localize;

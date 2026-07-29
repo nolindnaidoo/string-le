@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 const SUPPORTED_LANGUAGES: readonly string[] = ['json', 'csv', 'env'];
 
@@ -42,7 +39,7 @@ function isDocumentEmpty(document: vscode.TextDocument): boolean {
 }
 
 function buildExtractStringAction(): vscode.CodeAction {
-	const title = localize('runtime.codeaction.extract.title', 'Extract strings');
+	const title = 'Extract strings';
 
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
 

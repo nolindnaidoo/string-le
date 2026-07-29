@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import { readConfig } from '../config/config';
 import {
 	isSupportedFileType,
@@ -23,8 +22,6 @@ import type { StatusBar } from '../ui/statusBar';
 import { splitCsvLine } from '../utils/csv';
 import { detectEnvExtension } from '../utils/filename';
 import { dedupe, sortStrings } from '../utils/text';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 // Helper to detect multiline strings in results
 function countMultilineStrings(strings: readonly string[]): number {
@@ -65,9 +62,7 @@ async function validateAndPrepareExtraction(
 	const editor = vscode.window.activeTextEditor;
 
 	if (!editor) {
-		deps.notifier.error(
-			localize('runtime.message.error.no-editor', 'No active editor'),
-		);
+		deps.notifier.error('No active editor');
 		return null;
 	}
 
@@ -78,9 +73,7 @@ async function validateAndPrepareExtraction(
 	try {
 		const text = document.getText();
 		if (text.trim().length === 0) {
-			deps.notifier.info(
-				localize('runtime.message.info.file-empty', 'File is empty'),
-			);
+			deps.notifier.info('File is empty');
 			return null;
 		}
 
@@ -100,12 +93,7 @@ async function validateAndPrepareExtraction(
 		return { document, text, fileType };
 	} catch (_error) {
 		// Document became invalid during access
-		deps.notifier.error(
-			localize(
-				'runtime.message.error.document-invalid',
-				'Document is no longer valid',
-			),
-		);
+		deps.notifier.error('Document is no longer valid');
 		return null;
 	}
 }
@@ -158,9 +146,7 @@ async function handleCsvMultiColumnExtraction(
 	}
 
 	deps.telemetry.event('extracted', { count: 'multi', type: 'csv' });
-	deps.statusBar.flash(
-		localize('runtime.status.csv-opened', 'CSV opened (no auto‑copy)'),
-	);
+	deps.statusBar.flash('CSV opened (no auto‑copy)');
 	deps.notifier.showCsvNoCopy();
 	return true; // Handled
 }
@@ -194,10 +180,7 @@ async function handleStreamingMultiColumn(
 				// Warn user that deduplication is disabled for streaming to prevent memory issues
 				if (config.dedupeEnabled) {
 					deps.notifier.warn(
-						localize(
-							'runtime.warn.streaming-dedupe',
-							'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
-						),
+						'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
 					);
 				}
 
@@ -255,12 +238,7 @@ async function handleStreamingMultiColumn(
 			} catch (error: unknown) {
 				if (error instanceof Error) {
 					deps.notifier.error(
-						localize(
-							'runtime.message.error.column-stream',
-							'Column {0} streaming failed: {1}',
-							idx,
-							error.message,
-						),
+						`Column ${idx} streaming failed: ${error.message}`,
 					);
 				}
 				// Continue with next column
@@ -324,12 +302,7 @@ async function handleNonStreamingMultiColumn(
 			);
 		} catch (error: unknown) {
 			if (error instanceof Error) {
-				deps.notifier.error(
-					localize(
-						'runtime.message.error.open-results',
-						'Could not open results',
-					),
-				);
+				deps.notifier.error('Could not open results');
 			}
 		}
 	}
@@ -363,10 +336,7 @@ async function handleCsvStreamingExtraction(
 		// Warn user that deduplication is disabled for streaming to prevent memory issues
 		if (config.dedupeEnabled) {
 			deps.notifier.warn(
-				localize(
-					'runtime.warn.streaming-dedupe',
-					'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
-				),
+				'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
 			);
 		}
 
@@ -421,27 +391,14 @@ async function handleCsvStreamingExtraction(
 		}
 
 		deps.telemetry.event('extracted', { count: 'stream', type: 'csv' });
-		deps.statusBar.flash(
-			localize('runtime.status.csv-opened', 'CSV opened (no auto‑copy)'),
-		);
+		deps.statusBar.flash('CSV opened (no auto‑copy)');
 		deps.notifier.showCsvNoCopy();
 		return true; // Handled
 	} catch (error: unknown) {
 		if (error instanceof Error) {
-			deps.notifier.error(
-				localize(
-					'runtime.message.error.csv-streaming',
-					'CSV streaming failed: {0}',
-					error.message,
-				),
-			);
+			deps.notifier.error(`CSV streaming failed: ${error.message}`);
 		} else {
-			deps.notifier.error(
-				localize(
-					'runtime.message.error.csv-streaming-unknown',
-					'CSV streaming failed with unknown error',
-				),
-			);
+			deps.notifier.error('CSV streaming failed with unknown error');
 		}
 		return true; // Handled (with error)
 	} finally {
@@ -483,9 +440,7 @@ async function handleNormalExtraction(
 		: dedupedStrings;
 
 	if (finalStrings.length === 0) {
-		deps.notifier.info(
-			localize('runtime.message.info.no-strings', 'No strings found'),
-		);
+		deps.notifier.info('No strings found');
 		return;
 	}
 
@@ -498,9 +453,7 @@ async function handleNormalExtraction(
 	// Show post-processing info if dedupe or sort was applied
 	if (shouldDedupe || sortEnabled) {
 		deps.notifier.showPostProcessInfo();
-		deps.statusBar.flash(
-			localize('runtime.status.postprocess', 'Dedupe/Sort applied'),
-		);
+		deps.statusBar.flash('Dedupe/Sort applied');
 	}
 
 	await processAndOutputResults(finalStrings, context, token);
@@ -547,12 +500,7 @@ async function processAndOutputResults(
 			);
 		} catch (error: unknown) {
 			if (error instanceof Error) {
-				deps.notifier.error(
-					localize(
-						'runtime.message.error.open-results',
-						'Could not open results',
-					),
-				);
+				deps.notifier.error('Could not open results');
 			}
 		}
 	}
@@ -565,12 +513,7 @@ async function processAndOutputResults(
 			await vscode.env.clipboard.writeText(finalStrings.join('\n'));
 			clipboardSuccess = true;
 		} catch {
-			deps.notifier.warn(
-				localize(
-					'runtime.message.warn.clipboard-failed',
-					'Could not copy to clipboard',
-				),
-			);
+			deps.notifier.warn('Could not copy to clipboard');
 		}
 	}
 
@@ -581,17 +524,9 @@ async function processAndOutputResults(
 
 	// Choose appropriate status message
 	if (clipboardSuccess) {
-		deps.statusBar.flash(
-			localize('runtime.status.copied', 'Copied to clipboard'),
-		);
+		deps.statusBar.flash('Copied to clipboard');
 	} else {
-		deps.statusBar.flash(
-			localize(
-				'runtime.status.extracted',
-				'Extracted {0}',
-				finalStrings.length,
-			),
-		);
+		deps.statusBar.flash(`Extracted ${finalStrings.length}`);
 	}
 }
 
@@ -624,7 +559,7 @@ export function registerExtractStringsCommand(
 			await vscode.window.withProgress(
 				{
 					location: vscode.ProgressLocation.Notification,
-					title: localize('runtime.progress.extract.title', 'Extracting...'),
+					title: 'Extracting...',
 					cancellable: true,
 				},
 				async (_progress, token): Promise<void> => {
@@ -638,11 +573,7 @@ export function registerExtractStringsCommand(
 						const stat = await vscode.workspace.fs.stat(document.uri);
 						if (config.safetyEnabled && stat.size > config.fileSizeWarnBytes) {
 							notifier.warn(
-								localize(
-									'runtime.message.warn.large-file',
-									'Large file detected ({0} bytes). Extraction may take longer.',
-									config.fileSizeWarnBytes,
-								),
+								`Large file detected (${config.fileSizeWarnBytes} bytes). Extraction may take longer.`,
 							);
 						}
 					} catch {

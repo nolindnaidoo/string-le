@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 type NotificationLevel = 'all' | 'important' | 'silent';
 
@@ -95,10 +92,7 @@ function showMultilineRiskMessage(): void {
 	}
 
 	vscode.window.showInformationMessage(
-		localize(
-			'runtime.info.multiline-detected',
-			'Detected multi‑line strings. Rendering and joining may vary by format. Prefer quoted, single‑line strings for stable results.',
-		),
+		'Detected multi‑line strings. Rendering and joining may vary by format. Prefer quoted, single‑line strings for stable results.',
 	);
 }
 
@@ -116,10 +110,7 @@ function showCsvNoCopyMessage(): void {
 	}
 
 	vscode.window.showInformationMessage(
-		localize(
-			'runtime.info.csv-no-clipboard',
-			"CSV results aren't auto‑copied when streaming or extracting all columns. Use the editor output or Copy manually.",
-		),
+		"CSV results aren't auto‑copied when streaming or extracting all columns. Use the editor output or Copy manually.",
 	);
 }
 
@@ -137,9 +128,6 @@ function showPostProcessInfoMessage(): void {
 	}
 
 	vscode.window.showInformationMessage(
-		localize(
-			'runtime.info.postprocess-semantics',
-			"Sorting and deduping operate on final strings, not structured positions. Structural order/indices aren't preserved.",
-		),
+		"Sorting and deduping operate on final strings, not structured positions. Structural order/indices aren't preserved.",
 	);
 }

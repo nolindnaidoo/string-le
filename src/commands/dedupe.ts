@@ -1,9 +1,6 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import { dedupe } from '../utils/text';
 import { processAndOutput } from './postProcessHelper';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export function registerDedupeCommand(context: vscode.ExtensionContext): void {
 	const command = vscode.commands.registerCommand(
@@ -35,9 +32,7 @@ async function executeDedupe(): Promise<void> {
 }
 
 function showNoEditorWarning(): void {
-	vscode.window.showWarningMessage(
-		localize('runtime.message.error.no-editor', 'No active editor'),
-	);
+	vscode.window.showWarningMessage('No active editor');
 }
 
 function extractLines(editor: vscode.TextEditor): readonly string[] {
@@ -49,7 +44,5 @@ function joinLines(lines: readonly string[]): string {
 }
 
 function showSuccessMessage(): void {
-	vscode.window.showInformationMessage(
-		localize('runtime.status.postprocess', 'Dedupe/sort applied'),
-	);
+	vscode.window.showInformationMessage('Dedupe/sort applied');
 }

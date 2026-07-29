@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 const FLASH_DURATION_MS = 2000;
 
@@ -32,8 +29,8 @@ function createStatusBarItem(): vscode.StatusBarItem {
 		100,
 	);
 
-	item.text = localize('runtime.statusbar.text', '$(quote) String-LE');
-	item.tooltip = localize('runtime.status.tooltip', 'Run String-LE: Extract');
+	item.text = '$(quote) String-LE';
+	item.tooltip = 'Run String-LE: Extract';
 	item.command = 'string-le.extractStrings';
 
 	return item;
@@ -123,13 +120,10 @@ function readStatusBarConfig(): StatusBarConfig {
 
 function buildStatusBarText(csvStreaming: boolean): string {
 	if (csvStreaming) {
-		return localize(
-			'runtime.statusbar.text.csv-streaming',
-			'$(quote) String-LE (CSV Streaming)',
-		);
+		return '$(quote) String-LE (CSV Streaming)';
 	}
 
-	return localize('runtime.statusbar.text', '$(quote) String-LE');
+	return '$(quote) String-LE';
 }
 
 function flashStatusBar(
@@ -157,7 +151,7 @@ function clearFlashTimer(state: StatusBarState): void {
 }
 
 function showFlashText(item: vscode.StatusBarItem, text: string): void {
-	item.text = localize('runtime.statusbar.text.flash', '$(quote) {0}', text);
+	item.text = `$(quote) ${text}`;
 }
 
 function scheduleRestore(

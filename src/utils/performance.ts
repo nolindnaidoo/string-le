@@ -1,7 +1,4 @@
-import * as nls from 'vscode-nls';
 import type { StringLeConfig } from '../config/config';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 /**
  * Performance monitoring and optimization utilities for String-LE
@@ -116,49 +113,28 @@ export class PerformanceMonitor {
 		// Analyze performance and provide recommendations
 		if (avgDuration > this.thresholds.maxDuration) {
 			warnings.push(
-				localize(
-					'runtime.performance.warning.slow-operation',
-					'Operations are taking longer than expected ({0}ms average)',
-					Math.round(avgDuration),
-				),
+				`Operations are taking longer than expected (${Math.round(avgDuration)}ms average)`,
 			);
 			recommendations.push(
-				localize(
-					'runtime.performance.recommendation.slow-operation',
-					'Consider using CSV streaming for large files or disabling analysis',
-				),
+				'Consider using CSV streaming for large files or disabling analysis',
 			);
 		}
 
 		if (avgThroughput < this.thresholds.minThroughput) {
 			warnings.push(
-				localize(
-					'runtime.performance.warning.low-throughput',
-					'Low throughput detected ({0} strings/sec average)',
-					Math.round(avgThroughput),
-				),
+				`Low throughput detected (${Math.round(avgThroughput)} strings/sec average)`,
 			);
 			recommendations.push(
-				localize(
-					'runtime.performance.recommendation.low-throughput',
-					'Disable automatic sorting and deduplication to improve throughput',
-				),
+				'Disable automatic sorting and deduplication to improve throughput',
 			);
 		}
 
 		if (avgMemoryUsage > this.thresholds.maxMemoryUsage) {
 			warnings.push(
-				localize(
-					'runtime.performance.warning.high-memory',
-					'High memory usage detected ({0} MB average)',
-					Math.round(avgMemoryUsage / (1024 * 1024)),
-				),
+				`High memory usage detected (${Math.round(avgMemoryUsage / (1024 * 1024))} MB average)`,
 			);
 			recommendations.push(
-				localize(
-					'runtime.performance.recommendation.high-memory',
-					'Consider enabling CSV streaming or processing smaller files',
-				),
+				'Consider enabling CSV streaming or processing smaller files',
 			);
 		}
 
@@ -175,11 +151,7 @@ export class PerformanceMonitor {
 
 		if (cacheHitRate < 0.5) {
 			optimizations.push(
-				localize(
-					'runtime.performance.optimization.cache',
-					'Low cache hit rate ({0}%). Consider increasing cache size in settings',
-					Math.round(cacheHitRate * 100),
-				),
+				`Low cache hit rate (${Math.round(cacheHitRate * 100)}%). Consider increasing cache size in settings`,
 			);
 		}
 
@@ -399,37 +371,25 @@ export function getPerformanceOptimizations(
 
 	if (metrics.duration > thresholds.maxDuration) {
 		optimizations.push(
-			localize(
-				'runtime.performance.optimization.duration',
-				'Consider enabling CSV streaming or disabling automatic analysis',
-			),
+			'Consider enabling CSV streaming or disabling automatic analysis',
 		);
 	}
 
 	if (metrics.throughput < thresholds.minThroughput) {
 		optimizations.push(
-			localize(
-				'runtime.performance.optimization.throughput',
-				'Disable automatic sorting and deduplication to improve throughput',
-			),
+			'Disable automatic sorting and deduplication to improve throughput',
 		);
 	}
 
 	if (metrics.memoryUsage > thresholds.maxMemoryUsage) {
 		optimizations.push(
-			localize(
-				'runtime.performance.optimization.memory',
-				'Process smaller files or enable CSV streaming to reduce memory usage',
-			),
+			'Process smaller files or enable CSV streaming to reduce memory usage',
 		);
 	}
 
 	if (metrics.cacheMisses > metrics.cacheHits * 2) {
 		optimizations.push(
-			localize(
-				'runtime.performance.optimization.cache',
-				'Improve cache efficiency by increasing cache size in settings',
-			),
+			'Improve cache efficiency by increasing cache size in settings',
 		);
 	}
 

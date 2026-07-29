@@ -1,8 +1,5 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import type { SortMode } from '../utils/text';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export function readConfig(): StringLeConfig {
 	const cfg = vscode.workspace.getConfiguration('string-le');
@@ -134,5 +131,3 @@ export type StringLeConfig = Readonly<{
 	performanceMinThroughput: number;
 	performanceMaxCacheSize: number;
 }>;
-
-void localize;

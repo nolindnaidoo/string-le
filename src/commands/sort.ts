@@ -1,9 +1,6 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
 import { type SortMode, sortStrings } from '../utils/text';
 import { processAndOutput } from './postProcessHelper';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 type SortOption = Readonly<{
 	label: string;
@@ -12,25 +9,19 @@ type SortOption = Readonly<{
 
 const SORT_OPTIONS: readonly SortOption[] = [
 	{
-		label: localize('runtime.sort.option.alpha-asc', 'Alphabetical (A → Z)'),
+		label: 'Alphabetical (A → Z)',
 		mode: 'alpha-asc',
 	},
 	{
-		label: localize('runtime.sort.option.alpha-desc', 'Alphabetical (Z → A)'),
+		label: 'Alphabetical (Z → A)',
 		mode: 'alpha-desc',
 	},
 	{
-		label: localize(
-			'runtime.sort.option.length-asc',
-			'By length (short → long)',
-		),
+		label: 'By length (short → long)',
 		mode: 'length-asc',
 	},
 	{
-		label: localize(
-			'runtime.sort.option.length-desc',
-			'By length (long → short)',
-		),
+		label: 'By length (long → short)',
 		mode: 'length-desc',
 	},
 ] as const;
@@ -75,10 +66,7 @@ async function promptForSortMode(): Promise<SortMode | undefined> {
 	const labels = SORT_OPTIONS.map((option) => option.label);
 
 	const picked = await vscode.window.showQuickPick(labels, {
-		placeHolder: localize(
-			'runtime.sort.picker.placeholder',
-			'Choose sort mode',
-		),
+		placeHolder: 'Choose sort mode',
 	});
 
 	// Guard: User cancelled
@@ -95,9 +83,7 @@ function findSortMode(label: string): SortMode {
 }
 
 function showNoEditorWarning(): void {
-	vscode.window.showWarningMessage(
-		localize('runtime.message.error.no-editor', 'No active editor'),
-	);
+	vscode.window.showWarningMessage('No active editor');
 }
 
 function extractLines(editor: vscode.TextEditor): readonly string[] {
@@ -109,7 +95,5 @@ function joinLines(lines: readonly string[]): string {
 }
 
 function showSuccessMessage(): void {
-	vscode.window.showInformationMessage(
-		localize('runtime.status.postprocess', 'Dedupe/sort applied'),
-	);
+	vscode.window.showInformationMessage('Dedupe/sort applied');
 }

@@ -55,7 +55,6 @@
 	],
 	"icon": "src/assets/images/icon.png",
 	"main": "./dist/extension.js",
-	"l10n": "./package.nls.json",
 	"activationEvents": [
 		"onLanguage:json",
 		"onLanguage:yaml",
@@ -374,7 +373,6 @@
 		"csv-parse": "^6.1.0",
 		"ini": "^5.0.0",
 		"js-yaml": "^4.1.0",
-		"@iarna/toml": "^2.2.5",
-		"vscode-nls": "^5.2.0"
+		"@iarna/toml": "^2.2.5"
 	}
 }

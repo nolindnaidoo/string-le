@@ -1,7 +1,3 @@
-import * as nls from 'vscode-nls';
-
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
-
 export function normalizeFileType(
 	raw: string | undefined,
 ): SupportedFileType | undefined {
@@ -32,6 +28,3 @@ export function isSupportedFileType(value: string): value is SupportedFileType {
 		value === 'fallback'
 	);
 }
-
-// Import nls for consistent per-file initialization even if `localize` is unused
-void localize;
