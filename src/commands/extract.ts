@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
 import { readConfig } from '../config/config';
-import {
-	isSupportedFileType,
-	normalizeFileType,
-	type SupportedFileType,
-} from '../config/fileTypes';
+import { normalizeFileType, type SupportedFileType } from '../config/fileTypes';
 import { extractStrings } from '../extraction/extract';
 import { readCsvHeader, streamCsvStrings } from '../extraction/formats/csv';
 import type { Telemetry } from '../telemetry/telemetry';
@@ -76,17 +72,18 @@ async function validateAndPrepareExtraction(
 			return null;
 		}
 
-		// Infer file type from filename (.env variants) or prompt if unknown
-		let fileType = normalizeFileType(detectEnvExtension(document.fileName));
+		// Infer file type from the language id first (works for untitled
+		// documents and matches the menu when-clause), then the filename
+		// (.env variants), then prompt.
+		const languageId =
+			document.languageId === 'dotenv' ? 'env' : document.languageId;
+		let fileType: SupportedFileType | undefined =
+			normalizeFileType(languageId) ??
+			normalizeFileType(detectEnvExtension(document.fileName));
 		if (!fileType) {
 			const chosen = await promptForFileType();
 			if (!chosen) return null;
 			fileType = chosen;
-		}
-		if (!isSupportedFileType(fileType)) {
-			const chosen = await promptForFileType();
-			if (!chosen) return null;
-			fileType = chosen as SupportedFileType;
 		}
 
 		return { document, text, fileType };
