@@ -11,12 +11,12 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/nolindnaidoo/string-le.git"
+		"url": "https://github.com/nolindnaidoo/strings-le.git"
 	},
 	"bugs": {
-		"url": "https://github.com/nolindnaidoo/string-le/issues"
+		"url": "https://github.com/nolindnaidoo/strings-le/issues"
 	},
-	"homepage": "https://github.com/nolindnaidoo/string-le#readme",
+	"homepage": "https://letools.dev",
 	"engines": {
 		"vscode": "^1.90.0",
 		"node": ">=20.0.0"

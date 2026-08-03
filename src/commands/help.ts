@@ -80,8 +80,11 @@ For large CSV files, enable streaming mode:
 Access settings via Command Palette: "String-LE: Open Settings"
 
 ## Support
-- GitHub Issues: https://github.com/nolindnaidoo/string-le/issues
-- Documentation: https://github.com/nolindnaidoo/string-le#readme
+- GitHub Issues: https://github.com/nolindnaidoo/strings-le/issues
+- Documentation: https://github.com/nolindnaidoo/strings-le#readme
+- LE Tools: https://letools.dev
+
+Built by nolindnaidoo (https://github.com/nolindnaidoo) — MIT licensed.
 	`.trim();
 }
 
