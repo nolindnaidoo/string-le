@@ -1,0 +1,4 @@
+key,en,notes
+onboarding.step1,"Connect your repository",shown once
+onboarding.step2,"Pick a branch to watch",
+onboarding.done,"You're all set",celebratory

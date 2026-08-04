@@ -1,0 +1,14 @@
+{
+  "app.title": "Acme Dashboard",
+  "nav.overview": "Overview",
+  "nav.billing": "Billing",
+  "nav.settings": "Settings",
+  "empty.projects": "No projects yet",
+  "empty.projects.cta": "Create your first project",
+  "error.network": "We could not reach the server",
+  "error.permission": "You do not have access to this workspace",
+  "confirm.delete": "Delete this project permanently?",
+  "confirm.delete.warn": "This cannot be undone",
+  "billing.plan": "Current plan",
+  "billing.renews": "Renews automatically"
+}

@@ -1,0 +1,7 @@
+app.title: Acme Dashboard
+nav.overview: Übersicht
+nav.billing: Abrechnung
+nav.settings: Einstellungen
+empty.projects: Noch keine Projekte
+error.network: Der Server ist nicht erreichbar
+confirm.delete: Dieses Projekt endgültig löschen?
