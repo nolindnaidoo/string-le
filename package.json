@@ -22,9 +22,9 @@
 		"node": ">=20.0.0"
 	},
 	"categories": [
-		"Other",
+		"Language Packs",
 		"Programming Languages",
-		"Linters"
+		"Data Science"
 	],
 	"keywords": [
 		"string",
