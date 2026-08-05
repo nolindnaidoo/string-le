@@ -222,6 +222,7 @@ export const workspace = {
 		content?: string;
 		language?: string;
 	}) => {
+		if (openDocumentError) throw openDocumentError;
 		const document = _createDocument({
 			content: options?.content ?? '',
 			languageId: options?.language ?? 'plaintext',
@@ -258,7 +259,7 @@ export interface ShownMessage {
 }
 
 const shownMessages: ShownMessage[] = [];
-let activeTextEditor: { document: MockDocument } | undefined;
+let activeTextEditor: ReturnType<typeof createEditorFor> | undefined;
 let quickPickResponder: ((items: unknown[]) => unknown) | undefined;
 let warningResponder: ((items: unknown[]) => unknown) | undefined;
 
@@ -267,7 +268,11 @@ export function _shownMessages(): readonly ShownMessage[] {
 }
 
 export function _setActiveEditor(document: MockDocument | undefined): void {
-	activeTextEditor = document ? { document } : undefined;
+	// A full editor, not just { document }. The bare object had no edit(), so
+	// every command that calls editor.edit(...) hit a TypeError and silently
+	// took its error path — in-place replacement had never actually run in a
+	// test, and a test asserting success was asserting the failure branch.
+	activeTextEditor = document ? createEditorFor(document) : undefined;
 }
 
 export function _respondToQuickPick(
@@ -334,6 +339,7 @@ function createEditorFor(document: MockDocument) {
 				},
 				delete: () => {},
 			});
+			if (editError) throw editError;
 			return editResult;
 		},
 	};
@@ -345,6 +351,20 @@ let editResult = true;
 
 export function _setEditResult(value: boolean): void {
 	editResult = value;
+}
+
+/** Make editor.edit throw, for the error-handling path. */
+let editError: Error | undefined;
+
+export function _setEditError(error: Error | undefined): void {
+	editError = error;
+}
+
+/** Make workspace.openTextDocument throw, for the same reason. */
+let openDocumentError: Error | undefined;
+
+export function _setOpenDocumentError(error: Error | undefined): void {
+	openDocumentError = error;
 }
 
 const replacedRanges: Array<{ range: Range; text: string }> = [];
@@ -413,11 +433,21 @@ export const window = {
 		) => Thenable<T>,
 	): Promise<T> =>
 		task(
-			{ report: () => {} },
 			{
-				isCancellationRequested: false,
-				onCancellationRequested: () => ({ dispose: () => {} }),
+				report: () => {
+					// The command declares cancellable: true, so a user really can
+					// cancel partway through. Counting reports is how a test reaches
+					// the checks the task makes between its steps.
+					progressReports += 1;
+					if (
+						cancelAfterReports !== undefined &&
+						progressReports >= cancelAfterReports
+					) {
+						progressToken.isCancellationRequested = true;
+					}
+				},
 			},
+			progressToken,
 		),
 	createOutputChannel: (_name: string) => {
 		const linesOut: string[] = [];
@@ -561,8 +591,26 @@ export const FileType = {
 };
 
 /** Reset all mutable mock state between tests. */
+const progressToken = {
+	isCancellationRequested: false,
+	onCancellationRequested: () => ({ dispose: () => {} }),
+};
+let progressReports = 0;
+let cancelAfterReports: number | undefined;
+
+/** Cancel the operation once it has reported progress `n` times (0 = at once). */
+export function _cancelAfterProgress(n: number | undefined): void {
+	cancelAfterReports = n;
+	progressToken.isCancellationRequested = n === 0;
+}
+
 export function _resetMockState(): void {
+	progressReports = 0;
+	cancelAfterReports = undefined;
+	progressToken.isCancellationRequested = false;
 	editResult = true;
+	editError = undefined;
+	openDocumentError = undefined;
 	inputBoxRejections.length = 0;
 	shownDocumentOptions.length = 0;
 	configStore.clear();

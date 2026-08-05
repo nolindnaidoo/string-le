@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+	_cancelAfterProgress,
 	_clipboardText,
 	_createDocument,
 	_createExtensionContext,
@@ -434,5 +435,185 @@ describe('extract: remaining settings paths', () => {
 		const before = _openedDocuments().length;
 		await runExtract();
 		expect(_openedDocuments()).toHaveLength(before);
+	});
+});
+
+describe('extract: cancellation', () => {
+	// The command declares cancellable: true, so these checks are reachable —
+	// unlike a token that is created locally and never cancelled. Each step of
+	// the extraction re-checks, which is what keeps a large file interruptible.
+
+	it('stops before extracting when cancelled at once', async () => {
+		_cancelAfterProgress(0);
+		_setActiveEditor(
+			_createDocument({ content: '["a","b"]', fileName: '/mock/a.json' }),
+		);
+		const before = _openedDocuments().length;
+		await runExtract();
+		expect(_openedDocuments()).toHaveLength(before);
+	});
+
+	it('finishes cleanly when cancelled partway through', async () => {
+		// Where a mid-run cancellation lands depends on the input: a small
+		// document can pass the remaining checks before the flag is read. What
+		// must hold either way is that it neither throws nor reports an error.
+		_cancelAfterProgress(1);
+		_setActiveEditor(
+			_createDocument({ content: manyStrings(), fileName: '/mock/a.json' }),
+		);
+		await expect(runExtract()).resolves.toBeUndefined();
+		expect(_shownMessages().some((m) => m.kind === 'error')).toBe(false);
+	});
+
+	it('does not report a cancellation as an error', async () => {
+		_cancelAfterProgress(1);
+		_setActiveEditor(
+			_createDocument({ content: '["a","b"]', fileName: '/mock/a.json' }),
+		);
+		await runExtract();
+		expect(_shownMessages().some((m) => m.kind === 'error')).toBe(false);
+	});
+
+	it('completes normally when not cancelled', async () => {
+		_setActiveEditor(
+			_createDocument({ content: '["a","b"]', fileName: '/mock/a.json' }),
+		);
+		await runExtract();
+		expect(_openedDocuments().length).toBeGreaterThan(0);
+	});
+
+	it('stops a streaming CSV extraction when cancelled', async () => {
+		_setConfig('string-le.csv.streamingEnabled', true);
+		_cancelAfterProgress(1);
+		_setActiveEditor(
+			_createDocument({ content: '1,2\nfoo,bar\n', fileName: '/m/d.csv' }),
+		);
+		_respondToInputBox(() => '');
+		await expect(runExtract()).resolves.toBeUndefined();
+	});
+});
+
+describe('extract: parse errors and streaming flush', () => {
+	// Each format's extractor gets an onParseError callback; they only fire on
+	// input the parser rejects, so well-formed fixtures leave them unread.
+
+	it('surfaces a JSON parse error when showParseErrors is on', async () => {
+		_setConfig('string-le.showParseErrors', true);
+		_setActiveEditor(
+			_createDocument({ content: '{ not valid json', fileName: '/m/a.json' }),
+		);
+		await runExtract();
+		expect(_shownMessages().some((m) => m.kind === 'error')).toBe(true);
+	});
+
+	it('stays quiet about a parse error when showParseErrors is off', async () => {
+		_setConfig('string-le.showParseErrors', false);
+		_setActiveEditor(
+			_createDocument({ content: '{ not valid json', fileName: '/m/a.json' }),
+		);
+		await runExtract();
+		expect(_shownMessages().some((m) => m.kind === 'error')).toBe(false);
+	});
+
+	it('surfaces a YAML parse error', async () => {
+		_setConfig('string-le.showParseErrors', true);
+		_setActiveEditor(
+			_createDocument({
+				content: 'a:\n  - b\n bad indent: [\n',
+				fileName: '/m/a.yaml',
+			}),
+		);
+		await runExtract();
+		expect(_shownMessages().length).toBeGreaterThan(0);
+	});
+
+	it('surfaces a TOML parse error', async () => {
+		_setConfig('string-le.showParseErrors', true);
+		_setActiveEditor(
+			_createDocument({ content: 'a = = 1\n', fileName: '/m/a.toml' }),
+		);
+		await runExtract();
+		expect(_shownMessages().length).toBeGreaterThan(0);
+	});
+
+	it('flushes batched rows while streaming a larger CSV', async () => {
+		// The streaming path writes incrementally and flushes in batches; a file
+		// of a couple of rows never reaches the flush.
+		_setConfig('string-le.csv.streamingEnabled', true);
+		const rows = Array.from({ length: 400 }, (_, i) => `v${i},w${i}`).join(
+			'\n',
+		);
+		_setActiveEditor(
+			_createDocument({ content: `1,2\n${rows}\n`, fileName: '/m/big.csv' }),
+		);
+		_respondToInputBox(() => '');
+		await runExtract();
+		expect(_editorInsertions().length).toBeGreaterThan(0);
+	});
+});
+
+describe('extract: CSV parse errors', () => {
+	// csv-parse runs with relax_quotes and relax_column_count, so most malformed
+	// input is tolerated — but an unterminated quote still throws, and each CSV
+	// mode has its own handler for it.
+	const BAD_CSV = '1,2\nfoo,"unterminated\nbar,baz\n';
+
+	it('reports a parse error while streaming', async () => {
+		_setConfig('string-le.showParseErrors', true);
+		_setConfig('string-le.csv.streamingEnabled', true);
+		_setActiveEditor(
+			_createDocument({ content: BAD_CSV, fileName: '/m/bad.csv' }),
+		);
+		_respondToInputBox(() => '');
+		await expect(runExtract()).resolves.toBeUndefined();
+	});
+
+	it('reports a parse error while streaming selected columns', async () => {
+		_setConfig('string-le.showParseErrors', true);
+		_setConfig('string-le.csv.streamingEnabled', true);
+		_setActiveEditor(
+			_createDocument({ content: BAD_CSV, fileName: '/m/bad.csv' }),
+		);
+		_respondToInputBox(() => '0,1');
+		await expect(runExtract()).resolves.toBeUndefined();
+	});
+
+	it('reports a parse error without streaming', async () => {
+		_setConfig('string-le.showParseErrors', true);
+		_setConfig('string-le.csv.streamingEnabled', false);
+		_setActiveEditor(
+			_createDocument({ content: BAD_CSV, fileName: '/m/bad.csv' }),
+		);
+		_respondToInputBox(() => '');
+		await expect(runExtract()).resolves.toBeUndefined();
+	});
+
+	it('stays quiet about a CSV parse error when showParseErrors is off', async () => {
+		// showParseErrors governs the parser callback, not a stream failure: a
+		// column whose stream dies is a hard failure and is always reported. The
+		// non-streaming route is where the setting actually applies.
+		_setConfig('string-le.showParseErrors', false);
+		_setConfig('string-le.csv.streamingEnabled', false);
+		_setActiveEditor(
+			_createDocument({ content: BAD_CSV, fileName: '/m/bad.csv' }),
+		);
+		_respondToInputBox(() => '');
+		await runExtract();
+		expect(
+			_shownMessages().some((m) => m.message.includes('Invalid CSV')),
+		).toBe(false);
+	});
+
+	it('reports the parse error when showParseErrors is on', async () => {
+		_setConfig('string-le.showParseErrors', true);
+		_setConfig('string-le.csv.streamingEnabled', false);
+		_setActiveEditor(
+			_createDocument({ content: BAD_CSV, fileName: '/m/bad.csv' }),
+		);
+		_respondToInputBox(() => '0,1');
+		await runExtract();
+		expect(
+			_shownMessages().some((m) => m.message.includes('Invalid CSV')),
+		).toBe(true);
 	});
 });

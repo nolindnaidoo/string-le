@@ -7,7 +7,9 @@ import {
 	_resetMockState,
 	_setActiveEditor,
 	_setConfig,
+	_setEditError,
 	_setEditResult,
+	_setOpenDocumentError,
 	_shownDocumentOptions,
 	_shownMessages,
 } from '../__mocks__/vscode';
@@ -95,6 +97,24 @@ describe('post-process output routing', () => {
 		registerDedupeCommand(makeContext());
 		_setConfig('string-le.postProcess.openInNewFile', false);
 		_setEditResult(false);
+		_setActiveEditor(_createDocument({ content: LINES }));
+		await runCommand('string-le.postProcess.dedupe');
+		expect(_shownMessages().some((m) => m.kind === 'error')).toBe(true);
+	});
+
+	it('reports a failure when the in-place edit throws', async () => {
+		registerDedupeCommand(makeContext());
+		_setConfig('string-le.postProcess.openInNewFile', false);
+		_setEditError(new Error('document disposed'));
+		_setActiveEditor(_createDocument({ content: LINES }));
+		await runCommand('string-le.postProcess.dedupe');
+		expect(_shownMessages().some((m) => m.kind === 'error')).toBe(true);
+	});
+
+	it('reports a failure when the new document cannot be opened', async () => {
+		registerDedupeCommand(makeContext());
+		_setConfig('string-le.postProcess.openInNewFile', true);
+		_setOpenDocumentError(new Error('no window'));
 		_setActiveEditor(_createDocument({ content: LINES }));
 		await runCommand('string-le.postProcess.dedupe');
 		expect(_shownMessages().some((m) => m.kind === 'error')).toBe(true);

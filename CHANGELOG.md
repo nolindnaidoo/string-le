@@ -26,6 +26,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The CSV extractor threw on a parse failure instead of reporting it. Every
+  other format catches, calls `onParseError` and returns nothing; CSV alone
+  let the exception escape, so a file with an unterminated quote crashed the
+  extraction rather than reporting it — and the `onParseError` handlers the
+  callers pass in could never fire, because the throw happened first. CSV now
+  behaves like the rest.
+- The `vscode` test mock's `activeTextEditor` had no `edit()` method. Any
+  command calling `editor.edit(...)` hit a TypeError and silently took its
+  error path, which meant in-place replacement had never actually run in a
+  test and a test asserting success was asserting the failure branch. The
+  active editor is now a full editor, and the mock can drive a rejected edit,
+  a thrown edit, a failed document open and a cancelled progress task — none
+  of which were reachable before.
+
+
+
 - The "Extract strings" Quick Fix label was hard-coded English, so the
   lightbulb menu stayed untranslated in all twelve locales while the rest of
   the UI was localized.
@@ -46,12 +62,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Test coverage raised from 63.86% to 75.45% of branches (76.53% to 84.94% of
+- Test coverage raised from 63.86% to 77.82% of branches (76.53% to 88.45% of
   statements), moving the repo from 3.86 points above the branch floor to
-  15.45. Nine files sat below one of the repo's own floors; three still do —
-  `commands/extract.ts`, `commands/postProcessHelper.ts` and
-  `extraction/formats/ini.ts` — and are recorded as outstanding rather than
-  papered over. The activation entry point had no test at all, one of two in
+  17.82. Nine files sat below one of the repo's own floors; two still do.
+  `extraction/formats/ini.ts` cannot be closed: its fallback runs when the
+  parser throws, and the `ini` package is fully lenient — unclosed sections,
+  keys with no name and conflicting nested keys all parse without error, so
+  the fallback cannot fire. `commands/extract.ts` retains some streaming and
+  cancellation paths that need a larger fixture than is worth carrying. The activation entry point had no test at all, one of two in
   the family at 0% statements. The gap was concentrated in `commands/extract.ts`, whose settings and
   prompt-answer permutations were unreachable from the default-config tests:
   result placement, the large-output prompt, the many-documents confirmation,

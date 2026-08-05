@@ -26,7 +26,20 @@ export const extractCsv: Extractor = (
 		return EMPTY_RESULT;
 	}
 
-	const rows = parseCsvRows(text);
+	// Every other format reports a parse failure through onParseError and
+	// returns nothing; CSV alone let the parser's exception escape, so a file
+	// with an unterminated quote crashed the extraction instead of reporting
+	// it — and the onParseError handlers the callers pass in could never fire.
+	let rows: ReadonlyArray<ReadonlyArray<string>>;
+	try {
+		rows = parseCsvRows(text);
+	} catch (error) {
+		if (error instanceof Error) {
+			options?.onParseError?.(`Invalid CSV: ${error.message}`);
+		}
+		return EMPTY_RESULT;
+	}
+
 	const hasHeader = Boolean(options?.csvHasHeader);
 	const columnIndex = options?.csvColumnIndex;
 
