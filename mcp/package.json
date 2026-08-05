@@ -1,0 +1,38 @@
+{
+	"name": "string-le-mcp",
+	"version": "2.2.1",
+	"mcpName": "io.github.nolindnaidoo/string-le",
+	"description": "Extract string values from config files, data files and plain text.",
+	"keywords": [
+		"mcp",
+		"modelcontextprotocol",
+		"model-context-protocol",
+		"string-le"
+	],
+	"license": "MIT",
+	"author": {
+		"name": "nolindnaidoo",
+		"url": "https://github.com/nolindnaidoo"
+	},
+	"homepage": "https://letools.dev",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nolindnaidoo/string-le.git",
+		"directory": "mcp"
+	},
+	"bugs": {
+		"url": "https://github.com/nolindnaidoo/string-le/issues"
+	},
+	"type": "commonjs",
+	"bin": {
+		"string-le-mcp": "server.js"
+	},
+	"files": [
+		"server.js",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=20"
+	}
+}

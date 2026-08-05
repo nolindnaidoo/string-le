@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "关闭",
 	"manifest.settings.statusbar.enabled.desc": "显示“String-LE”状态栏条目以便快速访问",
 	"manifest.settings.telemetry.desc": "在“输出”面板中启用仅本地遥测日志",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "适用于代理模式的 String-LE 字符串提取工具"
 }

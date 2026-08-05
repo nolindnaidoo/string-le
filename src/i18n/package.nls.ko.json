@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "끄기",
 	"manifest.settings.statusbar.enabled.desc": "빠른 액세스를 위해 String-LE 상태 표시줄 항목을 표시합니다",
 	"manifest.settings.telemetry.desc": "출력 패널에 로컬 전용 텔레메트리 로그 기록 기능을 활성화합니다.",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "에이전트 모드용 String-LE 문자열 추출 도구"
 }

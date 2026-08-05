@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "Desligado",
 	"manifest.settings.statusbar.enabled.desc": "Mostrar a entrada “String-LE” na barra de status para acesso rápido",
 	"manifest.settings.telemetry.desc": "Ativar registros de telemetria apenas locais no painel “Saída”",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "Ferramentas de extração de strings do String-LE para o modo de agente"
 }

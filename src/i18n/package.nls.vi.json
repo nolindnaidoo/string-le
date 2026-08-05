@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "Tắt",
 	"manifest.settings.statusbar.enabled.desc": "Hiển thị mục “String-LE” trên thanh trạng thái để truy cập nhanh",
 	"manifest.settings.telemetry.desc": "Bật tính năng ghi nhật ký đo lường chỉ tại địa phương vào bảng Đầu ra",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "Các công cụ trích xuất chuỗi String-LE cho chế độ tác nhân"
 }

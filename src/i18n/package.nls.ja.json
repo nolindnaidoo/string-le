@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "オフ",
 	"manifest.settings.statusbar.enabled.desc": "「String-LE」ステータスバー項目を表示して、すばやくアクセスできるようにする",
 	"manifest.settings.telemetry.desc": "「出力」パネルへのローカルのみテレメトリログの記録を有効にする",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "エージェントモード用のString-LE文字列抽出ツール"
 }

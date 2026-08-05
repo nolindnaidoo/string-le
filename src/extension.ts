@@ -2,6 +2,7 @@ import type * as vscode from 'vscode';
 
 import { registerAllCommands } from './commands';
 import { registerOpenSettingsCommand } from './config/settings';
+import { registerMcpProvider } from './mcp/provider';
 import { registerCodeActions } from './providers/codeActions';
 import { createTelemetry } from './telemetry/telemetry';
 import { createNotifier } from './ui/notifier';
@@ -18,6 +19,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	registerAllCommands(context, { telemetry, notifier, statusBar });
 	registerCodeActions(context);
 	registerOpenSettingsCommand(context, telemetry);
+	registerMcpProvider(context);
 
 	telemetry.event('extension-activated');
 }

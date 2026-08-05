@@ -1,0 +1,14 @@
+id = "string-le"
+name = "String-LE"
+description = "Extract string values from config files, data files and plain text."
+version = "2.2.1"
+schema_version = 1
+authors = ["nolindnaidoo"]
+repository = "https://github.com/nolindnaidoo/string-le"
+
+# Zed's extension API offers languages, debuggers, themes, snippets, slash
+# commands and context servers — it has no way to read the active buffer or
+# register a command, which is what the VS Code extension is built on. A
+# context server is the surface that fits: the same engine, reached from the
+# agent panel instead of the command palette.
+[context_servers.string-le]

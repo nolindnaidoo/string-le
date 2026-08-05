@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "Mati",
 	"manifest.settings.statusbar.enabled.desc": "Tampilkan entri bilah status String-LE untuk akses cepat",
 	"manifest.settings.telemetry.desc": "Aktifkan log telemetri khusus lokal ke panel Output",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "Alat ekstraksi string String-LE untuk mode agen"
 }

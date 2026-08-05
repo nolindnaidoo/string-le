@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "Выкл.",
 	"manifest.settings.statusbar.enabled.desc": "Показать элемент «String-LE» в строке состояния для быстрого доступа",
 	"manifest.settings.telemetry.desc": "Включить запись журналов телеметрии только для локальной сети на панели «Вывод»",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "Инструменты извлечения строк String-LE для режима агента"
 }

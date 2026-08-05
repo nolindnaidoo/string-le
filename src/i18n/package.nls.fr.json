@@ -30,5 +30,6 @@
 	"manifest.settings.sort.mode.option.off": "Désactivé",
 	"manifest.settings.statusbar.enabled.desc": "Afficher l'entrée « String-LE » dans la barre d'état pour un accès rapide",
 	"manifest.settings.telemetry.desc": "Activer les journaux de télémétrie en mode local uniquement dans le panneau « Sortie »",
-	"manifest.settings.title": "String-LE"
+	"manifest.settings.title": "String-LE",
+	"manifest.mcp.label": "Outils d'extraction de chaînes String-LE pour le mode agent"
 }
