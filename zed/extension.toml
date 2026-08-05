@@ -1,7 +1,7 @@
 id = "string-le"
 name = "String-LE"
 description = "Extract string values from config files, data files and plain text."
-version = "2.2.2"
+version = "2.2.3"
 schema_version = 1
 authors = ["nolindnaidoo"]
 repository = "https://github.com/nolindnaidoo/string-le"
