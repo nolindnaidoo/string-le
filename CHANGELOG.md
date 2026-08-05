@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The large-output dialog's "Copy only" choice could deliver nothing at all.
+  The dialog offers Open / Copy only / Cancel regardless of the
+  `copyToClipboardEnabled` setting, but the copy that followed was gated on
+  that setting — so choosing "Copy only" with it off opened no document and
+  copied nothing, then reported "Extracted 150" for results the user never
+  received. An explicit choice now performs the copy, and nothing is reported
+  when nothing was delivered.
 - The CSV extractor threw on a parse failure instead of reporting it. Every
   other format catches, calls `onParseError` and returns nothing; CSV alone
   let the exception escape, so a file with an unterminated quote crashed the

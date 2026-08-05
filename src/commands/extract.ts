@@ -467,6 +467,7 @@ async function processAndOutputResults(
 
 	// For very large outputs, offer Open/Copy/Cancel to avoid UI lockups
 	let openDoc = true;
+	let copyRequested = false;
 	if (
 		config.safetyEnabled &&
 		finalStrings.length > config.largeOutputLinesThreshold
@@ -481,7 +482,14 @@ async function processAndOutputResults(
 			hasContextualNotes,
 		);
 		if (action === 'cancel') return;
-		if (action === 'copy') openDoc = false;
+		// "Copy only" is an explicit instruction, so it copies even when the
+		// automatic copy setting is off. Without this the choice delivered
+		// nothing at all — no document, no clipboard — and still reported a
+		// count.
+		if (action === 'copy') {
+			openDoc = false;
+			copyRequested = true;
+		}
 	}
 
 	if (token.isCancellationRequested) return;
@@ -506,13 +514,19 @@ async function processAndOutputResults(
 	// Optionally copy results to clipboard based on user setting (disabled for CSV)
 	if (token.isCancellationRequested) return;
 	let clipboardSuccess = false;
-	if (config.copyToClipboardEnabled && fileType !== 'csv') {
+	if (copyRequested || (config.copyToClipboardEnabled && fileType !== 'csv')) {
 		try {
 			await vscode.env.clipboard.writeText(finalStrings.join('\n'));
 			clipboardSuccess = true;
 		} catch {
 			deps.notifier.warn(vscode.l10n.t('Could not copy to clipboard'));
 		}
+	}
+
+	// Nothing opened and nothing copied means the results never reached the
+	// user; a clipboard failure has already been reported as a warning.
+	if (!openDoc && !clipboardSuccess) {
+		return;
 	}
 
 	deps.telemetry.event('extracted', {
