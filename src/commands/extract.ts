@@ -2,12 +2,8 @@ import * as vscode from 'vscode';
 import { readConfig } from '../config/config';
 import { normalizeFileType, type SupportedFileType } from '../config/fileTypes';
 import { extractStrings } from '../extraction/extract';
-import { readCsvHeader, streamCsvStrings } from '../extraction/formats/csv';
 import type { Telemetry } from '../telemetry/telemetry';
-import {
-	chooseLargeOutputAction,
-	confirmManyDocuments,
-} from '../ui/largeOutput';
+import { chooseLargeOutputAction } from '../ui/largeOutput';
 import type { Notifier } from '../ui/notifier';
 import {
 	type CsvPromptOptions,
@@ -17,6 +13,10 @@ import {
 import type { StatusBar } from '../ui/statusBar';
 import { detectEnvExtension } from '../utils/filename';
 import { dedupe, sortStrings } from '../utils/text';
+import {
+	handleCsvMultiColumnExtraction,
+	handleCsvStreamingExtraction,
+} from './extractCsv';
 
 // Helper to detect multiline strings in results
 function countMultilineStrings(strings: readonly string[]): number {
@@ -24,7 +24,7 @@ function countMultilineStrings(strings: readonly string[]): number {
 }
 
 // Helper function to build TextDocumentShowOptions based on config
-function getShowDocumentOptions(
+export function getShowDocumentOptions(
 	config: ReturnType<typeof readConfig>,
 	baseOptions: Partial<vscode.TextDocumentShowOptions> = {},
 ): vscode.TextDocumentShowOptions {
@@ -36,7 +36,7 @@ function getShowDocumentOptions(
 }
 
 // Helper type for extraction context
-type ExtractionContext = Readonly<{
+export type ExtractionContext = Readonly<{
 	document: vscode.TextDocument;
 	text: string;
 	fileType: SupportedFileType;
@@ -95,323 +95,6 @@ async function validateAndPrepareExtraction(
 }
 
 // Handle CSV multi-column fan-out extraction
-async function handleCsvMultiColumnExtraction(
-	context: ExtractionContext,
-	token: vscode.CancellationToken,
-): Promise<boolean> {
-	const { text, csvOptions, config, deps } = context;
-
-	if (
-		!csvOptions.selectAllColumns &&
-		(!csvOptions.csvColumnIndexes || csvOptions.csvColumnIndexes.length <= 1)
-	) {
-		return false; // Not multi-column
-	}
-
-	// Determine target column indexes
-	const columnCount = readCsvHeader(text).length;
-	const targetIndexes: readonly number[] = csvOptions.selectAllColumns
-		? Array.from({ length: columnCount }, (_, i) => i)
-		: (csvOptions.csvColumnIndexes ?? []);
-
-	// Estimate total output lines for safety warning
-	const totalLinesInDoc = text.split(/\r?\n/).length;
-	const rowsEstimate = Math.max(
-		totalLinesInDoc - (csvOptions.csvHasHeader ? 1 : 0),
-		0,
-	);
-	const estimatedTotal = rowsEstimate * targetIndexes.length;
-
-	if (
-		config.safetyEnabled &&
-		(targetIndexes.length >= config.manyDocumentsThreshold ||
-			estimatedTotal > config.largeOutputLinesThreshold)
-	) {
-		const ok = await confirmManyDocuments(targetIndexes.length, estimatedTotal);
-		if (!ok) return true; // Handled (cancelled)
-	}
-
-	const streamingEnabled = config.csvStreamingEnabled;
-
-	if (streamingEnabled) {
-		await handleStreamingMultiColumn(context, targetIndexes, token);
-	} else {
-		await handleNonStreamingMultiColumn(context, targetIndexes, token);
-	}
-
-	deps.telemetry.event('extracted', { count: 'multi', type: 'csv' });
-	deps.statusBar.flash('CSV opened (no auto‑copy)');
-	deps.notifier.showCsvNoCopy();
-	return true; // Handled
-}
-
-// Streaming multi-column helper
-async function handleStreamingMultiColumn(
-	context: ExtractionContext,
-	targetIndexes: readonly number[],
-	token: vscode.CancellationToken,
-): Promise<void> {
-	const { text, csvOptions, config, deps } = context;
-	const activeStreams: AsyncGenerator<string, void, unknown>[] = [];
-
-	try {
-		for (const idx of targetIndexes) {
-			if (token.isCancellationRequested) break;
-
-			try {
-				const doc = await vscode.workspace.openTextDocument({
-					content: '',
-					language: 'plaintext',
-				});
-				const editorForResults = await vscode.window.showTextDocument(
-					doc,
-					getShowDocumentOptions(config, {
-						preview: false,
-						preserveFocus: true,
-					}),
-				);
-
-				// Warn user that deduplication is disabled for streaming to prevent memory issues
-				if (config.dedupeEnabled) {
-					deps.notifier.warn(
-						'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
-					);
-				}
-
-				let pending: string[] = [];
-
-				const flush = async (): Promise<void> => {
-					if (pending.length === 0) return;
-					if (token.isCancellationRequested) {
-						pending = []; // Clear pending to free memory
-						return;
-					}
-
-					const toAppend = `${pending.join('\n')}\n`;
-					pending = [];
-
-					if (token.isCancellationRequested) return;
-
-					await editorForResults.edit((eb) => {
-						const end = new vscode.Position(
-							editorForResults.document.lineCount,
-							0,
-						);
-						eb.insert(end, toAppend);
-					});
-				};
-
-				const batchSize = 500;
-				let lastFlush = Date.now();
-				const streamOpts = {
-					csvColumnIndex: idx,
-					onParseError: (message: string): void => {
-						if (config.showParseErrors) deps.notifier.error(message);
-					},
-					...(typeof csvOptions.csvHasHeader === 'boolean' && {
-						csvHasHeader: csvOptions.csvHasHeader,
-					}),
-				};
-
-				const stream = streamCsvStrings(text, streamOpts);
-				activeStreams.push(stream);
-
-				for await (const s of stream) {
-					if (token.isCancellationRequested) break;
-					pending.push(s);
-					const now = Date.now();
-					if (pending.length >= batchSize || now - lastFlush > 100) {
-						if (token.isCancellationRequested) break;
-						await flush();
-						lastFlush = now;
-					}
-				}
-				if (!token.isCancellationRequested) {
-					await flush();
-				}
-			} catch (error: unknown) {
-				if (error instanceof Error) {
-					deps.notifier.error(
-						`Column ${idx} streaming failed: ${error.message}`,
-					);
-				}
-				// Continue with next column
-			}
-		}
-	} finally {
-		// Clean up all active streams
-		for (const stream of activeStreams) {
-			try {
-				await stream.return?.();
-			} catch {
-				// Ignore cleanup errors
-			}
-		}
-	}
-}
-
-// Non-streaming multi-column helper
-async function handleNonStreamingMultiColumn(
-	context: ExtractionContext,
-	targetIndexes: readonly number[],
-	token: vscode.CancellationToken,
-): Promise<void> {
-	const { text, csvOptions, config, deps } = context;
-	const shouldDedupe = config.dedupeEnabled;
-	const sortEnabled = config.sortEnabled;
-	const sortMode = config.sortMode;
-
-	for (const idx of targetIndexes) {
-		if (token.isCancellationRequested) return;
-
-		const perColumnOptions = {
-			onParseError: (message: string): void => {
-				if (config.showParseErrors) deps.notifier.error(message);
-			},
-			csvColumnIndex: idx,
-			...(typeof csvOptions.csvHasHeader === 'boolean' && {
-				csvHasHeader: csvOptions.csvHasHeader,
-			}),
-		};
-
-		const perColumn = extractStrings(text, 'csv', perColumnOptions);
-		const deduped = shouldDedupe ? dedupe(perColumn) : perColumn;
-		const finalForColumn = sortEnabled
-			? sortStrings(deduped, sortMode)
-			: deduped;
-
-		if (finalForColumn.length === 0) continue;
-
-		try {
-			const doc = await vscode.workspace.openTextDocument({
-				content: finalForColumn.join('\n'),
-				language: 'plaintext',
-			});
-			await vscode.window.showTextDocument(
-				doc,
-				getShowDocumentOptions(config, {
-					preview: false,
-					preserveFocus: true,
-				}),
-			);
-		} catch (error: unknown) {
-			if (error instanceof Error) {
-				deps.notifier.error(vscode.l10n.t('Could not open results'));
-			}
-		}
-	}
-}
-
-// Handle CSV single streaming extraction
-async function handleCsvStreamingExtraction(
-	context: ExtractionContext,
-	token: vscode.CancellationToken,
-): Promise<boolean> {
-	const { text, csvOptions, config, deps, fileType } = context;
-
-	if (fileType !== 'csv' || !config.csvStreamingEnabled) {
-		return false; // Not streaming CSV
-	}
-
-	let stream: AsyncGenerator<string, void, unknown> | undefined;
-
-	try {
-		const doc = await vscode.workspace.openTextDocument({
-			content: '',
-			language: 'plaintext',
-		});
-		const editorForResults = await vscode.window.showTextDocument(
-			doc,
-			getShowDocumentOptions(config, {
-				preview: false,
-			}),
-		);
-
-		// Warn user that deduplication is disabled for streaming to prevent memory issues
-		if (config.dedupeEnabled) {
-			deps.notifier.warn(
-				'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
-			);
-		}
-
-		let pending: string[] = [];
-
-		const flush = async (): Promise<void> => {
-			if (pending.length === 0) return;
-			if (token.isCancellationRequested) {
-				pending = []; // Clear pending to free memory
-				return;
-			}
-
-			const toAppend = `${pending.join('\n')}\n`;
-			pending = [];
-
-			if (token.isCancellationRequested) return;
-
-			await editorForResults.edit((eb) => {
-				const end = new vscode.Position(editorForResults.document.lineCount, 0);
-				eb.insert(end, toAppend);
-			});
-		};
-
-		const batchSize = 500;
-		let lastFlush = Date.now();
-		const singleStreamOpts = {
-			onParseError: (message: string): void => {
-				if (config.showParseErrors) deps.notifier.error(message);
-			},
-			...(typeof csvOptions.csvHasHeader === 'boolean' && {
-				csvHasHeader: csvOptions.csvHasHeader,
-			}),
-			...(typeof csvOptions.csvColumnIndex === 'number' && {
-				csvColumnIndex: csvOptions.csvColumnIndex,
-			}),
-		};
-
-		stream = streamCsvStrings(text, singleStreamOpts);
-
-		for await (const s of stream) {
-			if (token.isCancellationRequested) break;
-			pending.push(s);
-			const now = Date.now();
-			if (pending.length >= batchSize || now - lastFlush > 100) {
-				if (token.isCancellationRequested) break;
-				await flush();
-				lastFlush = now;
-			}
-		}
-		if (!token.isCancellationRequested) {
-			await flush();
-		}
-
-		deps.telemetry.event('extracted', { count: 'stream', type: 'csv' });
-		deps.statusBar.flash('CSV opened (no auto‑copy)');
-		deps.notifier.showCsvNoCopy();
-		return true; // Handled
-	} catch (error: unknown) {
-		if (error instanceof Error) {
-			deps.notifier.error(
-				vscode.l10n.t('CSV streaming failed: {0}', error.message),
-			);
-		} else {
-			deps.notifier.error(
-				vscode.l10n.t('CSV streaming failed with unknown error'),
-			);
-		}
-		return true; // Handled (with error)
-	} finally {
-		// Clean up stream
-		if (stream) {
-			try {
-				await stream.return?.();
-			} catch {
-				// Ignore cleanup errors
-			}
-		}
-	}
-}
-
-// Handle normal (non-CSV or non-streaming) extraction
 async function handleNormalExtraction(
 	context: ExtractionContext,
 	token: vscode.CancellationToken,
@@ -534,12 +217,11 @@ async function processAndOutputResults(
 		type: fileType,
 	});
 
-	// Choose appropriate status message
-	if (clipboardSuccess) {
-		deps.statusBar.flash('Copied to clipboard');
-	} else {
-		deps.statusBar.flash(`Extracted ${finalStrings.length}`);
-	}
+	deps.statusBar.flash(
+		clipboardSuccess
+			? 'Copied to clipboard'
+			: `Extracted ${finalStrings.length}`,
+	);
 }
 
 export function registerExtractStringsCommand(

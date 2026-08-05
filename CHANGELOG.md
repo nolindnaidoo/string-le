@@ -69,6 +69,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Every `else` block is gone (5 of them; a sixth match was prose in the help
+  text), replaced by guard clauses and value expressions.
+- `commands/extract.ts` held orchestration, CSV handling, the normal extraction
+  path and output routing in 618 lines. CSV moved to `commands/extractCsv.ts`,
+  leaving 299 and 332.
+
 - Test coverage raised from 63.86% to 77.82% of branches (76.53% to 88.45% of
   statements), moving the repo from 3.86 points above the branch floor to
   17.82. Nine files sat below one of the repo's own floors; two still do.

@@ -97,7 +97,8 @@ function updateStatusBarVisibility(item: vscode.StatusBarItem): void {
 
 	if (config.enabled) {
 		item.show();
-	} else {
+	}
+	if (!config.enabled) {
 		item.hide();
 	}
 
