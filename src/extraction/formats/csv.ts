@@ -48,9 +48,9 @@ export const extractCsv: Extractor = (
 };
 
 function parseCsvRows(text: string): ReadonlyArray<ReadonlyArray<string>> {
-	return parse(text, CSV_PARSE_OPTIONS) as unknown as ReadonlyArray<
-		ReadonlyArray<string>
-	>;
+	// csv-parse's sync parse is typed `any`; with `columns: false` it yields
+	// rows of cells, which is what one cast states directly.
+	return parse(text, CSV_PARSE_OPTIONS) as string[][];
 }
 
 /**
@@ -68,7 +68,7 @@ export function readCsvHeader(text: string): readonly string[] {
 		const rows = parse(text, {
 			...CSV_PARSE_OPTIONS,
 			to: 1,
-		}) as unknown as ReadonlyArray<ReadonlyArray<string>>;
+		}) as string[][];
 		return Object.freeze([...(rows[0] ?? [])]);
 	} catch {
 		return EMPTY_RESULT;
