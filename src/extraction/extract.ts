@@ -36,13 +36,22 @@ export function extractStrings(
 		return EMPTY_RESULT;
 	}
 
-	const normalizedFileType = normalizeFileType(fileType);
+	const normalizedFileType = canonicaliseFileTypeKey(fileType);
 	const extractor = findExtractor(normalizedFileType);
 
 	return extractor(trimmedText, options);
 }
 
-function normalizeFileType(fileType: string): string {
+/**
+ * Canonicalise a file-type string for extractor lookup.
+ *
+ * Deliberately not `normalizeFileType` from config/fileTypes.ts, which
+ * validates against the supported list and returns undefined for anything
+ * else. This one accepts any string because an unrecognised type is a valid
+ * outcome here — findExtractor falls back to the generic extractor. The two
+ * shared a name and a rough shape while promising different things.
+ */
+function canonicaliseFileTypeKey(fileType: string): string {
 	return fileType.trim().toLowerCase();
 }
 

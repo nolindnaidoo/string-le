@@ -30,7 +30,7 @@ function createStatusBarItem(): vscode.StatusBarItem {
 	);
 
 	item.text = '$(quote) String-LE';
-	item.tooltip = 'Run String-LE: Extract';
+	item.tooltip = vscode.l10n.t('Run String-LE: Extract');
 	item.command = 'string-le.extractStrings';
 
 	return item;

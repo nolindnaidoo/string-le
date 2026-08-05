@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
 import { dedupe } from '../utils/text';
+import {
+	extractLines,
+	joinLines,
+	showNoEditorWarning,
+	showSuccessMessage,
+} from './editorLines';
 import { processAndOutput } from './postProcessHelper';
 
 export function registerDedupeCommand(context: vscode.ExtensionContext): void {
@@ -29,20 +35,4 @@ async function executeDedupe(): Promise<void> {
 	if (success) {
 		showSuccessMessage();
 	}
-}
-
-function showNoEditorWarning(): void {
-	vscode.window.showWarningMessage('No active editor');
-}
-
-function extractLines(editor: vscode.TextEditor): readonly string[] {
-	return editor.document.getText().split(/\r?\n/);
-}
-
-function joinLines(lines: readonly string[]): string {
-	return lines.join('\n');
-}
-
-function showSuccessMessage(): void {
-	vscode.window.showInformationMessage('Dedupe/sort applied');
 }

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { createNotifier } from '../ui/notifier';
 
 export function registerToggleCsvStreamingCommand(
 	context: vscode.ExtensionContext,
@@ -36,7 +37,11 @@ async function updateStreamingEnabled(
 }
 
 function showToggleMessage(enabled: boolean): void {
-	const message = enabled ? 'CSV streaming enabled' : 'CSV streaming disabled';
+	// Through the notifier so `string-le.notificationsLevel` governs it; this
+	// called vscode.window directly and so ignored a `silent` preference.
+	const message = enabled
+		? vscode.l10n.t('CSV streaming enabled')
+		: vscode.l10n.t('CSV streaming disabled');
 
-	vscode.window.showInformationMessage(message);
+	createNotifier().info(message);
 }

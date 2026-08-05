@@ -10,7 +10,7 @@ async function handleCsvHeaderBasedSelection(
 	const picks: Array<vscode.QuickPickItem> = [
 		{
 			label: allLabel,
-			description: 'Extract from all columns',
+			description: vscode.l10n.t('Extract from all columns'),
 		},
 		...headerCells.map((name, index) => ({
 			label: name || `(Column ${index})`,
@@ -19,7 +19,7 @@ async function handleCsvHeaderBasedSelection(
 	];
 
 	const selected = await vscode.window.showQuickPick(picks, {
-		placeHolder: 'Select a CSV column or all columns',
+		placeHolder: vscode.l10n.t('Select a CSV column or all columns'),
 		matchOnDescription: true,
 	});
 
@@ -68,8 +68,9 @@ async function handleCsvIndexBasedSelection(
 	headerCells: readonly string[],
 ): Promise<CsvPromptOptions> {
 	const idxStr = await vscode.window.showInputBox({
-		prompt:
+		prompt: vscode.l10n.t(
 			'Enter column indexes (comma-separated), or leave empty for all columns',
+		),
 		validateInput: (val) => {
 			if (val.trim() === '') return null;
 			const parts = val
@@ -79,7 +80,9 @@ async function handleCsvIndexBasedSelection(
 			const allInts = parts.every((p) => /^(\d+)$/.test(p));
 			return allInts
 				? null
-				: 'Enter valid column indexes separated by commas, or leave empty';
+				: vscode.l10n.t(
+						'Enter valid column indexes separated by commas, or leave empty',
+					);
 		},
 	});
 
@@ -133,7 +136,7 @@ export function promptForFileType(): Promise<SupportedFileType | undefined> {
 		{ label: 'INI', value: 'ini' },
 		{ label: '.env', value: 'env' },
 		{
-			label: 'Fallback (quoted strings)',
+			label: vscode.l10n.t('Fallback (quoted strings)'),
 			value: 'fallback',
 		},
 	];
@@ -142,7 +145,7 @@ export function promptForFileType(): Promise<SupportedFileType | undefined> {
 			.showQuickPick(
 				items.map((i) => i.label),
 				{
-					placeHolder: 'Choose file type for extraction',
+					placeHolder: vscode.l10n.t('Choose file type for extraction'),
 				},
 			)
 			.then((picked) => items.find((i) => i.label === picked)?.value),

@@ -57,7 +57,7 @@ async function validateAndPrepareExtraction(
 	const editor = vscode.window.activeTextEditor;
 
 	if (!editor) {
-		deps.notifier.error('No active editor');
+		deps.notifier.error(vscode.l10n.t('No active editor'));
 		return null;
 	}
 
@@ -68,7 +68,7 @@ async function validateAndPrepareExtraction(
 	try {
 		const text = document.getText();
 		if (text.trim().length === 0) {
-			deps.notifier.info('File is empty');
+			deps.notifier.info(vscode.l10n.t('File is empty'));
 			return null;
 		}
 
@@ -89,7 +89,7 @@ async function validateAndPrepareExtraction(
 		return { document, text, fileType };
 	} catch (_error) {
 		// Document became invalid during access
-		deps.notifier.error('Document is no longer valid');
+		deps.notifier.error(vscode.l10n.t('Document is no longer valid'));
 		return null;
 	}
 }
@@ -296,7 +296,7 @@ async function handleNonStreamingMultiColumn(
 			);
 		} catch (error: unknown) {
 			if (error instanceof Error) {
-				deps.notifier.error('Could not open results');
+				deps.notifier.error(vscode.l10n.t('Could not open results'));
 			}
 		}
 	}
@@ -390,9 +390,13 @@ async function handleCsvStreamingExtraction(
 		return true; // Handled
 	} catch (error: unknown) {
 		if (error instanceof Error) {
-			deps.notifier.error(`CSV streaming failed: ${error.message}`);
+			deps.notifier.error(
+				vscode.l10n.t('CSV streaming failed: {0}', error.message),
+			);
 		} else {
-			deps.notifier.error('CSV streaming failed with unknown error');
+			deps.notifier.error(
+				vscode.l10n.t('CSV streaming failed with unknown error'),
+			);
 		}
 		return true; // Handled (with error)
 	} finally {
@@ -434,7 +438,7 @@ async function handleNormalExtraction(
 		: dedupedStrings;
 
 	if (finalStrings.length === 0) {
-		deps.notifier.info('No strings found');
+		deps.notifier.info(vscode.l10n.t('No strings found'));
 		return;
 	}
 
@@ -494,7 +498,7 @@ async function processAndOutputResults(
 			);
 		} catch (error: unknown) {
 			if (error instanceof Error) {
-				deps.notifier.error('Could not open results');
+				deps.notifier.error(vscode.l10n.t('Could not open results'));
 			}
 		}
 	}
@@ -507,7 +511,7 @@ async function processAndOutputResults(
 			await vscode.env.clipboard.writeText(finalStrings.join('\n'));
 			clipboardSuccess = true;
 		} catch {
-			deps.notifier.warn('Could not copy to clipboard');
+			deps.notifier.warn(vscode.l10n.t('Could not copy to clipboard'));
 		}
 	}
 
@@ -553,7 +557,7 @@ export function registerExtractStringsCommand(
 			await vscode.window.withProgress(
 				{
 					location: vscode.ProgressLocation.Notification,
-					title: 'Extracting...',
+					title: vscode.l10n.t('Extracting...'),
 					cancellable: true,
 				},
 				async (_progress, token): Promise<void> => {

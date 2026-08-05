@@ -3,7 +3,7 @@
 	"publisher": "nolindnaidoo",
 	"displayName": "Strings-LE",
 	"description": "Zero Hassle Extraction from JSON, YAML, CSV, TOML, INI, and .ENV",
-	"version": "2.0.2",
+	"version": "2.1.0",
 	"license": "MIT",
 	"author": {
 		"name": "nolindnaidoo",
@@ -59,6 +59,7 @@
 		"config"
 	],
 	"icon": "src/assets/images/icon.png",
+	"l10n": "./l10n",
 	"main": "./dist/extension.js",
 	"activationEvents": [
 		"onLanguage:json",

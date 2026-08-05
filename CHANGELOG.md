@@ -5,14 +5,71 @@ All notable changes to String-LE will be documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.2] - 2026-08-04
+## [2.1.0] - 2026-08-04
 
 ### Added
+
+- Runtime strings are localized, and this time they render. All 19 of them —
+  notifications, status bar, quick-picks and prompts — go through
+  `vscode.l10n` and ship as twelve translated bundles in `l10n/`. The v1.x
+  line carried manifest catalogues that worked and runtime catalogues that
+  never reached the screen: `vscode-nls` was configured without
+  `__filename`, so every runtime string fell back to English while the VSIX
+  looked correct.
+- An integration test covering both localization mechanisms — manifest
+  substitution, key parity across all thirteen catalogues, and placeholder
+  integrity in every translation. A translation that silently drops `{0}`
+  now fails the build instead of shipping a message with the value missing.
 
 - Dependency review on pull requests, failing on a high-severity addition
   before Dependabot's auto-merge can act.
 
+### Fixed
+
+- The "Extract strings" Quick Fix label was hard-coded English, so the
+  lightbulb menu stayed untranslated in all twelve locales while the rest of
+  the UI was localized.
+
+### Fixed
+
+- `string-le.notificationsLevel` did not govern every notification. The
+  notifier exists so it does — its own documentation says "all user
+  notifications route through here" — but sort, dedupe and the CSV-streaming
+  toggle called `vscode.window.show*Message` directly and so notified a user
+  who had chosen `silent` anyway. Those now route through the notifier.
+- `extractLines`, `joinLines`, `showNoEditorWarning` and `showSuccessMessage`
+  existed as byte-identical copies in both sort.ts and dedupe.ts — including
+  the edit that reads and rewrites the user's document. Defined once.
+- Five more strings localized: the two toggle confirmations, the dedupe/sort
+  result, the column-index validator (returned from a `validateInput`
+  callback) and the status-bar tooltip.
+
 ### Changed
+
+- Test coverage raised from 63.86% to 75.45% of branches (76.53% to 84.94% of
+  statements), moving the repo from 3.86 points above the branch floor to
+  15.45. Nine files sat below one of the repo's own floors; three still do —
+  `commands/extract.ts`, `commands/postProcessHelper.ts` and
+  `extraction/formats/ini.ts` — and are recorded as outstanding rather than
+  papered over. The activation entry point had no test at all, one of two in
+  the family at 0% statements. The gap was concentrated in `commands/extract.ts`, whose settings and
+  prompt-answer permutations were unreachable from the default-config tests:
+  result placement, the large-output prompt, the many-documents confirmation,
+  CSV column selection including the multi-column path, the streaming toggle
+  and `showParseErrors`. Two behaviours are now pinned that were easy to get
+  wrong: `sortEnabled` does nothing while `sortMode` is `off` (its default),
+  and a CSV whose first row contains letters is treated as a header, which
+  routes column selection through the picker rather than the index input.
+
+
+- The private `normalizeFileType` in the extraction layer is now
+  `canonicaliseFileTypeKey`. It shared a name and a rough shape with the
+  exported `normalizeFileType` in config/fileTypes.ts while promising
+  something different: the exported one validates against the supported list
+  and returns undefined for anything else, this one accepts any string
+  because an unrecognised type legitimately falls through to the generic
+  extractor.
+
 
 - CI gains fleet-wide checks that no single repo can perform: shared config is
   compared across all ten extensions, and every README link is verified —

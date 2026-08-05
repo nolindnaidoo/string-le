@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
 import { type SortMode, sortStrings } from '../utils/text';
+import {
+	extractLines,
+	joinLines,
+	showNoEditorWarning,
+	showSuccessMessage,
+} from './editorLines';
 import { processAndOutput } from './postProcessHelper';
 
 type SortOption = Readonly<{
@@ -7,24 +13,28 @@ type SortOption = Readonly<{
 	mode: SortMode;
 }>;
 
-const SORT_OPTIONS: readonly SortOption[] = [
+// Built per call rather than at module scope: a top-level vscode.l10n.t()
+// runs while the bundle is still being required, which resolves the labels
+// before the extension activates and is what the runtime bundle gate in
+// scripts/check-bundle.js refuses to load.
+const sortOptions = (): readonly SortOption[] => [
 	{
-		label: 'Alphabetical (A → Z)',
+		label: vscode.l10n.t('Alphabetical (A → Z)'),
 		mode: 'alpha-asc',
 	},
 	{
-		label: 'Alphabetical (Z → A)',
+		label: vscode.l10n.t('Alphabetical (Z → A)'),
 		mode: 'alpha-desc',
 	},
 	{
-		label: 'By length (short → long)',
+		label: vscode.l10n.t('By length (short → long)'),
 		mode: 'length-asc',
 	},
 	{
-		label: 'By length (long → short)',
+		label: vscode.l10n.t('By length (long → short)'),
 		mode: 'length-desc',
 	},
-] as const;
+];
 
 export function registerSortCommand(context: vscode.ExtensionContext): void {
 	const command = vscode.commands.registerCommand(
@@ -63,10 +73,11 @@ async function executeSort(): Promise<void> {
 }
 
 async function promptForSortMode(): Promise<SortMode | undefined> {
-	const labels = SORT_OPTIONS.map((option) => option.label);
+	const options = sortOptions();
+	const labels = options.map((option) => option.label);
 
 	const picked = await vscode.window.showQuickPick(labels, {
-		placeHolder: 'Choose sort mode',
+		placeHolder: vscode.l10n.t('Choose sort mode'),
 	});
 
 	// Guard: User cancelled
@@ -78,22 +89,6 @@ async function promptForSortMode(): Promise<SortMode | undefined> {
 }
 
 function findSortMode(label: string): SortMode {
-	const option = SORT_OPTIONS.find((opt) => opt.label === label);
+	const option = sortOptions().find((opt) => opt.label === label);
 	return option?.mode ?? 'alpha-asc';
-}
-
-function showNoEditorWarning(): void {
-	vscode.window.showWarningMessage('No active editor');
-}
-
-function extractLines(editor: vscode.TextEditor): readonly string[] {
-	return editor.document.getText().split(/\r?\n/);
-}
-
-function joinLines(lines: readonly string[]): string {
-	return lines.join('\n');
-}
-
-function showSuccessMessage(): void {
-	vscode.window.showInformationMessage('Dedupe/sort applied');
 }

@@ -47,7 +47,7 @@ function isDocumentEmpty(document: vscode.TextDocument): boolean {
 }
 
 function buildExtractStringAction(): vscode.CodeAction {
-	const title = 'Extract strings';
+	const title = vscode.l10n.t('Extract strings');
 
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
 

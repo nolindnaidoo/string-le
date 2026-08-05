@@ -237,6 +237,12 @@ export const workspace = {
 
 const openedDocuments: MockDocument[] = [];
 
+const shownDocumentOptions: Array<{ viewColumn?: number }> = [];
+
+export function _shownDocumentOptions(): readonly { viewColumn?: number }[] {
+	return shownDocumentOptions;
+}
+
 export function _openedDocuments(): readonly MockDocument[] {
 	return openedDocuments;
 }
@@ -274,6 +280,16 @@ export function _respondToWarning(
 	responder: ((items: unknown[]) => unknown) | undefined,
 ): void {
 	warningResponder = responder;
+}
+
+/** Values an input-box validator refused, in order. */
+const inputBoxRejections: Array<{ value: string; message: string }> = [];
+
+export function _inputBoxRejections(): readonly {
+	value: string;
+	message: string;
+}[] {
+	return inputBoxRejections;
 }
 
 export function _respondToInputBox(
@@ -318,9 +334,17 @@ function createEditorFor(document: MockDocument) {
 				},
 				delete: () => {},
 			});
-			return true;
+			return editResult;
 		},
 	};
+}
+
+// VS Code returns false when an edit is rejected — a read-only document, or
+// one that changed underneath the command. Tests need to reach that path.
+let editResult = true;
+
+export function _setEditResult(value: boolean): void {
+	editResult = value;
 }
 
 const replacedRanges: Array<{ range: Range; text: string }> = [];
@@ -350,10 +374,32 @@ export const window = {
 	},
 	showQuickPick: async (items: unknown[], _options?: unknown) =>
 		quickPickResponder ? quickPickResponder(items) : undefined,
-	showInputBox: async (_options?: unknown) =>
-		inputBoxResponder ? inputBoxResponder() : undefined,
-	showTextDocument: async (document: unknown, _column?: unknown) =>
-		createEditorFor(document as MockDocument),
+	showInputBox: async (options?: unknown) => {
+		const value = inputBoxResponder ? inputBoxResponder() : undefined;
+
+		// VS Code runs validateInput against what the user types and refuses to
+		// accept a value the validator rejects. Ignoring it leaves validators
+		// uncovered AND lets a test hand a command a value the real UI would
+		// never deliver.
+		const validate = (options as { validateInput?: (v: string) => unknown })
+			?.validateInput;
+		if (typeof validate === 'function' && typeof value === 'string') {
+			const message = validate(value);
+			if (message !== undefined && message !== null && message !== '') {
+				inputBoxRejections.push({ value, message: String(message) });
+				return undefined;
+			}
+		}
+		return value;
+	},
+	showTextDocument: async (document: unknown, options?: unknown) => {
+		// Recorded so tests can assert placement — openResultsSideBySide sets
+		// viewColumn, and the editor object itself carries no such field.
+		shownDocumentOptions.push(
+			(options as { viewColumn?: number } | undefined) ?? {},
+		);
+		return createEditorFor(document as MockDocument);
+	},
 	withProgress: async <T>(
 		_options: unknown,
 		task: (
@@ -516,6 +562,9 @@ export const FileType = {
 
 /** Reset all mutable mock state between tests. */
 export function _resetMockState(): void {
+	editResult = true;
+	inputBoxRejections.length = 0;
+	shownDocumentOptions.length = 0;
 	configStore.clear();
 	configUpdates.length = 0;
 	configListeners.length = 0;
@@ -534,3 +583,18 @@ export function _resetMockState(): void {
 	replacedRanges.length = 0;
 	codeActionProviders.length = 0;
 }
+
+export const l10n = {
+	t(message: string, ...args: unknown[]): string {
+		if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
+			const named = args[0] as Record<string, unknown>;
+			return message.replace(/\{(\w+)\}/g, (whole, key) =>
+				key in named ? String(named[key]) : whole,
+			);
+		}
+		return message.replace(/\{(\d+)\}/g, (whole, index) => {
+			const value = args[Number(index)];
+			return value === undefined ? whole : String(value);
+		});
+	},
+};
