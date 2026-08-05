@@ -63,97 +63,108 @@ export async function handleCsvMultiColumnExtraction(
 }
 
 // Streaming multi-column helper
+
+/**
+ * Stream one CSV column into its own results document.
+ *
+ * Extracted from the per-column loop: inline, the batching decision sat five
+ * levels deep inside function -> try -> for -> try -> for.
+ */
+async function streamColumnToDocument(
+	idx: number,
+	context: ExtractionContext,
+	token: vscode.CancellationToken,
+	activeStreams: AsyncGenerator<string, void, unknown>[],
+): Promise<void> {
+	const { text, csvOptions, config, deps } = context;
+	try {
+		const doc = await vscode.workspace.openTextDocument({
+			content: '',
+			language: 'plaintext',
+		});
+		const editorForResults = await vscode.window.showTextDocument(
+			doc,
+			getShowDocumentOptions(config, {
+				preview: false,
+				preserveFocus: true,
+			}),
+		);
+
+		// Warn user that deduplication is disabled for streaming to prevent memory issues
+		if (config.dedupeEnabled) {
+			deps.notifier.warn(
+				'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
+			);
+		}
+
+		let pending: string[] = [];
+
+		const flush = async (): Promise<void> => {
+			if (pending.length === 0) return;
+			if (token.isCancellationRequested) {
+				pending = []; // Clear pending to free memory
+				return;
+			}
+
+			const toAppend = `${pending.join('\n')}\n`;
+			pending = [];
+
+			if (token.isCancellationRequested) return;
+
+			await editorForResults.edit((eb) => {
+				const end = new vscode.Position(editorForResults.document.lineCount, 0);
+				eb.insert(end, toAppend);
+			});
+		};
+
+		const batchSize = 500;
+		let lastFlush = Date.now();
+		const streamOpts = {
+			csvColumnIndex: idx,
+			onParseError: (message: string): void => {
+				if (config.showParseErrors) deps.notifier.error(message);
+			},
+			...(typeof csvOptions.csvHasHeader === 'boolean' && {
+				csvHasHeader: csvOptions.csvHasHeader,
+			}),
+		};
+
+		const stream = streamCsvStrings(text, streamOpts);
+		activeStreams.push(stream);
+
+		for await (const s of stream) {
+			if (token.isCancellationRequested) break;
+			pending.push(s);
+			const now = Date.now();
+			const dueToFlush = pending.length >= batchSize || now - lastFlush > 100;
+			if (!dueToFlush) continue;
+			if (token.isCancellationRequested) break;
+			await flush();
+			lastFlush = now;
+		}
+		if (!token.isCancellationRequested) {
+			await flush();
+		}
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			deps.notifier.error(`Column ${idx} streaming failed: ${error.message}`);
+		}
+		// Continue with next column
+	}
+}
+
 async function handleStreamingMultiColumn(
 	context: ExtractionContext,
 	targetIndexes: readonly number[],
 	token: vscode.CancellationToken,
 ): Promise<void> {
-	const { text, csvOptions, config, deps } = context;
 	const activeStreams: AsyncGenerator<string, void, unknown>[] = [];
 
 	try {
 		for (const idx of targetIndexes) {
 			if (token.isCancellationRequested) break;
 
-			try {
-				const doc = await vscode.workspace.openTextDocument({
-					content: '',
-					language: 'plaintext',
-				});
-				const editorForResults = await vscode.window.showTextDocument(
-					doc,
-					getShowDocumentOptions(config, {
-						preview: false,
-						preserveFocus: true,
-					}),
-				);
-
-				// Warn user that deduplication is disabled for streaming to prevent memory issues
-				if (config.dedupeEnabled) {
-					deps.notifier.warn(
-						'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
-					);
-				}
-
-				let pending: string[] = [];
-
-				const flush = async (): Promise<void> => {
-					if (pending.length === 0) return;
-					if (token.isCancellationRequested) {
-						pending = []; // Clear pending to free memory
-						return;
-					}
-
-					const toAppend = `${pending.join('\n')}\n`;
-					pending = [];
-
-					if (token.isCancellationRequested) return;
-
-					await editorForResults.edit((eb) => {
-						const end = new vscode.Position(
-							editorForResults.document.lineCount,
-							0,
-						);
-						eb.insert(end, toAppend);
-					});
-				};
-
-				const batchSize = 500;
-				let lastFlush = Date.now();
-				const streamOpts = {
-					csvColumnIndex: idx,
-					onParseError: (message: string): void => {
-						if (config.showParseErrors) deps.notifier.error(message);
-					},
-					...(typeof csvOptions.csvHasHeader === 'boolean' && {
-						csvHasHeader: csvOptions.csvHasHeader,
-					}),
-				};
-
-				const stream = streamCsvStrings(text, streamOpts);
-				activeStreams.push(stream);
-
-				for await (const s of stream) {
-					if (token.isCancellationRequested) break;
-					pending.push(s);
-					const now = Date.now();
-					if (pending.length >= batchSize || now - lastFlush > 100) {
-						if (token.isCancellationRequested) break;
-						await flush();
-						lastFlush = now;
-					}
-				}
-				if (!token.isCancellationRequested) {
-					await flush();
-				}
-			} catch (error: unknown) {
-				if (error instanceof Error) {
-					deps.notifier.error(
-						`Column ${idx} streaming failed: ${error.message}`,
-					);
-				}
-				// Continue with next column
-			}
+			await streamColumnToDocument(idx, context, token, activeStreams);
 		}
 	} finally {
 		// Clean up all active streams
