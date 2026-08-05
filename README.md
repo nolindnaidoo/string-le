@@ -11,6 +11,12 @@
   <a href="https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le">
     <img src="https://img.shields.io/badge/Install%20from-VS%20Code-blue?style=for-the-badge&logo=visualstudiocode" alt="Install from VS Code Marketplace" />
   </a>
+  <a href="https://open-vsx.org/extension/OffensiveEdge/string-le">
+    <img src="https://img.shields.io/open-vsx/dt/OffensiveEdge/string-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
+  </a>
+  <a href="https://www.npmjs.com/package/string-le-mcp">
+    <img src="https://img.shields.io/npm/v/string-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="string-le-mcp on npm" />
+  </a>
   <a href="https://letools.dev">
     <img src="https://img.shields.io/badge/LE%20Tools-letools.dev-blue?style=for-the-badge" alt="LE Tools" />
   </a>
@@ -34,6 +40,67 @@ Open a file, press `Ctrl+Alt+E` (`Cmd+Alt+E` on Mac), and every string value in 
 - **i18n prep** — flatten locale files (JSON/YAML) into a clean list of translatable values
 - **Config review** — see every string value in a TOML/INI/.env file at a glance
 - **CSV mining** — pull one column, several, or all of them; stream very large files
+
+## Use it from an AI agent
+
+The same engine runs as an [MCP](https://modelcontextprotocol.io) server, so an agent can call it directly instead of you running a command.
+
+| Editor | How |
+|---|---|
+| **VS Code** 1.101+ | Nothing to install — the extension registers `extract_strings` with agent mode |
+| **Zed** | [String-LE](https://github.com/zed-industries/extensions/pull/7082) — *pending review* |
+| **Claude Code** | `claude mcp add string-le -- npx -y string-le-mcp` |
+| **Cursor, Windsurf, anything else** | point it at `npx string-le-mcp` |
+
+```
+extract_strings(content, format?, filename?, dedupe?, maxResults?)
+```
+
+Returns the values in document order, capped at 500 by default with `meta.truncated`. A format is optional — any unrecognised format falls back to quoted strings.
+
+The server takes content and returns data — it reads no files and makes no network requests of its own. Published as [`string-le-mcp`](https://www.npmjs.com/package/string-le-mcp) on npm and as `io.github.nolindnaidoo/string-le` in the [MCP registry](https://registry.modelcontextprotocol.io).
+
+<details>
+<summary><b>Configuring it by hand</b> — any host with an MCP config file</summary>
+
+Most hosts read a JSON config. Add one entry:
+
+```json
+{
+  "mcpServers": {
+    "string-le": {
+      "command": "npx",
+      "args": ["-y", "string-le-mcp"]
+    }
+  }
+}
+```
+
+`-y` skips the install prompt on first run. Pin a version if you would rather not track releases — `string-le-mcp@2.2.1`.
+
+Prefer not to go through `npx` on every launch? Install it once and point at the binary instead:
+
+```bash
+npm install -g string-le-mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "string-le": { "command": "string-le-mcp" }
+  }
+}
+```
+
+It speaks MCP over stdio and needs no environment variables, no API key and no configuration of its own. To check it before wiring it into anything:
+
+```bash
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | npx -y string-le-mcp
+```
+
+That prints the tool list and exits — if you see `extract_strings`, the server works.
+
+</details>
 
 ## Supported formats
 
@@ -96,6 +163,7 @@ setting of its own.
 ## Privacy & security
 
 - **No network access.** The extension never sends data anywhere. The `telemetryEnabled` setting only writes events to a local Output Channel you can inspect (`String-LE`).
+- **The MCP server holds the same line.** It takes content as an argument and returns data: no filesystem access, no network calls, no telemetry. Your agent already has file-read tools, so duplicating them inside the server would add a path-traversal surface for no capability. `check:mcp-bundle` fails the build if the server ever imports something that could reach either.
 - Error notifications redact home directories and credential-shaped fragments.
 
 ## Development
@@ -152,6 +220,8 @@ run. Reproduce with `bun run test:coverage`.
 
 Every tool in the family, one page: **[letools.dev](https://letools.dev)**
 
+All ten also ship as MCP servers — `npx <name>-mcp` gives any agent the same engine.
+
 - **[Paths-LE](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.paths-le)** - Extract file paths from JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env
 - **[Numbers-LE](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.numbers-le)** - Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env
 - **[EnvSync-LE](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.envsync-le)** - Spot missing keys across your .env files, with a markdown report
@@ -166,8 +236,10 @@ Every tool in the family, one page: **[letools.dev](https://letools.dev)**
 
 **Rust**
 
-- **[pixelcoords](https://github.com/nolindnaidoo/pixelcoords)** - Mark pixel-exact coordinates machines can use · [pixelcoords.dev](https://pixelcoords.dev)
-- **[pixelactions](https://github.com/nolindnaidoo/pixelactions)** - Perform the interaction and confirm it landed · [pixelactions.dev](https://pixelactions.dev)
+- **[pixelcoords](https://github.com/nolindnaidoo/pixelcoords)** — Freeze your screen, mark regions, get pixel-exact coordinates and crops
+  [pixelcoords.dev](https://pixelcoords.dev) · [crates.io](https://crates.io/crates/pixelcoords) · [docs.rs](https://docs.rs/pixelcoords)
+- **[pixelactions](https://github.com/nolindnaidoo/pixelactions)** — Consume human-verified coordinates, perform the interaction, confirm it landed
+  [pixelactions.dev](https://pixelactions.dev) · [crates.io](https://crates.io/crates/pixelactions) · [docs.rs](https://docs.rs/pixelactions)
 
 **Contact Developer** — [GitHub](https://github.com/nolindnaidoo) · [LinkedIn](https://www.linkedin.com/in/nolindnaidoo/)
 
