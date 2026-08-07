@@ -3,7 +3,7 @@
 	"name": "io.github.nolindnaidoo/string-le",
 	"title": "Strings-LE",
 	"description": "Extract string values from config files, data files and plain text.",
-	"websiteUrl": "https://letools.dev",
+	"websiteUrl": "https://letools.dev/tools/string-le",
 	"icons": [
 		{
 			"src": "https://raw.githubusercontent.com/nolindnaidoo/string-le/main/src/assets/images/icon.png",
@@ -17,13 +17,13 @@
 		"url": "https://github.com/nolindnaidoo/string-le",
 		"source": "github"
 	},
-	"version": "2.2.3",
+	"version": "2.2.4",
 	"packages": [
 		{
 			"registryType": "npm",
 			"registryBaseUrl": "https://registry.npmjs.org",
 			"identifier": "string-le-mcp",
-			"version": "2.2.3",
+			"version": "2.2.4",
 			"runtimeHint": "npx",
 			"transport": {
 				"type": "stdio"
