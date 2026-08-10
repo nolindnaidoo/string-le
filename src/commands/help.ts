@@ -86,7 +86,7 @@ Access settings via Command Palette: "String-LE: Open Settings"
 
 Enjoying it? A rating helps more than you'd think:
 - Rate on VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le&ssr=false#review-details
-- Rate on Open VSX: https://open-vsx.org/extension/nolindnaidoo/string-le/reviews
+- Rate on Open VSX: https://open-vsx.org/extension/OffensiveEdge/string-le/reviews
 
 Built by nolindnaidoo (https://github.com/nolindnaidoo) — MIT licensed.
 	`.trim();
