@@ -205,6 +205,8 @@ All ten LE tools are on **[letools.dev](https://letools.dev)**.
   [crates.io](https://crates.io/crates/urls-le)
 - **[regex-le](https://github.com/nolindnaidoo/regex-le/tree/main/crate)** — Find every regex in a codebase and report which can be driven into catastrophic backtracking
   [crates.io](https://crates.io/crates/regex-le)
+- **[numbers-le](https://github.com/nolindnaidoo/numbers-le/tree/main/crate)** — Find every hardcoded number in a codebase so a person can check them
+  [crates.io](https://crates.io/crates/numbers-le)
 - **[scrape-le](https://github.com/nolindnaidoo/scrape-le/tree/main/crate)** — Check whether a page is scrapeable before the scraper is written
   [crates.io](https://crates.io/crates/scrape-le)
 
