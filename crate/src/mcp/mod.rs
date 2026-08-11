@@ -197,7 +197,7 @@ fn scan_tool(arguments: &Value) -> Result<Value, String> {
     let targets = walk::collect(&inputs, &walk_options)?;
     let reports: Vec<Value> = targets
         .iter()
-        .filter_map(|target| scan::scan_file(target, options))
+        .map(|target| scan::scan_file(target, options))
         .map(|report| serde_json::to_value(report).expect("a report serializes"))
         .collect();
 

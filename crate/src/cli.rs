@@ -36,9 +36,15 @@ Options:
                        cannot do this and the two then differ on purpose
   --csv-header         skip the first CSV row
   --csv-column <n>     take only this 0-based CSV column
+  --strict             exit 2 if any file could not be read, rather than
+                       reporting it and carrying on
   --stdin              read one document from stdin
   --hidden             walk hidden files and directories too
   --no-ignore          walk files that .gitignore excludes
+
+Files that are not text, or that cannot be opened, are named on stderr
+and carried in the report, and do not by themselves fail the run — every
+repository has a PNG in it. --strict turns them back into a failure.
 
 Exit codes follow grep: 0 strings found · 1 none found · 2 malformed
 question. Finding none is an answer, not an error.";
@@ -46,7 +52,8 @@ question. Finding none is an answer, not an error.";
 /// Every flag the parser accepts. Held equal to the flags named in USAGE
 /// by a test, and consulted at runtime so the list is what the parser
 /// actually honours.
-const FLAGS: [&str; 9] = [
+const FLAGS: [&str; 10] = [
+    "--strict",
     "--dedupe",
     "--format",
     "--values",
@@ -60,6 +67,8 @@ const FLAGS: [&str; 9] = [
 
 #[derive(Debug)]
 struct Cli {
+    /// Fail the run if any file could not be read.
+    strict: bool,
     inputs: Vec<PathBuf>,
     stdin: bool,
     /// Print values alone rather than JSON reports. The reviewer's next
@@ -104,7 +113,7 @@ fn execute(args: &[String]) -> Result<u8, String> {
     } else {
         walk::collect(&options.inputs, &options.walk)?
             .iter()
-            .filter_map(|target| scan::scan_file(target, options.scan))
+            .map(|target| scan::scan_file(target, options.scan))
             .collect()
     };
 
@@ -115,7 +124,7 @@ fn execute(args: &[String]) -> Result<u8, String> {
     }
 
     summarise(&reports, options.values_only);
-    Ok(scan::exit_code(&reports))
+    Ok(scan::exit_code(&reports, options.strict))
 }
 
 fn write_reports(reports: &[FileReport]) -> Result<(), String> {
@@ -162,6 +171,7 @@ fn parse(args: &[String]) -> Result<Cli, String> {
     let mut options = Cli {
         inputs: Vec::new(),
         stdin: false,
+        strict: false,
         values_only: false,
         scan: ScanOptions::default(),
         walk: WalkOptions::default(),
@@ -181,6 +191,7 @@ fn parse(args: &[String]) -> Result<Cli, String> {
             "--values" => options.values_only = true,
             "--multiline" => options.scan.extract.multiline = true,
             "--stdin" => options.stdin = true,
+            "--strict" => options.strict = true,
             "--hidden" => options.walk.hidden = true,
             "--no-ignore" => options.walk.respect_ignore = false,
             "--csv-header" => options.scan.extract.csv_has_header = true,

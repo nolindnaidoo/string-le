@@ -42,10 +42,29 @@ impl FileReport {
     /// yielding nothing and says so, and reporting it as a hard failure
     /// would make one malformed config fail an audit of ten thousand
     /// files.
-    pub(crate) fn is_unreadable(&self) -> bool {
+    /// Whether this file was not read at all — not text, or not
+    /// openable.
+    ///
+    /// Reported rather than swallowed, because a report that quietly
+    /// skipped a file would be claiming coverage it does not have. It
+    /// does **not** fail the run on its own: every repository has a PNG
+    /// and a zip in it, and exiting 2 on those makes the tool unusable
+    /// in CI, which is the one place it is most worth running.
+    /// `--strict` is there for a pipeline that wants zero tolerance.
+    pub(crate) fn was_skipped(&self) -> bool {
         self.diagnostics
             .iter()
-            .any(|diagnostic| diagnostic.code == "unreadable")
+            .any(|diagnostic| diagnostic.code == "skipped")
+    }
+
+    /// Whether the scan of this file gave up part way. Unlike a skip
+    /// this **does** fail the run: reporting no findings when a
+    /// detector stopped early would overstate coverage, which is the
+    /// one thing an audit tool must never do.
+    pub(crate) fn is_incomplete(&self) -> bool {
+        self.diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.severity == "error")
     }
 }
 
@@ -57,31 +76,18 @@ pub(crate) struct ScanOptions {
     pub(crate) format: Option<&'static str>,
 }
 
-pub(crate) fn scan_file(path: &PathBuf, options: ScanOptions) -> Option<FileReport> {
+pub(crate) fn scan_file(path: &PathBuf, options: ScanOptions) -> FileReport {
     let file = path.to_string_lossy().into_owned();
     let format = options.format.unwrap_or_else(|| format_of(path));
 
     match std::fs::read(path) {
-        // A file that is not UTF-8 holds no text to read. Failing on
-        // each would make the tool unusable in a repository with images
-        // in it.
-        Ok(bytes) => String::from_utf8(bytes)
-            .ok()
-            .map(|content| scan_content(&content, file, format, options)),
-        Err(error) => Some(FileReport {
-            file,
-            format: format.to_string(),
-            strings: Vec::new(),
-            diagnostics: vec![Diagnostic {
-                severity: "error".to_string(),
-                code: "unreadable".to_string(),
-                message: format!("could not be read: {error}"),
-            }],
-            summary: Summary {
-                strings: 0,
-                unlocated: 0,
-            },
-        }),
+        Ok(bytes) => match String::from_utf8(bytes) {
+            Ok(content) => scan_content(without_bom(&content), file, format, options),
+            // Named rather than dropped. A file that vanishes from the
+            // report is a file the reader believes was covered.
+            Err(_) => skipped(file, format, "not UTF-8 text"),
+        },
+        Err(error) => skipped(file, format, &error.to_string()),
     }
 }
 
@@ -138,8 +144,13 @@ pub(crate) fn scan_content(
 /// Finding nothing is an answer here, not an error — a file with no
 /// user-facing copy in it is a real result and `if string-le src/; then`
 /// has to work.
-pub(crate) fn exit_code(reports: &[FileReport]) -> u8 {
-    if reports.iter().any(FileReport::is_unreadable) {
+pub(crate) fn exit_code(reports: &[FileReport], strict: bool) -> u8 {
+    // A scan that gave up part way always fails: it would otherwise
+    // report "nothing found" for a file it never finished reading.
+    if reports.iter().any(FileReport::is_incomplete) {
+        return 2;
+    }
+    if strict && reports.iter().any(FileReport::was_skipped) {
         return 2;
     }
     u8::from(!reports.iter().any(|report| report.summary.strings > 0))
@@ -168,19 +179,19 @@ mod tests {
     fn a_document_with_strings_exits_zero() {
         let report = scan_content(r#"{"a":"one"}"#, "a.json".into(), "json", plain());
         assert_eq!(report.summary.strings, 1);
-        assert_eq!(exit_code(&[report]), 0);
+        assert_eq!(exit_code(&[report], false), 0);
     }
 
     #[test]
     fn a_document_with_none_exits_one() {
         let report = scan_content("{}", "a.json".into(), "json", plain());
         assert_eq!(report.summary.strings, 0);
-        assert_eq!(exit_code(&[report]), 1);
+        assert_eq!(exit_code(&[report], false), 1);
     }
 
     #[test]
     fn nothing_to_scan_exits_one() {
-        assert_eq!(exit_code(&[]), 1);
+        assert_eq!(exit_code(&[], false), 1);
     }
 
     /// A broken document is a fact about the file, not a failed run. One
@@ -198,7 +209,7 @@ mod tests {
         let report = scan_content(&document, "a.yaml".into(), "yaml", plain());
         assert_eq!(report.summary.strings, 0);
         assert_eq!(report.diagnostics[0].code, "unparsed");
-        assert!(!report.is_unreadable(), "a deep document is not unreadable");
+        assert!(!report.was_skipped(), "a deep document is not unreadable");
     }
 
     #[test]
@@ -206,31 +217,42 @@ mod tests {
         let report = scan_content("{not json", "a.json".into(), "json", plain());
         assert_eq!(report.diagnostics.len(), 1);
         assert_eq!(report.diagnostics[0].severity, "warning");
-        assert!(!report.is_unreadable());
-        assert_eq!(exit_code(&[report]), 1);
+        assert!(!report.was_skipped());
+        assert_eq!(exit_code(&[report], false), 1);
     }
 
+    /// Changed deliberately: a file that could not be read is reported
+    /// and does not fail the run, because every repository has one and
+    /// exiting 2 on it meant the tool never got run in CI at all.
     #[test]
-    fn an_unreadable_file_ends_the_run_at_two() {
+    fn an_unreadable_file_is_reported_and_does_not_end_the_run() {
         let tree = TempTree::new("scan-unreadable");
-        let report = scan_file(&tree.path().join("gone.json"), plain()).expect("a report");
-        assert!(report.is_unreadable());
-        assert_eq!(exit_code(&[report]), 2);
+        let report = scan_file(&tree.path().join("gone.json"), plain());
+        assert!(report.was_skipped());
+        assert_eq!(report.diagnostics[0].severity, "warning");
+        assert_eq!(exit_code(std::slice::from_ref(&report), false), 1);
+        assert_eq!(exit_code(&[report], true), 2, "--strict is opt-in");
     }
 
     #[test]
-    fn a_binary_file_is_skipped_rather_than_failed() {
+    fn a_binary_file_is_named_rather_than_dropped() {
         let tree = TempTree::new("scan-binary");
         let file = tree.path().join("logo.png");
         std::fs::write(&file, [0x89, 0x50, 0xff, 0xfe]).expect("a file");
-        assert!(scan_file(&file, plain()).is_none());
+        // It used to vanish from the report entirely, which reads to
+        // whoever runs this as "that file was clean".
+        let report = scan_file(&file, plain());
+        assert!(report.was_skipped());
+        assert_eq!(report.diagnostics[0].message, "not UTF-8 text");
+        assert_eq!(exit_code(std::slice::from_ref(&report), false), 1);
+        assert_eq!(exit_code(&[report], true), 2);
     }
 
     #[test]
     fn the_format_comes_from_the_file_name() {
         let tree = TempTree::new("scan-format");
         let file = tree.write("config.toml", "a = \"value\"\n");
-        let report = scan_file(&file, plain()).expect("a report");
+        let report = scan_file(&file, plain());
         assert_eq!(report.format, "toml");
         assert_eq!(report.summary.strings, 1);
     }
@@ -241,7 +263,7 @@ mod tests {
     fn a_source_file_falls_back_and_still_answers() {
         let tree = TempTree::new("scan-fallback");
         let file = tree.write("messages.ts", "const m = 'Delete this?';\n");
-        let report = scan_file(&file, plain()).expect("a report");
+        let report = scan_file(&file, plain());
         assert_eq!(report.format, "fallback");
         assert_eq!(report.strings[0].value, "Delete this?");
     }
@@ -256,8 +278,7 @@ mod tests {
                 format: Some("toml"),
                 ..plain()
             },
-        )
-        .expect("a report");
+        );
         assert_eq!(report.format, "toml");
         assert_eq!(report.summary.strings, 1);
     }
@@ -321,5 +342,54 @@ mod tests {
     fn the_human_line_says_so_when_there_is_no_position() {
         let report = scan_content("b: |\n  x\n  y\n", "a.yaml".into(), "yaml", plain());
         assert!(describe(&report, &report.strings[0]).starts_with("a.yaml:-"));
+    }
+}
+
+/// The report for a file that was not read: named, warned about, and
+/// not a failure by itself.
+fn skipped(file: String, format: &'static str, reason: &str) -> FileReport {
+    FileReport {
+        file,
+        format: format.to_string(),
+        strings: Vec::new(),
+        diagnostics: vec![Diagnostic {
+            severity: "warning".to_string(),
+            code: "skipped".to_string(),
+            message: reason.to_string(),
+        }],
+        summary: Summary {
+            strings: 0,
+            unlocated: 0,
+        },
+    }
+}
+
+/// Drop a leading byte-order mark.
+///
+/// No editor shows it and VS Code strips it before the extension ever
+/// sees a document, so without this the two frontends read the same file
+/// differently the moment anything on Windows saves it — Notepad, Excel,
+/// a PowerShell redirect. Three invisible bytes shift every column on
+/// the first line, and in a structured format they can lose the
+/// document entirely.
+pub(crate) fn without_bom(content: &str) -> &str {
+    content.strip_prefix('\u{feff}').unwrap_or(content)
+}
+
+#[cfg(test)]
+mod hazards {
+    use super::*;
+
+    /// Three invisible bytes that Notepad, Excel and a PowerShell
+    /// redirect all add, and that VS Code strips before the extension
+    /// ever sees a document — so without this the two frontends read
+    /// the same file differently.
+    #[test]
+    fn a_byte_order_mark_is_not_part_of_the_document() {
+        assert_eq!(without_bom("\u{feff}abc"), "abc");
+        assert_eq!(without_bom("abc"), "abc");
+        // Only a leading one: elsewhere it is a zero-width no-break
+        // space and belongs to the text.
+        assert_eq!(without_bom("a\u{feff}b"), "a\u{feff}b");
     }
 }
