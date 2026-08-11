@@ -1,0 +1,7 @@
+{
+  "plain": "readable",
+  "newline": "first\nsecond",
+  "quote": "she said \"hi\"",
+  "unicode": "café",
+  "repeated": "readable"
+}

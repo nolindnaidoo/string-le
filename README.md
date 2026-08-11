@@ -116,6 +116,52 @@ That prints the tool list and exits — if you see `extract_strings`, the server
 
 Values are trimmed; empty values are dropped; keys are never extracted. The fallback scan cannot see unquoted or multi-line strings — that is why the six formats above get real parsers. Parse errors are silent unless `string-le.showParseErrors` is on.
 
+## The CLI
+
+The same extraction runs from a terminal or a shell pipeline: a Rust CLI
+in [`crate/`](crate/README.md), sharing one corpus with the extension —
+[`crate/fixtures/`](crate/fixtures/) — so the two can never read a
+document differently.
+
+```bash
+string-le .                      # every string in the tree, as JSON
+string-le --values src/          # just the values, one per line
+string-le --dedupe --values .    # each distinct string once
+string-le mcp                    # the same extraction over MCP on stdio
+
+# the point of the whole thing:
+string-le --values --dedupe src/ | sort > after.txt
+diff before.txt after.txt        # what changed in the copy this release
+```
+
+**The reader is not the author.** The extension answers for the buffer
+you have open. Someone still has to read every user-visible string before
+a release — a QA lead, a compliance reviewer, a localisation owner — and
+they do not have the editor open, and several of them cannot be handed a
+checkout at all. The CLI puts the whole repository into one file they can
+read.
+
+**The fallback is the main event there.** A `.ts` or `.py` file is not a
+format with a parser, so it falls through to quoted-string extraction —
+and those quoted strings are the user-facing copy the reviewer came for.
+
+**Exit codes follow grep** — 0 strings found, 1 none found, 2 the
+question was malformed — so finding nothing is an answer rather than an
+error.
+
+Install it with `cargo install string-le`
+([crates.io](https://crates.io/crates/string-le)). The spec
+([`crate/SPEC.md`](crate/SPEC.md)) and the engineering standard
+([`crate/AGENTS.md`](crate/AGENTS.md)) live alongside it, and it keeps
+its own [CHANGELOG](crate/CHANGELOG.md).
+
+**Two MCP servers, one tool.** `string-le mcp` offers `extract_strings`
+exactly as [`string-le-mcp`](https://www.npmjs.com/package/string-le-mcp)
+does — [`crate/fixtures/mcp-extract-strings.json`](crate/fixtures/mcp-extract-strings.json)
+runs against both and CI fails if they diverge. Take the npm one if Node
+is already there; take the binary if you want no runtime, or if you want
+`string_le_scan` too.
+
 ## Commands
 
 | Command | Description |
@@ -220,7 +266,7 @@ run. Reproduce with `bun run test:coverage`.
 
 Every tool in the family, one page: **[letools.dev](https://letools.dev)**
 
-All ten also ship as MCP servers — `npx <name>-mcp` gives any agent the same engine. Five go further and ship a Rust CLI: **Paths-LE**, **Secrets-LE**, **URLs-LE**, **Regex-LE** and **Scrape-LE**, each installed with `cargo install <that-name>`.
+All ten also ship as MCP servers — `npx <name>-mcp` gives any agent the same engine. Six go further and ship a Rust CLI: **Paths-LE**, **Secrets-LE**, **URLs-LE**, **Regex-LE**, **String-LE** and **Scrape-LE**, each installed with `cargo install <that-name>`.
 
 - **[Paths-LE](https://letools.dev/tools/paths-le)** - Extract file paths from JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env
 - **[Numbers-LE](https://letools.dev/tools/numbers-le)** - Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env
@@ -234,12 +280,14 @@ All ten also ship as MCP servers — `npx <name>-mcp` gives any agent the same e
 
 ## Also by nolindnaidoo
 
-**Rust** — pixelcoords and pixelactions are one loop: pixelcoords answers *where*, pixelactions *acts* there. The five LE crates are the terminal half of the extensions they sit in — the same detection, held to the extension's own corpus, and an exit code instead of a results editor.
+**Rust** — pixelcoords and pixelactions are one loop: pixelcoords answers *where*, pixelactions *acts* there. The six LE crates are the terminal half of the extensions they sit in — the same extraction, held to the extension's own corpus, and an exit code instead of a results editor.
 
 - **[pixelcoords](https://github.com/nolindnaidoo/pixelcoords)** — Freeze your screen, mark regions, get pixel-exact coordinates and crops
   [pixelcoords.dev](https://pixelcoords.dev) · [crates.io](https://crates.io/crates/pixelcoords) · [docs.rs](https://docs.rs/pixelcoords)
 - **[pixelactions](https://github.com/nolindnaidoo/pixelactions)** — Consume human-verified coordinates, perform the interaction, confirm it landed
   [pixelactions.dev](https://pixelactions.dev) · [crates.io](https://crates.io/crates/pixelactions) · [docs.rs](https://docs.rs/pixelactions)
+- **[string-le](https://github.com/nolindnaidoo/string-le/tree/main/crate)** — This extension's own CLI: get every string in a codebase out where a person can read them
+  [crates.io](https://crates.io/crates/string-le)
 - **[paths-le](https://github.com/nolindnaidoo/paths-le/tree/main/crate)** — Find every path in a codebase and report whether it still points at anything
   [crates.io](https://crates.io/crates/paths-le)
 - **[secrets-le](https://github.com/nolindnaidoo/secrets-le/tree/main/crate)** — Find hardcoded credentials, and never print one

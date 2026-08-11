@@ -1,0 +1,16 @@
+{
+	"title": "Welcome Home",
+	"empty": "",
+	"whitespace": "   ",
+	"count": 42,
+	"enabled": true,
+	"nothing": null,
+	"url": "https://example.com/path?query=1",
+	"id": "usr_8f3k2j4h5g6",
+	"multiline": "line one\nline two",
+	"padded": "  trimmed value  ",
+	"nested": {
+		"message": "Nested message",
+		"items": ["first item", "second item", 3, false]
+	}
+}

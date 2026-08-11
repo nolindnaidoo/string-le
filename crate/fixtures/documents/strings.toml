@@ -1,0 +1,14 @@
+title = "TOML Example"
+literal = 'literal string'
+number = 123
+flag = true
+
+[owner]
+name = "Tom Preston-Werner"
+bio = """
+Multi-line
+basic string
+"""
+tags = ["alpha", "beta"]
+hash = "value with # hash"
+date = 2026-01-01

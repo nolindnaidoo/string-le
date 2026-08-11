@@ -52,6 +52,14 @@ carries this server and registers it for you:
 · [Open VSX](https://open-vsx.org/extension/OffensiveEdge/string-le)
 · [Zed](https://zed.dev/docs/ai/mcp) *(no listing yet — add it by hand)*
 
+**No Node?** The same `extract_strings` tool ships in a static Rust
+binary: `cargo install string-le`, then `string-le mcp`
+([crates.io](https://crates.io/crates/string-le)). The two servers answer
+identically — one fixture corpus runs against both and CI fails if they
+diverge. The binary additionally offers `string_le_scan`, which walks a
+tree and reports positions; **this server reads no files**, which is what
+lets an agent call it anywhere.
+
 Prefer a global install to `npx` on every launch:
 
 ```bash
@@ -140,10 +148,10 @@ Architecture. [nolindnaidoo.com](https://nolindnaidoo.com) ·
 
 ### Also from the same workshop
 
-Seven Rust tools built the same way: small, single-purpose, and driven by a
+Eight Rust tools built the same way: small, single-purpose, and driven by a
 machine rather than a person. pixelcoords and pixelactions make up one loop —
-pixelcoords answers *where*, pixelactions *acts* there. The five LE crates are
-the terminal half of the extensions they sit in: the same detection, held to
+pixelcoords answers *where*, pixelactions *acts* there. The six LE crates are
+the terminal half of the extensions they sit in: the same extraction, held to
 the extension's own corpus, and an exit code instead of a results editor.
 
 | | | |
@@ -154,6 +162,7 @@ the extension's own corpus, and an exit code instead of a results editor.
 | **[secrets-le](https://github.com/nolindnaidoo/secrets-le/tree/main/crate)** | Find hardcoded credentials, and never print one | [crates.io](https://crates.io/crates/secrets-le) |
 | **[urls-le](https://github.com/nolindnaidoo/urls-le/tree/main/crate)** | Extract every URL from a codebase, with its protocol and exact position | [crates.io](https://crates.io/crates/urls-le) |
 | **[regex-le](https://github.com/nolindnaidoo/regex-le/tree/main/crate)** | Find every regex in a codebase and report which can be driven into catastrophic backtracking | [crates.io](https://crates.io/crates/regex-le) |
+| **[string-le](https://github.com/nolindnaidoo/string-le/tree/main/crate)** | Get every string in a codebase out where a person can read them | [crates.io](https://crates.io/crates/string-le) |
 | **[scrape-le](https://github.com/nolindnaidoo/scrape-le/tree/main/crate)** | Check whether a page is scrapeable before the scraper is written | [crates.io](https://crates.io/crates/scrape-le) |
 
 ## Licence

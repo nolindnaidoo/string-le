@@ -2,6 +2,8 @@
 
 Technical source of truth for this repo. README.md is the user-facing doc; this file is for anyone (human or agent) changing the code.
 
+This repo hosts **two products**: the extension at the root (this document's scope) and the Rust CLI in `crate/` (its own `AGENTS.md` + `SPEC.md`). The shared extraction corpus lives at `crate/fixtures/`; `scripts/check-extraction-parity.ts` fails CI when this extension drifts from it.
+
 ## What this is
 
 A VS Code extension that extracts string values from the active document (JSON, YAML, CSV, TOML, INI, dotenv — anything else falls back to a quoted-string scan) into a results editor, with dedupe/sort post-processing and a streaming mode for large CSVs. No network access, no filesystem writes.
