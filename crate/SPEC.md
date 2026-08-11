@@ -101,19 +101,25 @@ and a 1-based line and column when the value can be located in the
 source. This is outside parity scope — the extension has nothing to
 disagree with.
 
-Positions come from one mechanism for all seven formats: a **forward
-cursor** over the source, matching each extracted value in turn from
-where the previous one ended. Extraction already yields values in
-document order, so the cursor never has to guess between two occurrences
-of the same string.
+**JSON is placed by its parser; the other six by a forward cursor.** The
+jsonc AST carries a range for every literal, so JSON needs no search and
+can place the values a search never finds. The cursor walks the source
+matching each extracted value in turn from where the previous one ended;
+extraction already yields values in document order, so it never has to
+guess between two occurrences of the same string.
+
+Positions are outside parity scope, so a format may be placed however it
+can be placed honestly. Where a parser offers spans, they win.
 
 **A value that cannot be located reports no position, and the summary
-counts how many.** This is the honest failure and it is not rare: a
-parser resolves escapes and folds scalars, so `"a\nb"` in JSON, a YAML
-block scalar, and a CSV cell containing an escaped quote are all real
-values that never appear literally in the source. Reporting a nearby
-guess would be worse than reporting nothing; a count the reader can see
-is the difference between a limitation and a lie.
+counts how many.** This is the honest failure: a parser resolves escapes
+and folds scalars, so a YAML block scalar and a CSV cell containing an
+escaped quote are real values that never appear literally in the source.
+Reporting a nearby guess would be worse than reporting nothing; a count
+the reader can see is the difference between a limitation and a lie.
+
+JSON used to be the largest source of these and now has none, which is
+the whole reason it earned spans.
 
 **Columns are UTF-16 code units**, 1-based, matching what an editor shows.
 
@@ -159,6 +165,8 @@ Options:
                        file name; an unknown name falls back rather than
                        failing
   --values             print only the values, one per line, for piping
+  --multiline          let a quoted run span lines, so a multi-line
+                       template literal is read too
   --csv-header         skip the first CSV row
   --csv-column <n>     take only this 0-based CSV column
   --stdin              read one document from stdin
@@ -182,6 +190,30 @@ person this was built for.
 
 **Refusals speak the caller's vocabulary.** No message here names a flag.
 
+## Where this deliberately differs
+
+Three places, each opt-in or reported, never silent.
+
+**`--multiline`.** JavaScript's `.` does not match a newline without the
+`s` flag, so the extension's quoted-run pattern cannot span lines and a
+multi-line template literal is invisible to it. Off by default, so the
+default answer is the extension's answer. Asked for, the fallback reads
+those runs — an email body, a help paragraph, a consent notice is exactly
+the copy an audit least wants to miss, and the terminal has no reason to
+inherit a limit that exists because a regex in an editor did not set a
+flag.
+
+**Nesting limits.** Each parser here guards its own depth — jsonc-parser
+at 512, saphyr at 256 — below the 1000 the extension's walk stops at. A
+document deeper than that comes back here as a **reported parse failure**
+and there as a silently half-read document. Both yield nothing useful;
+only one of them says so.
+
+**Positions**, which the extension does not have at all, so there is
+nothing to differ with.
+
+Everything else is parity, and the corpus is what proves it.
+
 ## Non-goals
 
 - **It does not judge a string.** No spell check, no banned-word list, no
@@ -194,10 +226,10 @@ person this was built for.
 
 ## Not in v1
 
-- **Parser-exact spans.** The forward cursor is one mechanism for seven
-  formats; per-format spans would locate the values it cannot, at the
-  cost of a position-preserving parser for each. The `unlocated` count is
-  what says whether that is worth buying.
+- **Parser-exact spans for the other six formats.** JSON has them because
+  its parser already carried ranges; TOML, YAML and CSV would each need a
+  position-preserving parser bought for the purpose. The `unlocated`
+  count is what says whether that is worth it.
 - **CSV streaming.** The extension streams for large files because it
   must stay responsive in an editor; a CLI that reads a file and exits
   has no such constraint.

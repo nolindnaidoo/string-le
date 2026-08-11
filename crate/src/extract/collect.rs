@@ -4,10 +4,15 @@
 //! INI each parse with their own library and then hand the result here,
 //! so "what counts as a string" is answered once rather than four times.
 
-/// The extension's depth cap, ported with its value. It exists to stop a
-/// deeply nested document from overflowing the stack, and stopping
-/// silently is what the extension does — a document 1000 levels deep is
-/// not a document anyone is auditing.
+/// The extension's depth cap, ported with its value.
+///
+/// **Nothing reaches it here**, and that is worth knowing rather than
+/// discovering. Every parser this crate uses guards its own nesting
+/// first — jsonc-parser at 512, saphyr at 256 — so a document deep
+/// enough to matter is refused at the parse and reported, where the
+/// extension's parsers accept it and its walk stops here in silence. The
+/// cap stays as the backstop it was written to be, in case a parser ever
+/// drops its own.
 const MAX_RECURSION_DEPTH: usize = 1000;
 
 /// A parsed document, in the shape every parser here is normalised into.
@@ -105,8 +110,8 @@ mod tests {
         assert_eq!(collect(&document), ["same", "same"]);
     }
 
-    /// Deeper than the cap stops, and stops quietly — the extension's
-    /// behaviour, ported with its value.
+    /// Deeper than the cap stops — the extension's behaviour, ported
+    /// with its value.
     #[test]
     fn recursion_stops_at_the_cap() {
         let mut deep = s("bottom");

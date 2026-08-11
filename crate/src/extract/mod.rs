@@ -37,6 +37,11 @@ pub(crate) use position::Position;
 pub(crate) struct Options {
     pub(crate) csv_has_header: bool,
     pub(crate) csv_column: Option<usize>,
+    /// Let a quoted run span lines in the fallback extractor.
+    ///
+    /// The one place this crate will answer differently from the
+    /// extension, and only when asked. See `fallback::QUOTED_MULTILINE`.
+    pub(crate) multiline: bool,
 }
 
 /// One extracted value, and where it was found.
@@ -71,17 +76,53 @@ pub(crate) fn extract(text: &str, format: &str, options: Options) -> Vec<String>
         "toml" => toml::extract(trimmed),
         "ini" => ini::extract(trimmed),
         "env" => dotenv::extract(trimmed),
-        _ => fallback::extract(trimmed),
+        _ => fallback::extract_with(trimmed, options.multiline),
     }
 }
 
-/// The same values, each paired with where it came from.
+/// Everything one pass over a document produces.
 ///
-/// The values and their order are exactly what `extract` returns; the
-/// positions are found afterwards, so locating can never change what was
-/// extracted.
-pub(crate) fn extract_located(text: &str, format: &str, options: Options) -> Vec<Found> {
-    locate::locate(text, extract(text, format, options))
+/// One call rather than three. Values, positions, why a document yielded
+/// nothing and whether the depth cap bound are all facts about the same
+/// parse, and asking for them separately meant parsing the file twice.
+#[derive(Debug, Clone, Default)]
+pub(crate) struct Extraction {
+    pub(crate) found: Vec<Found>,
+    pub(crate) parse_error: Option<String>,
+}
+
+/// One pass: values, positions, and why a document yielded nothing.
+pub(crate) fn examine(text: &str, format: &str, options: Options) -> Extraction {
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return Extraction::default();
+    }
+    let shift = text.len() - text.trim_start().len();
+    let index = position::PositionIndex::new(text);
+
+    // JSON is placed by its parser, the rest by a forward cursor. The
+    // jsonc AST carries a range for every literal, which places the
+    // values a search cannot find — a resolved `\n` or `\"` has no
+    // literal occurrence in the document. Positions are outside parity
+    // scope, so a format may be placed however it can be placed
+    // honestly; the other six have no spans to offer.
+    if format::canonical(format) == "json" {
+        return Extraction {
+            found: json::extract_spanned(trimmed)
+                .into_iter()
+                .map(|(value, offset)| Found {
+                    value,
+                    position: Some(index.at(offset + shift)),
+                })
+                .collect(),
+            parse_error: json::parse_error(trimmed),
+        };
+    }
+
+    Extraction {
+        found: locate::locate(text, extract(text, format, options)),
+        parse_error: parse_error(text, format),
+    }
 }
 
 /// Why a document yielded nothing, when the reason is a parse failure.
@@ -134,10 +175,14 @@ mod tests {
     fn locating_does_not_change_what_was_extracted() {
         let text = "{\"a\":\"one\",\"b\":\"two\"}";
         let values = extract(text, "json", Options::default());
-        let located = extract_located(text, "json", Options::default());
+        let examined = examine(text, "json", Options::default());
         assert_eq!(
             values,
-            located.iter().map(|f| f.value.clone()).collect::<Vec<_>>()
+            examined
+                .found
+                .iter()
+                .map(|f| f.value.clone())
+                .collect::<Vec<_>>()
         );
     }
 }

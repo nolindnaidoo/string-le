@@ -111,16 +111,28 @@ Each value is reported with its file and, where it can be found in the
 source, a 1-based line and column in **UTF-16 units** — the number your
 editor shows.
 
-**Some values cannot be located, and the report says how many.** A parser
-resolves escapes and folds scalars, so `"a\nb"` in JSON, a YAML block
-scalar and a CSV cell with an escaped quote are all correct values that
-never appear literally in the source. Those get no position, and
-`summary.unlocated` counts them. Reporting a nearby guess would be worse
-than reporting nothing; a count you can see is the difference between a
-limitation and a lie.
+**JSON is placed by its parser; the other six by a forward search over the
+source.** Where a parser hands back real ranges they win, so a JSON value
+is always located even when its escapes mean it appears nowhere literally.
 
-On this family's own repositories that runs between 0.02% and 1.8% of
-values.
+**The rest can miss, and the report says how many.** A parser resolves
+escapes and folds scalars, so a YAML block scalar and a CSV cell with an
+escaped quote are correct values that never appear literally in the file.
+Those get no position and `summary.unlocated` counts them. Reporting a
+nearby guess would be worse than reporting nothing; a count you can see
+is the difference between a limitation and a lie.
+
+## Where it goes further than the extension
+
+**`--multiline`.** JavaScript's `.` does not match a newline, so the
+extension's quoted-run pattern cannot span lines and a multi-line
+template literal is invisible to it. That is an email body, a help
+paragraph, a consent notice — the copy an audit least wants to miss, and
+a terminal has no reason to inherit a limit that exists because a regex
+in an editor did not set a flag.
+
+It is off by default, so the default answer is the extension's answer,
+and the shared corpus keeps the two honest.
 
 ## It has no opinions
 
@@ -140,6 +152,8 @@ contract test asserts no flag asks for a judgment.
 --format <format>    force a format instead of inferring from the name;
                      an unknown name falls back rather than failing
 --values             print only the values, one per line, for piping
+--multiline          let a quoted run span lines, so a multi-line
+                     template literal is read too
 --csv-header         skip the first CSV row
 --csv-column <n>     take only this 0-based CSV column
 --stdin              read one document from stdin

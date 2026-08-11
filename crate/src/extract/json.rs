@@ -15,6 +15,50 @@
 use jsonc_parser::ast::{Object, Value as Node};
 use jsonc_parser::{CollectOptions, ParseOptions, parse_to_ast};
 
+/// The values, each with the byte offset of the source text that
+/// produced it — the opening quote's content, not the quote.
+///
+/// The AST carries a range for every literal, so JSON needs no search to
+/// place a value and can place the ones a search never finds: a resolved
+/// `\n` or `\"` has no literal occurrence in the document, and on this
+/// family's own repositories that was every unlocated value in the
+/// largest format.
+pub(crate) fn extract_spanned(text: &str) -> Vec<(String, usize)> {
+    let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &strict()) else {
+        return Vec::new();
+    };
+    let Some(root) = result.value else {
+        return Vec::new();
+    };
+    let mut values = Vec::new();
+    visit_spanned(&root, &mut values);
+    values
+}
+
+fn visit_spanned(node: &Node, values: &mut Vec<(String, usize)>) {
+    match node {
+        Node::StringLit(literal) => {
+            let trimmed = literal.value.trim();
+            if !trimmed.is_empty() {
+                // +1 steps past the opening quote so the column points at
+                // the text rather than at the string that holds it.
+                values.push((trimmed.to_string(), literal.range.start + 1));
+            }
+        }
+        Node::Array(array) => {
+            for element in &array.elements {
+                visit_spanned(element, values);
+            }
+        }
+        Node::Object(object) => {
+            for property in &object.properties {
+                visit_spanned(&property.value, values);
+            }
+        }
+        _ => {}
+    }
+}
+
 pub(crate) fn extract(text: &str) -> Vec<String> {
     let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &strict()) else {
         // A parse failure is nothing found, matching the extension: it
@@ -133,6 +177,36 @@ mod tests {
     fn escapes_are_resolved() {
         assert_eq!(extract(r#"{"a":"first\nsecond"}"#), ["first\nsecond"]);
         assert_eq!(extract(r#"{"a":"she said \"hi\""}"#), [r#"she said "hi""#]);
+    }
+
+    /// The values and their order are the same either way; only the
+    /// positions differ, and positions are outside parity scope.
+    #[test]
+    fn the_spanned_walk_yields_the_same_values_in_the_same_order() {
+        let document = r#"{"a":"one","b":{"c":"two","d":["three","four"]}}"#;
+        let spanned: Vec<String> = extract_spanned(document)
+            .into_iter()
+            .map(|(value, _)| value)
+            .collect();
+        assert_eq!(spanned, extract(document));
+    }
+
+    /// The offset points at the text, not at the quote around it.
+    #[test]
+    fn a_span_starts_inside_the_quotes() {
+        let document = r#"{"a":"one"}"#;
+        let (value, offset) = extract_spanned(document)[0].clone();
+        assert_eq!(value, "one");
+        assert_eq!(&document[offset..offset + value.len()], "one");
+    }
+
+    /// The whole reason JSON gets spans: a resolved escape has no
+    /// literal occurrence to search for, and the span knows anyway.
+    #[test]
+    fn a_resolved_escape_still_has_a_span() {
+        let spanned = extract_spanned(r#"{"a":"first\nsecond"}"#);
+        assert_eq!(spanned[0].0, "first\nsecond");
+        assert_eq!(spanned[0].1, 6);
     }
 
     #[test]

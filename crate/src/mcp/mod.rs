@@ -116,6 +116,13 @@ fn tool_definitions() -> Value {
                         "default": false,
                         "description": "Collapse repeated values to their first occurrence.",
                     },
+                    "multiline": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Let a quoted run span lines, so a multi-line template \
+                                        literal is read too. The editor extension cannot do \
+                                        this, so the two then answer differently on purpose.",
+                    },
                     "hidden": {
                         "type": "boolean",
                         "default": false,
@@ -177,7 +184,10 @@ fn scan_tool(arguments: &Value) -> Result<Value, String> {
     };
     let options = ScanOptions {
         dedupe: flag("dedupe"),
-        extract: Options::default(),
+        extract: Options {
+            multiline: flag("multiline"),
+            ..Options::default()
+        },
         format: arguments
             .get("format")
             .and_then(Value::as_str)

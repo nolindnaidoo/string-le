@@ -146,6 +146,27 @@ fn a_source_file_yields_its_copy_through_the_fallback() {
     assert_eq!(values, ["Delete this permanently?", "Never mind"]);
 }
 
+/// The one flag that makes this answer differently from the extension,
+/// and only when asked. A multi-line template literal in a source file
+/// is an email body or a consent notice — the copy an audit least wants
+/// to miss.
+#[test]
+fn multiline_reads_copy_the_extension_cannot_see() {
+    let tree = Tree::new("multiline");
+    tree.write(
+        "src/email.ts",
+        "const body = `Dear reader,\n\nWelcome aboard.`;\nconst short = 'Hi';\n",
+    );
+    let path = tree.path().to_string_lossy().to_string();
+
+    let parity = run(&["--values", &path]);
+    assert_eq!(parity.stdout.lines().collect::<Vec<_>>(), ["Hi"]);
+
+    let wider = run(&["--values", "--multiline", &path]);
+    assert!(wider.stdout.contains("Dear reader,"), "{}", wider.stdout);
+    assert!(wider.stdout.contains("Hi"), "{}", wider.stdout);
+}
+
 /// The flag that exists for the person this was built for: values alone,
 /// ready to pipe.
 #[test]
@@ -237,7 +258,7 @@ fn dedupe_collapses_repeats() {
 #[test]
 fn values_the_source_does_not_spell_are_reported_as_unlocated() {
     let tree = Tree::new("unlocated");
-    tree.write("a.json", "{\"a\":\"first\\nsecond\"}\n");
+    tree.write("a.yaml", "b: |\n  first\n  second\n");
     let run = run(&[&tree.path().to_string_lossy()]);
     assert_eq!(reports(&run)[0]["summary"]["unlocated"], 1);
     assert!(

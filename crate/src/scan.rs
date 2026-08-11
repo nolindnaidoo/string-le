@@ -95,25 +95,26 @@ pub(crate) fn scan_content(
     format: &str,
     options: ScanOptions,
 ) -> FileReport {
-    let mut strings = extract::extract_located(content, format, options.extract);
+    let examined = extract::examine(content, format, options.extract);
+    let mut strings = examined.found;
 
     if options.dedupe {
         let mut seen = std::collections::HashSet::new();
         strings.retain(|found| seen.insert(found.value.clone()));
     }
 
+    let mut diagnostics = Vec::new();
     // A parse failure yields nothing and says why. Said as a warning
     // rather than an error because the extension treats it the same way:
     // the document is unreadable *as that format*, which is a fact about
     // the file, not a failure of the run.
-    let diagnostics = extract::parse_error(content, format)
-        .map(|message| Diagnostic {
+    if let Some(message) = examined.parse_error {
+        diagnostics.push(Diagnostic {
             severity: "warning".to_string(),
             code: "unparsed".to_string(),
             message,
-        })
-        .into_iter()
-        .collect();
+        });
+    }
 
     let unlocated = strings
         .iter()
@@ -184,6 +185,22 @@ mod tests {
 
     /// A broken document is a fact about the file, not a failed run. One
     /// malformed config must not fail an audit of ten thousand files.
+    /// Each parser guards its own nesting before this crate's cap is
+    /// reached — jsonc-parser at 512, saphyr at 256 — so a document too
+    /// deep to read comes back as a reported parse failure rather than
+    /// as a half-read document. The extension's parsers accept deeper
+    /// and its walk stops at 1000 in silence, so between those depths it
+    /// returns values and this returns a warning. Said out loud beats
+    /// half an answer.
+    #[test]
+    fn a_document_too_deep_to_parse_is_reported_not_half_read() {
+        let document = format!("{}x{}", "[".repeat(600), "]".repeat(600));
+        let report = scan_content(&document, "a.yaml".into(), "yaml", plain());
+        assert_eq!(report.summary.strings, 0);
+        assert_eq!(report.diagnostics[0].code, "unparsed");
+        assert!(!report.is_unreadable(), "a deep document is not unreadable");
+    }
+
     #[test]
     fn a_parse_failure_is_a_warning_not_an_exit_two() {
         let report = scan_content("{not json", "a.json".into(), "json", plain());
@@ -270,17 +287,28 @@ mod tests {
     }
 
     /// The count that says whether the positions are a complete index.
+    /// A YAML block scalar is the case: the value has real newlines and
+    /// the source has indented lines, so it is nowhere to be found.
     #[test]
     fn values_the_source_does_not_spell_are_counted() {
         let report = scan_content(
-            r#"{"a":"plain","b":"first\nsecond"}"#,
-            "a.json".into(),
-            "json",
+            "a: plain\nb: |\n  first\n  second\n",
+            "a.yaml".into(),
+            "yaml",
             plain(),
         );
         assert_eq!(report.summary.strings, 2);
         assert_eq!(report.summary.unlocated, 1);
         assert!(report.strings[1].position.is_none());
+    }
+
+    /// JSON is placed by its parser rather than by a search, so the
+    /// escapes that defeat the cursor are located anyway.
+    #[test]
+    fn json_locates_a_value_the_source_does_not_spell() {
+        let report = scan_content(r#"{"a":"first\nsecond"}"#, "a.json".into(), "json", plain());
+        assert_eq!(report.summary.unlocated, 0);
+        assert_eq!(report.strings[0].position.expect("a position").column, 7);
     }
 
     #[test]
@@ -291,7 +319,7 @@ mod tests {
 
     #[test]
     fn the_human_line_says_so_when_there_is_no_position() {
-        let report = scan_content(r#"{"a":"x\ny"}"#, "a.json".into(), "json", plain());
-        assert!(describe(&report, &report.strings[0]).starts_with("a.json:-"));
+        let report = scan_content("b: |\n  x\n  y\n", "a.yaml".into(), "yaml", plain());
+        assert!(describe(&report, &report.strings[0]).starts_with("a.yaml:-"));
     }
 }

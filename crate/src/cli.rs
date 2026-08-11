@@ -31,6 +31,9 @@ Options:
                        file name; an unknown name falls back rather than
                        failing
   --values             print only the values, one per line, for piping
+  --multiline          let a quoted run span lines, so a multi-line
+                       template literal is read too. The extension
+                       cannot do this and the two then differ on purpose
   --csv-header         skip the first CSV row
   --csv-column <n>     take only this 0-based CSV column
   --stdin              read one document from stdin
@@ -43,10 +46,11 @@ question. Finding none is an answer, not an error.";
 /// Every flag the parser accepts. Held equal to the flags named in USAGE
 /// by a test, and consulted at runtime so the list is what the parser
 /// actually honours.
-const FLAGS: [&str; 8] = [
+const FLAGS: [&str; 9] = [
     "--dedupe",
     "--format",
     "--values",
+    "--multiline",
     "--csv-header",
     "--csv-column",
     "--stdin",
@@ -175,6 +179,7 @@ fn parse(args: &[String]) -> Result<Cli, String> {
         match arg.as_str() {
             "--dedupe" => options.scan.dedupe = true,
             "--values" => options.values_only = true,
+            "--multiline" => options.scan.extract.multiline = true,
             "--stdin" => options.stdin = true,
             "--hidden" => options.walk.hidden = true,
             "--no-ignore" => options.walk.respect_ignore = false,
@@ -287,6 +292,26 @@ mod tests {
             };
             assert!(parse(&args).is_ok(), "{flag}");
         }
+    }
+
+    /// Off unless asked for, so the default answer is the extension's
+    /// answer.
+    #[test]
+    fn multiline_is_off_by_default() {
+        assert!(
+            !parse(&["x".into()])
+                .expect("options")
+                .scan
+                .extract
+                .multiline
+        );
+        assert!(
+            parse(&["--multiline".into(), "x".into()])
+                .expect("options")
+                .scan
+                .extract
+                .multiline
+        );
     }
 
     #[test]

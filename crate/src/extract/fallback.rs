@@ -26,6 +26,22 @@ use regex::Regex;
 /// a multi-line template literal is simply missed. Rust's character
 /// classes match newlines happily, so leaving them in found a value the
 /// extension never reports — the corpus caught it on the first run.
+/// The same pattern with newlines allowed inside a run — what
+/// JavaScript would spell with the `s` flag, which the extension does
+/// not set and cannot easily add without changing what its editor
+/// surface reports.
+///
+/// **Opt-in, and a deliberate divergence.** A multi-line template
+/// literal in a source file is an email body, a help paragraph, a
+/// consent notice — the copy an audit least wants to miss — and the
+/// terminal has no reason to inherit a limit that exists because a
+/// regex in an editor did not set a flag. Off by default, so the corpus
+/// still pins the two frontends against each other.
+static QUOTED_MULTILINE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r#"(?s)"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`"#)
+        .expect("a constant pattern compiles")
+});
+
 static QUOTED: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#""(?:\\[^\r\n]|[^"\\\r\n])*"|'(?:\\[^\r\n]|[^'\\\r\n])*'|`(?:\\[^\r\n]|[^`\\\r\n])*`"#,
@@ -33,8 +49,18 @@ static QUOTED: LazyLock<Regex> = LazyLock::new(|| {
     .expect("a constant pattern compiles")
 });
 
+#[cfg(test)]
 pub(crate) fn extract(text: &str) -> Vec<String> {
-    QUOTED
+    extract_with(text, false)
+}
+
+pub(crate) fn extract_with(text: &str, multiline: bool) -> Vec<String> {
+    let pattern = if multiline {
+        &*QUOTED_MULTILINE
+    } else {
+        &*QUOTED
+    };
+    pattern
         .find_iter(text)
         .map(|found| {
             let matched = found.as_str();
@@ -83,11 +109,29 @@ mod tests {
     }
 
     /// Ported behaviour, not an oversight: JavaScript's `.` stops at a
-    /// newline, so a run that spans lines is not a run. A multi-line
-    /// template literal is missed by both frontends.
+    /// newline, so by default a run that spans lines is not a run and a
+    /// multi-line template literal is missed by both frontends.
     #[test]
-    fn a_run_cannot_span_lines() {
+    fn a_run_cannot_span_lines_by_default() {
         assert!(extract("`first\nsecond`").is_empty());
+    }
+
+    /// Asked for, it can. The copy an audit least wants to miss lives in
+    /// exactly this shape.
+    #[test]
+    fn a_run_may_span_lines_on_request() {
+        assert_eq!(extract_with("`first\nsecond`", true), ["first\nsecond"]);
+        assert_eq!(
+            extract_with("const body = `Dear reader,\n\nWelcome.`;", true),
+            ["Dear reader,\n\nWelcome."]
+        );
+    }
+
+    /// Turning it on must not change anything that already worked.
+    #[test]
+    fn the_multiline_pattern_agrees_on_single_line_runs() {
+        let source = "a = \"one\"; b = 'two'; c = `three`;";
+        assert_eq!(extract(source), extract_with(source, true));
     }
 
     #[test]

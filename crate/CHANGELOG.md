@@ -21,13 +21,21 @@ against a shared corpus, over a tree instead of a buffer.
   dropped in typed formats but kept in the untyped ones, values are
   trimmed, and an unrecognised format falls back rather than failing.
 - **Positions**, which the extension does not produce: the file always,
-  and a 1-based line and column when the value can be located in the
-  source. A value that cannot be — a resolved escape, a folded scalar —
-  reports none, and the summary counts them.
+  and a 1-based line and column. JSON is placed by its parser's own
+  ranges, so it is always located; the other six are found by a forward
+  search over the source, and a value that search cannot find — a folded
+  scalar, a CSV cell with an escaped quote — reports none, with the count
+  in the summary.
+- **`--multiline`**, the one place this answers differently from the
+  extension and only when asked. JavaScript's `.` does not match a
+  newline, so a multi-line template literal is invisible there; that is
+  an email body or a consent notice, and a terminal has no reason to
+  inherit the limit. Off by default.
 - **The CLI**: JSON reports on stdout one per line, a human summary on
   stderr, and exit codes following grep — 0 strings found, 1 none found,
   2 the question was malformed. `--dedupe`, `--format`, `--values`,
-  `--csv-header`, `--csv-column`, `--stdin`, `--hidden`, `--no-ignore`.
+  `--multiline`, `--csv-header`, `--csv-column`, `--stdin`, `--hidden`,
+  `--no-ignore`.
 - **The MCP server** (`string-le mcp`) with two tools:
   `extract_strings`, shared byte-for-byte with the npm server and pinned
   by `fixtures/mcp-extract-strings.json`, and `string_le_scan`.

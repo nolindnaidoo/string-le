@@ -68,6 +68,9 @@ mod tests {
             let options = Options {
                 csv_has_header: case.options.csv_has_header,
                 csv_column: case.options.csv_column_index,
+                // The corpus is the parity contract, so it always runs
+                // the answer the extension gives.
+                multiline: false,
             };
             assert_eq!(
                 extract(document(&case.file), &case.file_type, options),
