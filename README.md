@@ -149,8 +149,8 @@ and those quoted strings are the user-facing copy the reviewer came for.
 question was malformed — so finding nothing is an answer rather than an
 error.
 
-Install it with `cargo install string-le`
-([crates.io](https://crates.io/crates/string-le)). The spec
+Install it with `cargo install string-le` once it is published; until
+then it builds from `crate/`. The spec
 ([`crate/SPEC.md`](crate/SPEC.md)) and the engineering standard
 ([`crate/AGENTS.md`](crate/AGENTS.md)) live alongside it, and it keeps
 its own [CHANGELOG](crate/CHANGELOG.md).

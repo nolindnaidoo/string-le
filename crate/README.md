@@ -68,7 +68,7 @@ question was malformed. Finding none is an answer, not an error.
 
 | Route | Command | Worth knowing |
 |---|---|---|
-| **cargo** | `cargo install string-le` | Any platform, needs **Rust 1.88+**. |
+| **cargo** | `cargo install string-le` | Any platform, needs **Rust 1.88+**. *(publishing shortly)* |
 | **From source** | `git clone https://github.com/nolindnaidoo/string-le`<br>`cd string-le/crate && cargo build --release` | The same build CI runs. |
 
 No runtime, no network, nothing written.

@@ -13,8 +13,8 @@ separate product on its own cadence and keeps its own
 
 ### Added
 
-- A **Rust CLI and MCP server**, in [`crate/`](crate/README.md), released to
-  crates.io as [`string-le`](https://crates.io/crates/string-le). It runs
+- A **Rust CLI and MCP server**, in [`crate/`](crate/README.md), to be
+  published to crates.io as `string-le`. It runs
   the same extraction over a whole tree, with exit codes following grep —
   0 found, 1 none found, 2 malformed question — so an audit of every string
   in a repository is one command and a file.
