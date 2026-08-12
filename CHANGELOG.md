@@ -9,66 +9,82 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
-## [Unreleased]
+## [2.3.0] - 2026-08-12
+
+Source files are where the copy in a codebase actually lives, and until
+now String-LE read every one of them the same way: look for quotes, take
+what is between them. This release makes it do what you already expected
+of it.
+
+**Your extract will be a different length, and not always longer.** On a
+Python or shell file it grows — docstrings and heredoc bodies were
+invisible before. On a Rust or C# file it shrinks, and that is the fix:
+fragments like `:`, `"` and `{` were being counted as strings because a
+character literal or a lifetime looked like an open quote. Whole values
+replace them. If you diff extracts between releases, expect movement in
+both directions.
 
 ### Added
 
-- **Ten source languages read by their own literal syntax** — Python,
-  Rust, Go, shell, PHP, Ruby, Perl, C#, JavaScript and TypeScript — where
-  before every one of them went through the quoted-run fallback. That
-  fallback reads a source file through a JavaScript-shaped lens, and on
-  real code the lens is wrong: a Python docstring spanning lines was
-  missed entirely, `r#"a raw "quoted" string"#` came back as the two
-  fragments `a raw` and `string`, a Go backtick string and a shell
-  heredoc were not there at all, and a C# `@"He said ""hi"""` split into
-  three.
+- **Ten languages read by their own syntax** — Python, Rust, Go, shell,
+  PHP, Ruby, Perl, C#, JavaScript and TypeScript. In the order you will
+  notice it:
 
-  Each language hands its literals to the existing `collectStrings`, so
-  "what counts as a string" is still answered once. Escapes stay
-  unresolved and a comment's quoted runs are still read, because
-  language awareness is about literals, not about deciding which strings
-  matter.
+  - a Python `"""docstring"""` spanning lines is one string, where before
+    it was nothing at all;
+  - `r#"a raw "quoted" string"#` is one string with its inner quotes,
+    where before it was the two fragments `a raw` and `string`;
+  - a Go backtick string, a shell `<<EOF` heredoc and a PHP `<<<EOT` are
+    strings, where before they were missing entirely;
+  - `@"He said ""hi"""` in C# is one string, not three;
+  - a template literal is one string however many lines and `${…}` it
+    holds;
+  - `'a'`, `'"'` and a Rust lifetime are not strings, so the apostrophe
+    in `don't` costs itself and no longer eats the rest of the line.
 
-  `markdown` now resolves too — to the fallback, deliberately: prose has
-  no literals. The MCP tool's `format` enum grows to seventeen names,
-  `fallback` among them, so asking for quoted runs on a `.py` file is
-  something a caller can say.
+  Escapes are still not resolved — a backslash in the source stays a
+  backslash in the value, deliberately. A string inside a comment is
+  still a string: deciding it does not count would be the tool having an
+  opinion about which strings matter, and it does not.
+
+- **`markdown` resolves now**, to the quoted-run reading — prose has no
+  literals. The MCP tool's `format` list grows to seventeen names with
+  `fallback` among them, so asking for the old quoted-run reading of a
+  `.py` file is something you can say.
 
 ### Changed
 
-- **Extraction output changes for every source file.** A `.ts` document
-  now reports `fileType: "typescript"` rather than `"fallback"`, a
-  template literal spanning lines is one value where it used to be
-  invisible, and an apostrophe in `don't` no longer opens a run that eats
-  the rest of the line. The shared corpus in `crate/fixtures/` pins all
-  of it, and a new drift check holds the extension's alias table to the
-  crate's, name by name.
+- **A source file reports its language.** A `.ts` document comes back as
+  `typescript` where it used to say `fallback`, a `.py` as `python`. If
+  anything downstream reads that field, read this line twice.
 
-- **A heredoc that never closes now ends the batch it was queued in.**
-  A shell reading `diff <<A <<B` gives the rest of the file to `A` when
-  `A`'s tag never arrives, so `B` never gets a body; reading on to `B`
-  invented one. It also made a line carrying many tags re-read the whole
-  document once per tag. Extraction behaviour, so it lands on both
-  frontends in the same commit, and `crate/fixtures/unterminated.txt`
-  pins the answer for all ten languages.
+- **A shell script with an unclosed heredoc no longer stalls the
+  extract**, and the answer changes with it: the first tag that never
+  arrives ends the batch. A shell reading `diff <<A <<B` gives the rest
+  of the file to `A` when `A`'s tag never comes, so `B` never gets a
+  body; String-LE used to invent one for it. It also re-read the whole
+  document once per queued tag, which on a large file was seconds of
+  waiting for nothing.
 
-- **The heredoc closing-tag rule is spelled the same in both
-  frontends.** The identifier class here was `\p{L}`, and the crate asks
-  `char::is_alphabetic` — the Alphabetic property, which takes in
-  combining marks that general category L leaves out. Two spellings of
-  one rule is how two frontends start to disagree; it is `\p{Alphabetic}`
-  now.
+- **The heredoc closing-tag rule is spelled the same on both sides.**
+  This half matched `\p{L}` and the Rust half asks for the Alphabetic
+  property, which takes in combining marks that `\p{L}` leaves out. Two
+  spellings of one rule is how two frontends start to disagree.
 
-- A **Rust CLI and MCP server**, in [`crate/`](crate/README.md), to be
-  published to crates.io as `string-le`. It runs
-  the same extraction over a whole tree, with exit codes following grep —
-  0 found, 1 none found, 2 malformed question — so an audit of every string
-  in a repository is one command and a file.
+### Added — the command line
 
-  It reports what is there and nothing else: no spell check, no banned-word
-  list, no guess at which strings are user-facing. The extension stays the
-  reference implementation, `crate/fixtures/` is the contract, and
-  `ci-crate.yml` watches `src/extraction/**` so neither side can drift green.
+- A **Rust CLI and MCP server**, in [`crate/`](crate/README.md),
+  published to crates.io as `string-le`. It runs the same extraction over
+  a whole tree, with exit codes following grep — 0 found, 1 none found,
+  2 malformed question — so an audit of every string in a repository is
+  one command and a file.
+
+  It reports what is there and nothing else: no spell check, no
+  banned-word list, no guess at which strings are user-facing. This
+  extension stays the reference implementation, `crate/fixtures/` is the
+  contract between them, and CI fails when either side drifts from it —
+  including a check that runs both MCP servers over generated documents
+  and requires the same answer.
 
 ## [2.2.4] - 2026-08-07
 

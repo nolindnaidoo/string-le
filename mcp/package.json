@@ -1,6 +1,6 @@
 {
 	"name": "string-le-mcp",
-	"version": "2.2.4",
+	"version": "2.3.0",
 	"mcpName": "io.github.nolindnaidoo/string-le",
 	"description": "Extract string values from config files, data files and plain text.",
 	"keywords": [

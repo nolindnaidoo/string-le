@@ -7,97 +7,105 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2026-08-12
+
+Source files are the reason this tool exists, and until now it read them
+through the wrong lens. This release makes it do what you already
+expected: a Python docstring is one string, a Rust raw string keeps the
+quotes inside it, a shell heredoc is there at all.
+
+**Your counts will move, and not all in the same direction.** On a
+Python or shell tree the number goes up — docstrings and heredoc bodies
+were invisible before. On a Rust or C# tree it goes down, and that is
+the fix working: scanning this crate's own source finds 1,889 strings
+where it used to find 2,033, and the 144 that went away were `:`, `"`,
+`{`, `,` — fragments of lifetimes and character literals that were never
+strings. Whole values replace them: a JSON payload embedded in a test
+used to arrive in four pieces and now arrives in one. If you keep a
+baseline, re-take it.
 
 ### Added
 
-- **Ten source languages, read by their own literal syntax** — Python,
-  Rust, Go, shell, PHP, Ruby, Perl, C#, JavaScript and TypeScript. The
-  quoted-run fallback reads every source file through a
-  JavaScript-shaped lens, and on real code that lens is wrong rather than
-  coarse: a Python docstring spanning lines was missed entirely,
-  `r#"a raw "quoted" string"#` came back as `a raw` and `string`, a Go
-  backtick string and a shell heredoc were not there at all, and a C#
-  verbatim string split into three. Aliases carry both the VS Code
-  language id and the file extension, so the extension and the walk
-  cannot disagree about what a file is.
+- **Ten languages read by their own syntax** — Python, Rust, Go, shell,
+  PHP, Ruby, Perl, C#, JavaScript and TypeScript. What changes, in the
+  order you will notice it:
 
-  Every literal is handed to the same `collect` the parsed formats use,
-  so "what counts as a string" is answered once. Escapes stay unresolved
-  and comments still yield their quoted runs — the divergences from the
-  fallback are per-language facts, listed in SPEC.md.
+  - a Python `"""docstring"""` spanning lines is one string, where before
+    it was nothing at all;
+  - `r#"a raw "quoted" string"#` is one string with its inner quotes,
+    where before it was `a raw` and `string`;
+  - a Go backtick string, a shell `<<EOF` heredoc and a PHP `<<<EOT` are
+    strings, where before they were missing;
+  - `@"He said ""hi"""` in C# is one string, not three;
+  - a template literal is one string however many lines and `${…}` it
+    holds;
+  - `'a'`, `'"'` and a Rust lifetime are not strings, so an apostrophe
+    in `don't` costs itself and no longer eats the rest of the line.
 
-- **`--format fallback`**, and `markdown`/`md` resolving to it. Now that
-  a `.py` file is read as Python, asking for the quoted runs instead has
-  to be sayable.
+  Escapes are still not resolved — a backslash in the source is a
+  backslash in the value, on purpose, because that is what lets a value
+  be found again and given a line and column. A string inside a comment
+  is still a string; deciding it does not count would be this tool
+  having an opinion.
 
-- **Six CI jobs, each because something got through a green suite.**
-  `hazards` and `platform` on all three operating systems; `differential`,
-  `fuzz`, `budget` and `coverage-matrix` on Linux. What they are and what
-  each is allowed to assert is in AGENTS.md. Between them they found
-  every fix below.
+- **`--format fallback`**, for when you want the old quoted-run reading
+  of a source file back. `markdown` and `md` resolve to it too: prose has
+  no literals.
 
-- **Two corpus documents pinning the shapes nobody writes by hand.**
-  `unterminated.txt`, read as all ten languages and the fallback, pins
-  what an unterminated delimiter costs — its own run, and the re-pairing
-  that follows it. `whitespace.env` pins the quoted `.env` value that is
-  nothing but spaces.
-
-### Fixed
-
-- **Report paths used the platform separator.** On Windows a report
-  spelled `src\ui\messages.ts`, which matches nothing a pipeline greps
-  for and nothing the same report says on Linux. stdout is protocol, so
-  it is `/` everywhere now. Only where `\` *is* the separator: on unix it
-  is an ordinary character in a file name and stays one.
-
-- **The shared `extract_strings` tool trimmed values differently on the
-  two servers.** JavaScript's `trim` treats U+FEFF as whitespace and
-  U+0085 as not; `str::trim` is the other way round on both. A value with
-  a byte-order mark at either end therefore came back trimmed from one
-  server and untrimmed from the other. One rule now lives in
-  `extract/text.rs` and every extractor uses it. Found by the first run of
-  the generated differential check; no hand-written case would have.
-
-- **The shared tool dropped parse failures on this side.** A broken
-  document came back `ok: true` with an empty list here and `ok: false`
-  with a named reason from the npm server — an agent asking one tool got
-  a clean result that never ran. It now carries the same diagnostic:
-  severity `error`, code `parsing`, and the same `Invalid <FORMAT>: `
-  prefix. The words after the prefix are the parser's and are not
-  promised; SPEC.md says so.
-
-- **A heredoc that never closes no longer re-reads the rest of the
-  file.** Every queued heredoc used to scan to end-of-file on its own, so
-  a line carrying a thousand tags read the whole document a thousand
-  times: a 200 KB shell file took 24 seconds. The first tag that never
-  arrives now ends the batch — which is what a shell does — and a tag no
-  line in the document could possibly close is answered without a search.
-  Same file, 0.3 seconds. The behaviour change is in SPEC.md and lands on
-  both frontends together.
-
-- **`Invalid CSV: Invalid CSV: …`.** The format was named twice in the
-  one message a reader ever sees.
+- **Six CI jobs**, each added because something real got past a green
+  suite: hazardous files and trees on three operating systems, per-OS
+  behaviour, a generated cross-server check, a fuzzer over the parsers, a
+  wall-clock budget, and a matrix asserting every format it claims to
+  open is opened. They found every fix below. Details in AGENTS.md.
 
 ### Changed
 
-- **A source file reports its language, not `fallback`.** `messages.ts`
-  comes back as `typescript`, `app.py` as `python`. Every corpus case and
-  both surfaces move with it.
-- **`--multiline` belongs to the fallback only.** A Python triple-quoted
+- **A source file reports its language.** `messages.ts` comes back as
+  `typescript` and `app.py` as `python`, where both used to say
+  `fallback`. If you branch on the `format` field, this is the line to
+  read twice.
+
+- **The `extract_strings` MCP tool now answers `ok: false` on a document
+  it could not parse**, with a diagnostic saying why. It used to answer
+  `ok: true` with an empty list — a clean result for a check that never
+  ran. **If you branch on `ok`, your code will take a different path than
+  it did.** That is the intent: an empty answer and an unreadable
+  document should never have looked the same.
+
+- **`--multiline` is for the fallback only.** A Python triple-quoted
   string, a Go or Rust raw string, a heredoc and a template literal span
-  lines because their language says so, and are read that way with no
-  flag — that is the language's syntax rather than a divergence from the
-  extension, which runs the same scanner. The flag still widens the
-  quoted-run fallback, where spanning lines really is a divergence.
-- **A binary file is skipped silently and counted, not reported as a
-  skip.** A NUL byte in the first 8KB means binary — ripgrep's heuristic.
-  Such a file gets no report line and cannot fail `--strict`; the stderr
-  summary counts them (`…, 16 binary files skipped`) and the MCP scan
-  reports `data.binaryFiles`. Reported as skips, one PNG made `--strict`
-  exit 2 on every repository that has an image in it. A file that *is*
-  text and still could not be read keeps its named `skipped` diagnostic
-  and keeps failing `--strict`; that distinction is the point.
+  lines because their language says so, and need no flag. The flag still
+  widens the quoted-run reading of everything else.
+
+- **A binary file is skipped silently and counted.** A NUL byte in the
+  first 8KB means binary: no report line, no diagnostic, and it cannot
+  fail `--strict`. The summary counts them — `…, 16 binary files
+  skipped` — because the walk reached more files than you got. Before
+  this, one PNG made `--strict` exit 2 on every repository that has an
+  image in it, which is every repository. A file that *is* text and
+  still could not be read is still named and still fails `--strict`.
+
+### Fixed
+
+- **A shell script with an unclosed heredoc took half a minute to
+  scan.** A 200 KB file spent 24 seconds; it now takes a third of a
+  second. This is also a **behaviour change**: the first tag that never
+  arrives ends the batch, which is what a shell does — `diff <<A <<B`
+  with no `A` gives the rest of the file to `A`, so `B` never gets a body
+  either. Reading on to `B` invented one.
+
+- **Reports written on Windows used backslashes.** A path in the report
+  read `src\ui\messages.ts`, so a pipeline grepping for
+  `src/ui/messages.ts` found nothing and the same scan described the same
+  file two ways on two machines. Every reported path uses `/` now. On
+  unix a backslash in a file name is still part of the name.
+
+- **A value with a byte-order mark at either end came back two different
+  ways** depending on which of the two MCP servers you asked. One trimmed
+  the mark off, the other kept it. They agree now.
+
+- **`Invalid CSV: Invalid CSV: …`** — the format was named twice in the
+  one message you ever see.
 
 ## [0.1.0] - 2026-08-11
 
@@ -151,6 +159,7 @@ which strings are user-facing. Which strings matter is the reviewer's
 call, and a tool that pre-filtered would decide the audit before the
 auditor saw it. A contract test asserts no flag asks for a judgment.
 
+[0.2.0]: https://github.com/nolindnaidoo/string-le/releases/tag/crate-v0.2.0
 [0.1.0]: https://github.com/nolindnaidoo/string-le/releases/tag/crate-v0.1.0
 
 ### Fixed
