@@ -197,9 +197,14 @@ fn scan_tool(arguments: &Value) -> Result<Value, String> {
     let targets = walk::collect(&inputs, &walk_options)?;
     let reports: Vec<Value> = targets
         .iter()
-        .map(|target| scan::scan_file(target, options))
+        .filter_map(|target| scan::scan_file(target, options))
         .map(|report| serde_json::to_value(report).expect("a report serializes"))
         .collect();
+    // A binary file is not a file this failed to read; it was never
+    // text. Left out of the reports and counted here, because a caller
+    // comparing this against its own file list needs the difference
+    // explained rather than left to be noticed.
+    let binary = targets.len() - reports.len();
 
     let strings: u64 = reports
         .iter()
@@ -235,11 +240,17 @@ fn scan_tool(arguments: &Value) -> Result<Value, String> {
             &format!("{unlocated} values could not be located in their source"),
         ));
     }
+    if binary > 0 {
+        diagnostics.push(warning(
+            "binary",
+            &format!("{binary} files were not text and were not read"),
+        ));
+    }
 
     let count = reports.len();
     Ok(envelope(
         "string_le_scan",
-        &json!({ "reports": reports, "strings": strings }),
+        &json!({ "reports": reports, "strings": strings, "binaryFiles": binary }),
         count,
         &diagnostics,
         false,

@@ -39,6 +39,10 @@ impl Tree {
     }
 
     fn write(&self, relative: &str, contents: &str) -> PathBuf {
+        self.write_bytes(relative, contents.as_bytes())
+    }
+
+    fn write_bytes(&self, relative: &str, contents: &[u8]) -> PathBuf {
         let target = self.root.join(relative);
         if let Some(parent) = target.parent() {
             std::fs::create_dir_all(parent).expect("a parent directory");
@@ -159,6 +163,52 @@ fn a_language_that_spans_lines_needs_no_flag() {
     let plain = run(&["--values", &tree.path().to_string_lossy()]);
     assert!(plain.stdout.contains("Dear reader,"), "{}", plain.stdout);
     assert!(plain.stdout.contains("Hi"), "{}", plain.stdout);
+}
+
+/// A PNG is not a text file that failed to be read, it was never a text
+/// candidate — so it gets no report line and cannot fail `--strict`.
+/// Reported as a skip, one image made `--strict` exit 2 on every
+/// repository that has one, which is every repository.
+#[test]
+fn a_binary_file_is_skipped_silently_and_counted() {
+    let tree = Tree::new("binary");
+    tree.write("src/messages.ts", "const m = 'Delete this?';\n");
+    tree.write_bytes("assets/logo.png", &[0x89, 0x50, 0x4e, 0x47, 0x00, 0x0d]);
+    let path = tree.path().to_string_lossy().to_string();
+
+    let walked = run(&[&path]);
+    let named: Vec<String> = reports(&walked)
+        .iter()
+        .filter_map(|report| report["file"].as_str().map(str::to_string))
+        .collect();
+    assert_eq!(named.len(), 1, "{}", walked.stdout);
+    assert!(named[0].ends_with("messages.ts"), "{}", walked.stdout);
+    assert!(
+        walked.stderr.contains("1 binary file skipped"),
+        "the count is the coverage line: {}",
+        walked.stderr
+    );
+    assert_eq!(run(&["--strict", &path]).code, 0, "a PNG is not a failure");
+}
+
+/// The other half of the same distinction: a file that *is* text and
+/// could not be read is named, and still fails `--strict`.
+#[test]
+fn text_that_cannot_be_read_still_fails_strict() {
+    let tree = Tree::new("undecodable");
+    tree.write("src/messages.ts", "const m = 'Delete this?';\n");
+    tree.write_bytes("notes.txt", &[b'h', b'i', 0xff, 0xfe]);
+    let path = tree.path().to_string_lossy().to_string();
+
+    let walked = run(&[&path]);
+    assert_eq!(reports(&walked).len(), 2, "{}", walked.stdout);
+    assert!(
+        walked.stderr.contains("not UTF-8 text"),
+        "{}",
+        walked.stderr
+    );
+    assert_eq!(walked.code, 0, "a skip alone is not a failure");
+    assert_eq!(run(&["--strict", &path]).code, 2);
 }
 
 /// The one flag that makes this answer differently from the extension,

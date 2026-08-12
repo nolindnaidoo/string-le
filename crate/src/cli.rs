@@ -43,9 +43,11 @@ Options:
   --hidden             walk hidden files and directories too
   --no-ignore          walk files that .gitignore excludes
 
-Files that are not text, or that cannot be opened, are named on stderr
-and carried in the report, and do not by themselves fail the run — every
-repository has a PNG in it. --strict turns them back into a failure.
+A binary file — a NUL byte in its first 8KB — was never a text
+candidate: it gets no report line and cannot fail --strict, and the
+summary counts how many. A file that IS text and could not be read is
+named on stderr and carried in the report, and does not by itself fail
+the run; --strict turns that back into a failure.
 
 Exit codes follow grep: 0 strings found · 1 none found · 2 malformed
 question. Finding none is an answer, not an error.";
@@ -109,23 +111,32 @@ pub(crate) fn run() -> ExitCode {
 
 fn execute(args: &[String]) -> Result<u8, String> {
     let options = parse(args)?;
-    let reports = if options.stdin {
-        vec![scan_stdin(&options)?]
-    } else {
-        walk::collect(&options.inputs, &options.walk)?
-            .iter()
-            .map(|target| scan::scan_file(target, options.scan))
-            .collect()
-    };
-
-    if options.values_only {
-        write_values(&reports)?;
-    } else {
-        write_reports(&reports)?;
+    if options.stdin {
+        return report(&[scan_stdin(&options)?], 0, &options);
     }
 
-    summarise(&reports, options.values_only);
-    Ok(scan::exit_code(&reports, options.strict))
+    let targets = walk::collect(&options.inputs, &options.walk)?;
+    let walked = targets.len();
+    let reports: Vec<FileReport> = targets
+        .iter()
+        .filter_map(|target| scan::scan_file(target, options.scan))
+        .collect();
+
+    // Whatever the walk found and the reader never got: a PNG is not a
+    // file this failed to read, it is a file that was never text.
+    let binary = walked - reports.len();
+    report(&reports, binary, &options)
+}
+
+fn report(reports: &[FileReport], binary: usize, options: &Cli) -> Result<u8, String> {
+    if options.values_only {
+        write_values(reports)?;
+    } else {
+        write_reports(reports)?;
+    }
+
+    summarise(reports, binary, options.values_only);
+    Ok(scan::exit_code(reports, options.strict))
 }
 
 fn write_reports(reports: &[FileReport]) -> Result<(), String> {
@@ -230,7 +241,7 @@ fn parse(args: &[String]) -> Result<Cli, String> {
 }
 
 /// The human half. Every line restates something already on stdout.
-fn summarise(reports: &[FileReport], values_only: bool) {
+fn summarise(reports: &[FileReport], binary: usize, values_only: bool) {
     let mut stderr = std::io::stderr().lock();
     let mut strings = 0;
     let mut unlocated = 0;
@@ -250,9 +261,16 @@ fn summarise(reports: &[FileReport], values_only: bool) {
         unlocated += report.summary.unlocated;
     }
 
+    // The binary count is the coverage line: the walk reached more files
+    // than the reader got, and saying nothing about the difference is how
+    // a report claims coverage it does not have.
+    let coverage = match binary {
+        0 => String::new(),
+        count => format!(", {} skipped", plural(count, "binary file", "binary files")),
+    };
     let _ = writeln!(
         stderr,
-        "{} in {}",
+        "{} in {}{coverage}",
         plural(strings, "string", "strings"),
         plural(reports.len(), "file", "files")
     );

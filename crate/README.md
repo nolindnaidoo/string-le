@@ -147,6 +147,13 @@ to miss.
 It is off by default, so the default answer is the extension's answer,
 and the shared corpus keeps the two honest.
 
+**Binary files are skipped, and counted.** A NUL byte in the first 8KB
+means binary — ripgrep's heuristic. Those files get no report line and
+cannot fail `--strict`; the summary says how many, so the walk reaching
+more files than the reader got is stated rather than left to be noticed.
+A file that *is* text and still could not be read keeps its named
+`skipped` diagnostic and still fails `--strict`.
+
 ## It has no opinions
 
 No spell check. No banned-word list. No reading-level score. No guess at

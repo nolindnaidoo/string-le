@@ -306,22 +306,37 @@ Everything else is parity, and the corpus is what proves it.
   has no such constraint.
 - **A baseline file** for accepting known strings.
 
-## Files that cannot be read
+## Files that were not read
 
 Exit 2 means the *question* was malformed — an unknown flag, an
 unreadable format name, a path that does not exist. It does not mean one
 file in fifty thousand was a PNG.
 
-A file that is not UTF-8 text, or that cannot be opened, is:
+Two different things, told apart on purpose.
+
+**A binary file was never a text candidate.** A NUL byte in the first 8KB
+is binary — ripgrep's heuristic, borrowed for the same reason its walker
+is. Such a file gets **no report line**, carries no diagnostic, and
+cannot fail `--strict`: it is not a text file that failed to be read, it
+is a file this was never going to read. The stderr summary **counts
+them** — `2 strings in 40 files, 16 binary files skipped` — because the
+walk reached more files than the reader got, and saying nothing about the
+difference is how a report claims coverage it does not have. On the MCP
+surface the same count is `data.binaryFiles` with a `binary` warning.
+
+**A file that is text and still could not be read** — a permissions
+error, or bytes that are not valid UTF-8 with no NUL among them — is:
 
 - named on stderr,
 - carried in the JSON report with a `skipped` diagnostic saying why,
-- and left out of the exit code.
+- and left out of the exit code by default.
 
-`--strict` turns any skipped file back into exit 2, for a pipeline that
-wants zero tolerance. What is never allowed is the third option: a file
-that silently vanishes from the report, which reads to whoever ran it as
-a file that was clean.
+`--strict` turns any *skipped* file back into exit 2, for a pipeline that
+wants zero tolerance. Before the two were told apart, one PNG made
+`--strict` exit 2 on every repository that has an image in it, which is
+every repository. What is never allowed is the third option: a text file
+that silently vanishes, which reads to whoever ran it as a file that was
+clean.
 
 ## The byte-order mark
 

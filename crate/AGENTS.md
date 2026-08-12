@@ -75,6 +75,11 @@ crate/src/
 - **A per-language extractor never decides what counts as a string.** It
   finds literals and hands them to `collect`, which answers that once
   for every format. Two answers is how the frontends drift.
+- **A binary file is not a skip.** A NUL byte in the first 8KB means the
+  file was never a text candidate: no report line, no diagnostic, no
+  effect on `--strict`, and counted in the summary. A file that *is*
+  text and could not be read keeps its named `skipped` diagnostic and
+  keeps failing `--strict`.
 - **This tool has no opinions, and that is the product.** No spell check,
   no banned-word list, no reading-level score, no guess at which strings
   are user-facing. Which strings matter is the reviewer's call, and a

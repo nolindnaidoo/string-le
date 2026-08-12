@@ -76,19 +76,50 @@ pub(crate) struct ScanOptions {
     pub(crate) format: Option<&'static str>,
 }
 
-pub(crate) fn scan_file(path: &PathBuf, options: ScanOptions) -> FileReport {
+/// How many leading bytes decide whether a file is text.
+///
+/// ripgrep's number, and borrowed rather than invented for the same
+/// reason its walker is: "what this tool reads" already means "what
+/// ripgrep reads", and that is the answer a person auditing a repository
+/// already has in their head.
+const BINARY_SNIFF_BYTES: usize = 8 * 1024;
+
+/// One file, or `None` when it was never a text candidate.
+///
+/// **A PNG is not a text file that failed to be read.** Before the walk
+/// widened it was never opened; reporting it as a skip made `--strict`
+/// exit 2 on any repository with an image in it, which is every
+/// repository. It is left out of the reports entirely and counted in the
+/// summary instead — silence about it would be worse than the noise it
+/// replaced.
+///
+/// A file that *is* text and still could not be read keeps its named
+/// `skipped` diagnostic and keeps failing `--strict`. That distinction is
+/// the whole point.
+pub(crate) fn scan_file(path: &PathBuf, options: ScanOptions) -> Option<FileReport> {
     let file = path.to_string_lossy().into_owned();
     let format = options.format.unwrap_or_else(|| format_of(path));
 
-    match std::fs::read(path) {
-        Ok(bytes) => match String::from_utf8(bytes) {
-            Ok(content) => scan_content(without_bom(&content), file, format, options),
-            // Named rather than dropped. A file that vanishes from the
-            // report is a file the reader believes was covered.
-            Err(_) => skipped(file, format, "not UTF-8 text"),
-        },
-        Err(error) => skipped(file, format, &error.to_string()),
+    let bytes = match std::fs::read(path) {
+        Ok(bytes) => bytes,
+        Err(error) => return Some(skipped(file, format, &error.to_string())),
+    };
+    if is_binary(&bytes) {
+        return None;
     }
+    match String::from_utf8(bytes) {
+        Ok(content) => Some(scan_content(without_bom(&content), file, format, options)),
+        // Named rather than dropped. A file that vanishes from the
+        // report is a file the reader believes was covered.
+        Err(_) => Some(skipped(file, format, "not UTF-8 text")),
+    }
+}
+
+fn is_binary(bytes: &[u8]) -> bool {
+    bytes
+        .iter()
+        .take(BINARY_SNIFF_BYTES)
+        .any(|byte| *byte == b'\0')
 }
 
 fn format_of(path: &StdPath) -> &'static str {
@@ -227,32 +258,57 @@ mod tests {
     #[test]
     fn an_unreadable_file_is_reported_and_does_not_end_the_run() {
         let tree = TempTree::new("scan-unreadable");
-        let report = scan_file(&tree.path().join("gone.json"), plain());
+        let report = scan_file(&tree.path().join("gone.json"), plain()).expect("a report");
         assert!(report.was_skipped());
         assert_eq!(report.diagnostics[0].severity, "warning");
         assert_eq!(exit_code(std::slice::from_ref(&report), false), 1);
         assert_eq!(exit_code(&[report], true), 2, "--strict is opt-in");
     }
 
+    /// Changed deliberately: a PNG is not a text file that failed to be
+    /// read, it was never a text candidate. Reported as a skip it made
+    /// `--strict` exit 2 on every repository holding an image, which made
+    /// the flag useless.
     #[test]
-    fn a_binary_file_is_named_rather_than_dropped() {
+    fn a_binary_file_is_not_a_report_at_all() {
         let tree = TempTree::new("scan-binary");
         let file = tree.path().join("logo.png");
-        std::fs::write(&file, [0x89, 0x50, 0xff, 0xfe]).expect("a file");
-        // It used to vanish from the report entirely, which reads to
-        // whoever runs this as "that file was clean".
-        let report = scan_file(&file, plain());
+        std::fs::write(&file, [0x89, 0x50, 0x4e, 0x47, 0x00, 0x0d]).expect("a file");
+        assert!(scan_file(&file, plain()).is_none());
+    }
+
+    /// The distinction the flag rests on: invalid UTF-8 with no NUL byte
+    /// is text that could not be read, and still fails `--strict`.
+    #[test]
+    fn text_that_cannot_be_decoded_is_still_a_named_skip() {
+        let tree = TempTree::new("scan-invalid-utf8");
+        let file = tree.path().join("notes.txt");
+        std::fs::write(&file, [b'h', b'i', 0xff, 0xfe]).expect("a file");
+        let report = scan_file(&file, plain()).expect("a report");
         assert!(report.was_skipped());
         assert_eq!(report.diagnostics[0].message, "not UTF-8 text");
         assert_eq!(exit_code(std::slice::from_ref(&report), false), 1);
         assert_eq!(exit_code(&[report], true), 2);
     }
 
+    /// A NUL byte past the sniff window is content, not a signature.
+    #[test]
+    fn a_nul_byte_beyond_the_window_does_not_make_a_file_binary() {
+        let tree = TempTree::new("scan-late-nul");
+        let file = tree.path().join("big.txt");
+        let mut bytes = vec![b'a'; BINARY_SNIFF_BYTES];
+        bytes.extend_from_slice(&[0, b'"', b'x', b'"']);
+        std::fs::write(&file, bytes).expect("a file");
+        let report = scan_file(&file, plain()).expect("a report");
+        assert!(!report.was_skipped());
+        assert_eq!(report.summary.strings, 1);
+    }
+
     #[test]
     fn the_format_comes_from_the_file_name() {
         let tree = TempTree::new("scan-format");
         let file = tree.write("config.toml", "a = \"value\"\n");
-        let report = scan_file(&file, plain());
+        let report = scan_file(&file, plain()).expect("a report");
         assert_eq!(report.format, "toml");
         assert_eq!(report.summary.strings, 1);
     }
@@ -263,7 +319,7 @@ mod tests {
     fn a_source_file_is_read_as_its_language() {
         let tree = TempTree::new("scan-source");
         let file = tree.write("messages.ts", "const m = 'Delete this?';\n");
-        let report = scan_file(&file, plain());
+        let report = scan_file(&file, plain()).expect("a report");
         assert_eq!(report.format, "typescript");
         assert_eq!(report.strings[0].value, "Delete this?");
     }
@@ -274,7 +330,7 @@ mod tests {
     fn an_unclaimed_extension_falls_back_and_still_answers() {
         let tree = TempTree::new("scan-fallback");
         let file = tree.write("notes.rtf", "note = 'Delete this?'\n");
-        let report = scan_file(&file, plain());
+        let report = scan_file(&file, plain()).expect("a report");
         assert_eq!(report.format, "fallback");
         assert_eq!(report.strings[0].value, "Delete this?");
     }
@@ -289,7 +345,8 @@ mod tests {
                 format: Some("toml"),
                 ..plain()
             },
-        );
+        )
+        .expect("a report");
         assert_eq!(report.format, "toml");
         assert_eq!(report.summary.strings, 1);
     }

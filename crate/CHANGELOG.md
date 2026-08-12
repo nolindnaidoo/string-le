@@ -42,6 +42,14 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   flag — that is the language's syntax rather than a divergence from the
   extension, which runs the same scanner. The flag still widens the
   quoted-run fallback, where spanning lines really is a divergence.
+- **A binary file is skipped silently and counted, not reported as a
+  skip.** A NUL byte in the first 8KB means binary — ripgrep's heuristic.
+  Such a file gets no report line and cannot fail `--strict`; the stderr
+  summary counts them (`…, 16 binary files skipped`) and the MCP scan
+  reports `data.binaryFiles`. Reported as skips, one PNG made `--strict`
+  exit 2 on every repository that has an image in it. A file that *is*
+  text and still could not be read keeps its named `skipped` diagnostic
+  and keeps failing `--strict`; that distinction is the point.
 
 ## [0.1.0] - 2026-08-11
 
