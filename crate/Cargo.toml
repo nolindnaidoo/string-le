@@ -5,12 +5,12 @@ edition = "2024"
 rust-version = "1.88"
 license = "MIT"
 readme = "README.md"
-description = "Extract every string value from a codebase so a person can read them"
+description = "Extract every string literal from a codebase for translation or review — i18n extraction and hardcoded-string auditing across ten languages, no framework required"
 authors = ["Nolin D Naidoo"]
 homepage = "https://letools.dev/tools/string-le"
 repository = "https://github.com/nolindnaidoo/string-le"
-keywords = ["strings", "extract", "audit", "i18n", "cli"]
-categories = ["command-line-utilities", "development-tools", "text-processing"]
+keywords = ["i18n", "hardcoded", "strings", "localization", "extract"]
+categories = ["command-line-utilities", "development-tools", "internationalization", "text-processing", "parsing"]
 # What a consumer gets, and why.
 #
 # Ships: src/, Cargo.toml, Cargo.lock, LICENSE, README.md — needed to
