@@ -383,6 +383,132 @@
 				"a ${flag ? `yes` : `no`} b",
 				"It\\'s fine"
 			]
+		},
+		{
+			"name": "unterminated.txt as python",
+			"file": "unterminated.txt",
+			"fileType": "python",
+			"options": {},
+			"expected": [
+				"first",
+				"last"
+			]
+		},
+		{
+			"name": "unterminated.txt as rust",
+			"file": "unterminated.txt",
+			"fileType": "rust",
+			"options": {},
+			"expected": [
+				"first",
+				"a raw run that never closes\nz =",
+				"a verbatim run that never closes\nu = 'an apostrophe that never closes\nt ="
+			]
+		},
+		{
+			"name": "unterminated.txt as go",
+			"file": "unterminated.txt",
+			"fileType": "go",
+			"options": {},
+			"expected": [
+				"first",
+				"last"
+			]
+		},
+		{
+			"name": "unterminated.txt as shellscript",
+			"file": "unterminated.txt",
+			"fileType": "shellscript",
+			"options": {},
+			"expected": [
+				"first",
+				"a raw run that never closes\nz =",
+				"a verbatim run that never closes\nu = 'an apostrophe that never closes\nt ="
+			]
+		},
+		{
+			"name": "unterminated.txt as php",
+			"file": "unterminated.txt",
+			"fileType": "php",
+			"options": {},
+			"expected": [
+				"first",
+				"a triple-quoted run that never closes\nw = `a backtick run that never closes\ncat <<EOF\na heredoc body whose tag never arrives\nv = @",
+				"last"
+			]
+		},
+		{
+			"name": "unterminated.txt as ruby",
+			"file": "unterminated.txt",
+			"fileType": "ruby",
+			"options": {},
+			"expected": [
+				"first",
+				"a triple-quoted run that never closes\nw = `a backtick run that never closes\ncat <<EOF\na heredoc body whose tag never arrives\nv = @",
+				"last"
+			]
+		},
+		{
+			"name": "unterminated.txt as perl",
+			"file": "unterminated.txt",
+			"fileType": "perl",
+			"options": {},
+			"expected": [
+				"first",
+				"a triple-quoted run that never closes\nw = `a backtick run that never closes\ncat <<EOF\na heredoc body whose tag never arrives\nv = @",
+				"last"
+			]
+		},
+		{
+			"name": "unterminated.txt as csharp",
+			"file": "unterminated.txt",
+			"fileType": "csharp",
+			"options": {},
+			"expected": [
+				"first",
+				"a verbatim run that never closes\nu = 'an apostrophe that never closes\nt ="
+			]
+		},
+		{
+			"name": "unterminated.txt as javascript",
+			"file": "unterminated.txt",
+			"fileType": "javascript",
+			"options": {},
+			"expected": [
+				"first",
+				"last"
+			]
+		},
+		{
+			"name": "unterminated.txt as typescript",
+			"file": "unterminated.txt",
+			"fileType": "typescript",
+			"options": {},
+			"expected": [
+				"first",
+				"last"
+			]
+		},
+		{
+			"name": "unterminated.txt as fallback",
+			"file": "unterminated.txt",
+			"fileType": "fallback",
+			"options": {},
+			"expected": [
+				"first",
+				"last"
+			]
+		},
+		{
+			"name": "whitespace.env as env",
+			"file": "whitespace.env",
+			"fileType": "env",
+			"options": {},
+			"expected": [
+				"value",
+				"  ",
+				"﻿"
+			]
 		}
 	]
 }

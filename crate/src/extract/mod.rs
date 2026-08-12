@@ -16,11 +16,14 @@ pub(crate) mod csv;
 pub(crate) mod dotenv;
 pub(crate) mod fallback;
 pub(crate) mod format;
+#[cfg(test)]
+mod fuzz;
 pub(crate) mod ini;
 pub(crate) mod json;
 pub(crate) mod locate;
 pub(crate) mod position;
 pub(crate) mod source;
+pub(crate) mod text;
 pub(crate) mod toml;
 pub(crate) mod yaml;
 
@@ -70,7 +73,7 @@ pub(crate) struct Found {
 /// `source` instead; everything else still lands on the fallback, which
 /// is why an unknown name is an answer rather than a refusal.
 pub(crate) fn extract(text: &str, format: &str, options: Options) -> Vec<String> {
-    let trimmed = text.trim();
+    let trimmed = text::trim(text);
     if trimmed.is_empty() {
         return Vec::new();
     }
@@ -101,11 +104,11 @@ pub(crate) struct Extraction {
 
 /// One pass: values, positions, and why a document yielded nothing.
 pub(crate) fn examine(text: &str, format: &str, options: Options) -> Extraction {
-    let trimmed = text.trim();
+    let trimmed = text::trim(text);
     if trimmed.is_empty() {
         return Extraction::default();
     }
-    let shift = text.len() - text.trim_start().len();
+    let shift = text.len() - text::trim_start(text).len();
     let index = position::PositionIndex::new(text);
 
     // JSON is placed by its parser, the rest by a forward cursor. The
@@ -139,7 +142,7 @@ pub(crate) fn examine(text: &str, format: &str, options: Options) -> Extraction 
 /// empty array; the CLI turns it into a diagnostic on the report, so an
 /// empty result is never mistaken for a file with nothing in it.
 pub(crate) fn parse_error(text: &str, format: &str) -> Option<String> {
-    let trimmed = text.trim();
+    let trimmed = text::trim(text);
     if trimmed.is_empty() {
         return None;
     }

@@ -223,6 +223,44 @@ The bar, enforced by review:
 - Tests are deterministic: no clocks, no randomness, and **no filesystem
   in `extract/` tests** — everything there runs from the corpus.
 
+### The six jobs added in 0.2.0, and what each is for
+
+Each exists because something real got through a green suite. None of
+them may be softened to go green: no `continue-on-error`, no `|| true`,
+no warn-instead-of-fail.
+
+- **`hazards`** (`tests/hazards.rs`, three platforms) — a BOM, a NUL,
+  invalid UTF-8, a 1 MB line, a FIFO, a symlink loop, a permission-denied
+  file, a path over 260 characters. Every case asserts the process does
+  not panic, does not hang, and exits 0, 1 or 2 — never on a signal. The
+  tree is built at runtime because Windows cannot check half of it in,
+  and a case the platform cannot express is **skipped by name**.
+- **`platform`** (`tests/platform.rs`, three platforms) — report paths
+  use `/` everywhere, the answer does not depend on `TZ`, a case-folding
+  filesystem does not report one file twice, reserved Windows names do
+  not stop the walk, and a child that refuses before reading stdin is
+  asserted on its exit code rather than on the write.
+- **`differential`** (`scripts/check-differential.ts`) — 600 generated
+  documents through **both** `extract_strings` servers, byte-identical
+  answers required. Scoped to the shared tool: the two *surfaces* are
+  meant to differ. Seeded and printed, so a failure names what to rerun.
+- **`fuzz`** (`src/extract/fuzz.rs`) — 60 seconds per target over the
+  pure layer: the nine language scanners, `examine` for every format,
+  the fallback, and the depth cap in `collect`. A panic, a hang, or a
+  document that takes more than a second is a failure. The default run
+  is a fixed seed and a fixed count, so `cargo test` stays deterministic.
+- **`budget`** (`tests/budget.rs`, gated on `STRING_LE_BUDGET`) — 500
+  generated files inside a wall-clock ceiling recorded with the machine
+  it was measured on, and four copies of the tree in no more than six
+  times the time. **Raise the ceiling when the tree grows, never to make
+  a red build green.**
+- **`coverage-matrix`** (`tests/coverage_matrix.rs`) — one file per name
+  in the alias table plus a dozen extensions it has never heard of, a
+  report line required for every one, and every offered format required
+  to have a corpus document behind it. The table is read out of
+  `format.rs` rather than restated, so a new alias with no document
+  fails here.
+
 ## Verification — the definition of done
 
 All of it, exactly as CI runs it, before every push:
@@ -232,13 +270,24 @@ cargo fmt --all --check
 cargo clippy --all-targets -- -D warnings
 cargo test --locked
 bun ../scripts/check-extraction-parity.ts   # when extraction changed
+bun ../scripts/check-differential.ts        # when extraction changed
+```
+
+The last one needs a built binary (`cargo build --locked`); it drives
+both `extract_strings` servers over generated documents. The two
+long-running jobs are opt-in locally, the way CI runs them:
+
+```bash
+STRING_LE_BUDGET=1 cargo test --release --test budget -- --nocapture
+STRING_LE_FUZZ_SECONDS=60 cargo test --release --bin string-le extract::fuzz -- --nocapture
 ```
 
 CI additionally builds on macOS, Windows and Linux, checks the Rust 1.88
 minimum version, runs `cargo audit`, the no-inline-`#[allow]` and
 no-filesystem-in-`extract/` policy jobs, the per-module coverage floor,
-the gated scenarios, and parity — including on extension-side edits to
-`src/extraction/**`, so neither frontend can drift green. A change is
+the gated scenarios, the six jobs above, and parity — including on
+extension-side edits to `src/extraction/**`, so neither frontend can
+drift green. A change is
 not done because it compiles; it is done when it is tested, linted,
 documented where behavior changed (README / CHANGELOG / SPEC / this
 file), and honest — claims in docs must match the code.

@@ -79,6 +79,8 @@ pub(crate) fn extract(text: &str, language: Language) -> Vec<String> {
         language,
         values: Vec::new(),
         heredocs: Vec::new(),
+        unclosed: std::collections::HashSet::new(),
+        closable: None,
     };
     scanner.run();
     collect::collect(&Value::Seq(scanner.values))
@@ -116,6 +118,11 @@ struct Scanner<'a> {
     language: Language,
     values: Vec<Value>,
     heredocs: Vec<Pending>,
+    /// Every `(tag, indented)` already searched for and not found.
+    unclosed: std::collections::HashSet<(String, bool)>,
+    /// Every tag any line in this document could possibly close, built
+    /// once on the first heredoc. `None` until then.
+    closable: Option<std::collections::HashSet<String>>,
 }
 
 impl Scanner<'_> {
@@ -682,19 +689,46 @@ impl Scanner<'_> {
     ///
     /// A body whose closing tag never arrives is not a heredoc at all —
     /// the same refusal `delimited` makes, and for the same reason.
+    ///
+    /// **The first one that never closes ends the batch.** A shell
+    /// reading `diff <<A <<B` gives the rest of the file to `A` when
+    /// `A`'s tag never arrives, so `B` has no body to read; carrying on
+    /// to `B` invented one, and made a line carrying a thousand tags
+    /// scan the whole file a thousand times.
     fn take_heredoc_bodies(&mut self) {
         self.at += 1;
         let pending = std::mem::take(&mut self.heredocs);
         for heredoc in &pending {
             let Some((body, end)) = self.heredoc_body(heredoc) else {
-                continue;
+                return;
             };
             self.values.push(Value::Str(body));
             self.at = end;
         }
     }
 
-    fn heredoc_body(&self, heredoc: &Pending) -> Option<(String, usize)> {
+    /// A tag that was searched for and not found, so the same search is
+    /// never run twice.
+    ///
+    /// `self.at` only ever moves forward, so a tag missing from
+    /// `self.at..` is missing from every later suffix too. Without this,
+    /// a file repeating one never-closing tag re-read the rest of itself
+    /// on every occurrence.
+    fn heredoc_body(&mut self, heredoc: &Pending) -> Option<(String, usize)> {
+        // A tag no line in the whole document could ever close is
+        // answered without reading the document. One pass to build the
+        // set replaces one pass per tag, which is the difference between
+        // linear and quadratic on a file full of `<<` that never closes.
+        if !self.closable().contains(&heredoc.tag) {
+            return None;
+        }
+        // Keyed by the indent rule as well as the tag: `<<EOF` and
+        // `<<-EOF` look for different lines, so one failing says nothing
+        // about the other.
+        let key = (heredoc.tag.clone(), heredoc.indented);
+        if self.unclosed.contains(&key) {
+            return None;
+        }
         let mut line = self.at;
         while line <= self.chars.len() {
             let end = self.line_end(line);
@@ -706,7 +740,54 @@ impl Scanner<'_> {
             }
             line = end + 1;
         }
+        self.unclosed.insert(key);
         None
+    }
+
+    /// Every tag some line in this document could close, built once.
+    ///
+    /// A **superset**, and that is what makes it safe to consult: a tag
+    /// missing from it cannot satisfy `terminates` on any line, so the
+    /// forward search can be skipped outright; a tag present still gets
+    /// the full search. A heredoc tag is alphanumerics and `_`, so a
+    /// candidate carrying leading whitespace can never be one — which is
+    /// why a single trimmed key covers both indent rules.
+    fn closable(&mut self) -> &std::collections::HashSet<String> {
+        if self.closable.is_none() {
+            let built = self.candidate_tags();
+            self.closable = Some(built);
+        }
+        self.closable.as_ref().expect("just built")
+    }
+
+    fn candidate_tags(&self) -> std::collections::HashSet<String> {
+        let mut tags = std::collections::HashSet::new();
+        let mut line = 0;
+        while line <= self.chars.len() {
+            let end = self.line_end(line);
+            let text: String = self
+                .chars
+                .get(line..end)
+                .unwrap_or_default()
+                .iter()
+                .collect();
+            tags.insert(self.candidate_tag(&text));
+            line = end + 1;
+        }
+        tags
+    }
+
+    /// The one tag a line could close.
+    fn candidate_tag(&self, line: &str) -> String {
+        if self.language != Language::Php {
+            return super::text::trim(line).to_string();
+        }
+        // PHP closes with `EOT;` or `EOT,` as often as with `EOT`, so
+        // the tag is the identifier the line opens with.
+        super::text::trim_start(line)
+            .chars()
+            .take_while(|c| c.is_alphanumeric() || *c == '_')
+            .collect()
     }
 
     fn terminates(&self, start: usize, end: usize, heredoc: &Pending) -> bool {
@@ -718,7 +799,7 @@ impl Scanner<'_> {
             .collect();
         let line = line.trim_end_matches('\r');
         let candidate = if heredoc.indented {
-            line.trim_start()
+            super::text::trim_start(line)
         } else {
             line
         };
@@ -732,7 +813,7 @@ impl Scanner<'_> {
                 .next()
                 .is_none_or(|c| !c.is_alphanumeric() && c != '_');
         }
-        candidate.trim_end() == heredoc.tag
+        super::text::trim_end(candidate) == heredoc.tag
     }
 
     // ---- reading the text ------------------------------------------
@@ -762,9 +843,9 @@ impl Scanner<'_> {
         let Some(index) = self.at.checked_sub(1) else {
             return true;
         };
-        self.chars
-            .get(index)
-            .is_some_and(|c| c.is_whitespace() || matches!(c, ';' | '&' | '|' | '(' | ')'))
+        self.chars.get(index).is_some_and(|c| {
+            super::text::is_whitespace(*c) || matches!(c, ';' | '&' | '|' | '(' | ')')
+        })
     }
 
     fn preceded_by_identifier(&self, at: usize) -> bool {
@@ -1008,6 +1089,41 @@ mod tests {
     #[test]
     fn a_heredoc_that_never_closes_is_not_a_string() {
         assert!(read("cat <<EOF\nno terminator\n", Language::Shell).is_empty());
+    }
+
+    /// A shell gives the rest of the file to the first heredoc whose tag
+    /// never arrives, so the ones queued behind it never get a body.
+    /// Reading on regardless invented one — and made a line carrying a
+    /// thousand tags scan the whole file a thousand times.
+    #[test]
+    fn a_heredoc_that_never_closes_ends_the_batch() {
+        assert!(read("diff <<A <<B\nfirst\nB\n", Language::Shell).is_empty());
+        assert_eq!(
+            read("diff <<A <<B\nfirst\nA\nsecond\nB\n", Language::Shell),
+            ["first", "second"],
+            "a batch that closes is unaffected"
+        );
+    }
+
+    /// The same tag, never closing, twice: the second occurrence must
+    /// not re-read the rest of the file to learn what the first already
+    /// found out.
+    #[test]
+    fn a_tag_searched_for_once_is_not_searched_for_again() {
+        assert!(read("cat <<GONE\na\ncat <<GONE\nb\n", Language::Shell).is_empty());
+    }
+
+    /// `<<EOF` and `<<-EOF` look for different lines, so one failing
+    /// says nothing about the other.
+    #[test]
+    fn an_indented_tag_is_searched_for_even_after_the_bare_one_failed() {
+        assert_eq!(
+            read(
+                "cat <<EOF\nbody\n  EOF\ncat <<- EOF\nkept\n  EOF\n",
+                Language::Shell
+            ),
+            ["kept"]
+        );
     }
 
     #[test]

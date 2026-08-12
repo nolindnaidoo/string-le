@@ -78,7 +78,7 @@ pub(crate) fn runs(text: &str, multiline: bool) -> Vec<&str> {
 pub(crate) fn extract_with(text: &str, multiline: bool) -> Vec<String> {
     runs(text, multiline)
         .into_iter()
-        .map(str::trim)
+        .map(super::text::trim)
         .filter(|value| !value.is_empty())
         .map(str::to_string)
         .collect()

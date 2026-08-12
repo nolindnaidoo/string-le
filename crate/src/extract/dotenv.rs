@@ -12,14 +12,14 @@ pub(crate) fn extract(text: &str) -> Vec<String> {
 }
 
 fn value_of(raw_line: &str) -> Option<String> {
-    let line = raw_line.trim();
+    let line = super::text::trim(raw_line);
     if line.is_empty() || line.starts_with('#') {
         return None;
     }
 
-    let content = line.strip_prefix("export ").map_or(line, str::trim);
+    let content = line.strip_prefix("export ").map_or(line, super::text::trim);
     let (_, raw_value) = content.split_once('=')?;
-    let raw_value = raw_value.trim();
+    let raw_value = super::text::trim(raw_value);
     if raw_value.is_empty() {
         return None;
     }
@@ -35,7 +35,7 @@ fn strip_inline_comment(value: &str) -> &str {
         return value;
     }
     match value.split_once('#') {
-        Some((before, _)) => before.trim(),
+        Some((before, _)) => super::text::trim(before),
         None => value,
     }
 }

@@ -91,6 +91,20 @@ literals to the same rule** rather than answering it a second time:
 - values are trimmed; empty and whitespace-only values are dropped
 - recursion stops at depth 1000
 
+**Trimming is JavaScript's, not Rust's.** The extension trims with
+`String.prototype.trim`, whose whitespace set carries U+FEFF — the
+byte-order mark, which the language calls ZWNBSP — and does not carry
+U+0085. Unicode's `White_Space`, which `str::trim` uses, is the other way
+round on both. Two characters, and enough to make the shared
+`extract_strings` tool answer two ways for a value with a mark at either
+end. One rule lives in `extract/text.rs` and every extractor uses it.
+
+**A quoted `.env` value is the exception to the drop.** `A="  "` yields
+two spaces. There is no type system in a `.env` file, so quoting is the
+only way to say "this value is whitespace", and dropping it would throw
+away something written on purpose. Both frontends do this and
+`fixtures/documents/whitespace.env` pins it.
+
 `env` is line-based: `export ` prefixes stripped, `#` comments skipped,
 inline comments removed from unquoted values only, surrounding quotes
 removed. `csv` reads every cell, with optional header skip and optional
@@ -122,7 +136,11 @@ What each language adds:
   line, runes skipped.
 - **Shell, PHP, Ruby, Perl** — heredocs: `<<EOF`, `<<'EOF'`, `<<-EOF`,
   `<<<EOT`, `<<<'NOW'`, `<<~EOS`. A body whose closing tag never arrives
-  is not a heredoc.
+  is not a heredoc, **and it ends the batch**: a shell reading
+  `diff <<A <<B` gives the rest of the file to `A` when `A`'s tag never
+  arrives, so `B` never gets a body either. Reading on to `B` invented
+  one, and made a line carrying a thousand tags read the whole file a
+  thousand times.
 - **C#** — verbatim `@"…"` where `""` is one quote, interpolated `$"…"`,
   and both together in either order.
 - **JavaScript / TypeScript** — template literals as **one** value,
@@ -152,6 +170,16 @@ deciding a string in a comment does not count.
 containing a quote is read as though the quote opened a run, which dies
 at the end of the line. Ruby's `%w[]`/`%q()` forms and Perl's `q()`/`qq{}`
 are not recognised. Markdown is prose, so it takes the fallback.
+
+**An unterminated delimiter costs its own run and nothing more.** It
+never panics, never loops, and never quietly takes the rest of the file
+with it — but it does re-pair what follows: an unterminated Rust `r#"`
+leaves the `"` behind it to open an ordinary string, which then closes on
+the next quote several lines down. That is what a compiler sees too, and
+both frontends see it identically.
+`fixtures/documents/unterminated.txt` pins the answer for all ten
+languages and the fallback, because this is the shape most likely to
+drift and least likely to be written by hand.
 
 ### The order is the contract
 
@@ -283,7 +311,31 @@ only one of them says so.
 **Positions**, which the extension does not have at all, so there is
 nothing to differ with.
 
+**The words a parser uses to refuse.** Both servers report a broken
+document the same way — `ok: false`, one diagnostic, severity `error`,
+code `parsing`, and a message opening `Invalid JSON: ` — and neither
+promises what comes after that prefix, because jsonc-parser and
+`JSON.parse` are different programs that word the same failure
+differently. `scripts/check-differential.ts` asserts the half that is
+shared.
+
+**How strict a parser is.** `rust-ini` refuses a section header that
+never closes; the `ini` package accepts it and reads the line. Two
+parsers, two tolerances, and no way to have the stricter one be lenient
+without writing a third. This is the one format where the two servers
+disagree about whether a document is broken at all; the differential
+check pins the direction, so the day either parser changes its mind the
+build says so.
+
 Everything else is parity, and the corpus is what proves it.
+
+**Parity is the shared tool, not the two surfaces.** `extract_strings`
+is one tool with two servers, and an agent must get the same answer
+whichever it reaches. The surfaces are meant to differ: the extension is
+IDE-first, for one open buffer, and this is terminal-first, for trees,
+exit codes and pipes. The walk, `--strict`, `--values`, `--dedupe`, the
+exit codes, JSON Lines and `--multiline` are this half's alone, and are
+not held against the other.
 
 ## Non-goals
 

@@ -4,6 +4,8 @@ Technical source of truth for this repo. README.md is the user-facing doc; this 
 
 This repo hosts **two products**: the extension at the root (this document's scope) and the Rust CLI in `crate/` (its own `AGENTS.md` + `SPEC.md`). The shared extraction corpus lives at `crate/fixtures/`; `scripts/check-extraction-parity.ts` fails CI when this extension drifts from it.
 
+`scripts/check-differential.ts` is the second half of that guard: it drives the **shared `extract_strings` MCP tool** on both servers — this one and the crate's — over generated documents, and requires byte-identical answers. The corpus pins the cases somebody thought of; that pins the ones nobody did. Scope is the shared tool only. The two *surfaces* are meant to differ — this one is IDE-first, for one open buffer; the CLI is terminal-first, for trees, exit codes and pipes — so the walk, `--strict`, `--values` and `--multiline` are the crate's alone and are never held against this side.
+
 ## What this is
 
 A VS Code extension that extracts string values from the active document (JSON, YAML, CSV, TOML, INI, dotenv — anything else falls back to a quoted-string scan) into a results editor, with dedupe/sort post-processing and a streaming mode for large CSVs. No network access, no filesystem writes.

@@ -37,7 +37,7 @@ fn options() -> ini::ParseOption {
 fn without_bare_keys(text: &str) -> String {
     text.lines()
         .filter(|line| {
-            let trimmed = line.trim();
+            let trimmed = super::text::trim(line);
             trimmed.is_empty()
                 || line.starts_with(char::is_whitespace)
                 || trimmed.starts_with(';')

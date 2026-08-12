@@ -1,0 +1,9 @@
+x = "first"
+y = r#"a raw run that never closes
+z = """a triple-quoted run that never closes
+w = `a backtick run that never closes
+cat <<EOF
+a heredoc body whose tag never arrives
+v = @"a verbatim run that never closes
+u = 'an apostrophe that never closes
+t = "last"

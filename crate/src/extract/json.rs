@@ -38,7 +38,7 @@ pub(crate) fn extract_spanned(text: &str) -> Vec<(String, usize)> {
 fn visit_spanned(node: &Node, values: &mut Vec<(String, usize)>) {
     match node {
         Node::StringLit(literal) => {
-            let trimmed = literal.value.trim();
+            let trimmed = super::text::trim(&literal.value);
             if !trimmed.is_empty() {
                 // +1 steps past the opening quote so the column points at
                 // the text rather than at the string that holds it.
@@ -92,7 +92,7 @@ fn visit(node: &Node, values: &mut Vec<String>) {
         Node::StringLit(literal) => {
             // The parser has already resolved escapes, so this is the
             // text a program would see rather than the source spelling.
-            let trimmed = literal.value.trim();
+            let trimmed = super::text::trim(&literal.value);
             if !trimmed.is_empty() {
                 values.push(trimmed.to_string());
             }

@@ -31,6 +31,54 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a `.py` file is read as Python, asking for the quoted runs instead has
   to be sayable.
 
+- **Six CI jobs, each because something got through a green suite.**
+  `hazards` and `platform` on all three operating systems; `differential`,
+  `fuzz`, `budget` and `coverage-matrix` on Linux. What they are and what
+  each is allowed to assert is in AGENTS.md. Between them they found
+  every fix below.
+
+- **Two corpus documents pinning the shapes nobody writes by hand.**
+  `unterminated.txt`, read as all ten languages and the fallback, pins
+  what an unterminated delimiter costs — its own run, and the re-pairing
+  that follows it. `whitespace.env` pins the quoted `.env` value that is
+  nothing but spaces.
+
+### Fixed
+
+- **Report paths used the platform separator.** On Windows a report
+  spelled `src\ui\messages.ts`, which matches nothing a pipeline greps
+  for and nothing the same report says on Linux. stdout is protocol, so
+  it is `/` everywhere now. Only where `\` *is* the separator: on unix it
+  is an ordinary character in a file name and stays one.
+
+- **The shared `extract_strings` tool trimmed values differently on the
+  two servers.** JavaScript's `trim` treats U+FEFF as whitespace and
+  U+0085 as not; `str::trim` is the other way round on both. A value with
+  a byte-order mark at either end therefore came back trimmed from one
+  server and untrimmed from the other. One rule now lives in
+  `extract/text.rs` and every extractor uses it. Found by the first run of
+  the generated differential check; no hand-written case would have.
+
+- **The shared tool dropped parse failures on this side.** A broken
+  document came back `ok: true` with an empty list here and `ok: false`
+  with a named reason from the npm server — an agent asking one tool got
+  a clean result that never ran. It now carries the same diagnostic:
+  severity `error`, code `parsing`, and the same `Invalid <FORMAT>: `
+  prefix. The words after the prefix are the parser's and are not
+  promised; SPEC.md says so.
+
+- **A heredoc that never closes no longer re-reads the rest of the
+  file.** Every queued heredoc used to scan to end-of-file on its own, so
+  a line carrying a thousand tags read the whole document a thousand
+  times: a 200 KB shell file took 24 seconds. The first tag that never
+  arrives now ends the batch — which is what a shell does — and a tag no
+  line in the document could possibly close is answered without a search.
+  Same file, 0.3 seconds. The behaviour change is in SPEC.md and lands on
+  both frontends together.
+
+- **`Invalid CSV: Invalid CSV: …`.** The format was named twice in the
+  one message a reader ever sees.
+
 ### Changed
 
 - **A source file reports its language, not `fallback`.** `messages.ts`

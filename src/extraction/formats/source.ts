@@ -104,6 +104,13 @@ type Scanner = {
 	readonly language: SourceLanguage;
 	readonly values: string[];
 	readonly heredocs: Pending[];
+	/** Every `tag\0indented` already searched for and not found. */
+	readonly unclosed: Set<string>;
+	/**
+	 * Every tag some line in this document could close, built once on
+	 * the first heredoc. `null` until then.
+	 */
+	closable: Set<string> | null;
 	at: number;
 };
 
@@ -113,8 +120,14 @@ const MAX_TEMPLATE_NESTING = 64;
 const LONGEST_CHARACTER = 14;
 
 const PYTHON_PREFIXES = 'rRbBuUfF';
-const IDENTIFIER = /[\p{L}\p{N}_]/u;
-const LETTER = /\p{L}/u;
+// `\p{Alphabetic}` rather than `\p{L}`: the Rust scanner asks
+// `char::is_alphabetic`, which is the Alphabetic property and takes in
+// the combining marks that general category L leaves out. Two spellings
+// of one rule is how two frontends start to disagree.
+const IDENTIFIER = /[\p{Alphabetic}\p{N}_]/u;
+/** The identifier a line opens with, for the PHP closing-tag rule. */
+const LEADING_IDENTIFIER = /^[\p{Alphabetic}\p{N}_]*/u;
+const LETTER = /\p{Alphabetic}/u;
 const UPPERCASE = /\p{Uppercase}/u;
 const WHITESPACE = /\s/u;
 const WORD_BREAK = new Set([';', '&', '|', '(', ')']);
@@ -125,6 +138,8 @@ function scan(text: string, language: SourceLanguage): readonly string[] {
 		language,
 		values: [],
 		heredocs: [],
+		unclosed: new Set(),
+		closable: null,
 		at: 0,
 	};
 	run(scanner);
@@ -609,19 +624,38 @@ function heredocTag(
  * The bodies of every heredoc introduced on the line just ended. A body
  * whose closing tag never arrives is not a heredoc at all — the same
  * refusal `delimited` makes, and for the same reason.
+ *
+ * The first one that never closes ends the batch. A shell reading
+ * `diff <<A <<B` gives the rest of the file to `A` when `A`'s tag never
+ * arrives, so `B` has no body to read; carrying on to `B` invented one,
+ * and made a line carrying a thousand tags scan the whole file a
+ * thousand times.
  */
 function takeHeredocBodies(scanner: Scanner): void {
 	scanner.at += 1;
 	const pending = scanner.heredocs.splice(0, scanner.heredocs.length);
 	for (const heredoc of pending) {
 		const body = heredocBody(scanner, heredoc);
-		if (!body) continue;
+		if (!body) return;
 		scanner.values.push(body.value);
 		scanner.at = body.end;
 	}
 }
 
 function heredocBody(scanner: Scanner, heredoc: Pending): Taken | null {
+	// A tag no line in the whole document could ever close is answered
+	// without reading the document. One pass to build the set replaces
+	// one pass per tag, which is the difference between linear and
+	// quadratic on a file full of `<<` that never closes.
+	if (!closable(scanner).has(heredoc.tag)) return null;
+
+	// Keyed by the indent rule as well as the tag: `<<EOF` and `<<-EOF`
+	// look for different lines, so one failing says nothing about the
+	// other. `scanner.at` only ever moves forward, so a tag missing from
+	// here on is missing from every later suffix too.
+	const key = `${heredoc.tag}\0${heredoc.indented}`;
+	if (scanner.unclosed.has(key)) return null;
+
 	let line = scanner.at;
 	while (line <= scanner.chars.length) {
 		const end = lineEnd(scanner, line);
@@ -633,7 +667,43 @@ function heredocBody(scanner: Scanner, heredoc: Pending): Taken | null {
 		}
 		line = end + 1;
 	}
+	scanner.unclosed.add(key);
 	return null;
+}
+
+/**
+ * Every tag some line in this document could close, built once.
+ *
+ * A superset, and that is what makes it safe to consult: a tag missing
+ * from it cannot satisfy `terminates` on any line, so the forward search
+ * can be skipped outright; a tag present still gets the full search. A
+ * heredoc tag is alphanumerics and `_`, so a candidate carrying leading
+ * whitespace can never be one — which is why a single trimmed key covers
+ * both indent rules.
+ */
+function closable(scanner: Scanner): Set<string> {
+	if (scanner.closable) return scanner.closable;
+
+	const tags = new Set<string>();
+	let line = 0;
+	while (line <= scanner.chars.length) {
+		const end = lineEnd(scanner, line);
+		tags.add(candidateTag(scanner, slice(scanner, line, end)));
+		line = end + 1;
+	}
+	scanner.closable = tags;
+	return tags;
+}
+
+/** The one tag a line could close. */
+function candidateTag(scanner: Scanner, line: string): string {
+	if (scanner.language !== 'php') return line.trim();
+
+	// PHP closes with `EOT;` or `EOT,` as often as with `EOT`, so the
+	// tag is the identifier the line opens with. Matched with the `u`
+	// flag rather than unit by unit, so an astral letter is one
+	// character here as it is in the scanner's own char array.
+	return LEADING_IDENTIFIER.exec(line.trimStart())?.[0] ?? '';
 }
 
 function terminates(

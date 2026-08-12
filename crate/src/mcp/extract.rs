@@ -97,9 +97,29 @@ pub(crate) fn run(arguments: &Value) -> Result<Value, String> {
         "extract_strings",
         &json!({ "strings": values, "fileType": format }),
         count,
-        &[],
+        &parse_diagnostics(content, format),
         truncated,
     ))
+}
+
+/// Why the document yielded nothing, when the reason is a parse failure.
+///
+/// The npm server reports this through its diagnostic sink, so leaving
+/// it out here made one tool answer two ways: an agent reaching this
+/// server got `ok: true` and an empty list for a broken document — a
+/// clean result that never ran — where the other server said the
+/// document could not be read and why.
+///
+/// The severity and the code are the contract. The message tail is the
+/// parser's: jsonc-parser and `JSON.parse` are different programs and
+/// word the same failure differently, so both sides promise the
+/// `Invalid JSON: ` prefix and neither promises what follows it. See
+/// SPEC.md, "Where this deliberately differs".
+fn parse_diagnostics(content: &str, format: &str) -> Vec<Value> {
+    extract::parse_error(content, format)
+        .map(|message| json!({ "severity": "error", "code": "parsing", "message": message }))
+        .into_iter()
+        .collect()
 }
 
 /// Clamp quietly, reject loudly — the npm server's asymmetry.
@@ -212,6 +232,50 @@ mod tests {
             run(&json!({ "content": "const a = 'x';", "format": "nonsense" })).expect("a result");
         assert_eq!(result["data"]["fileType"], FALLBACK_FORMAT);
         assert_eq!(result["data"]["strings"][0], "x");
+    }
+
+    /// One tool, two servers. A broken document has to answer the same
+    /// way on both: the check did not run, and here is why. Reporting
+    /// `ok: true` with an empty list is a clean result that never ran.
+    #[test]
+    fn a_broken_document_is_reported_rather_than_answered_empty() {
+        let result = run(&json!({ "content": "{not json", "format": "json" })).expect("a result");
+        assert_eq!(result["ok"], false);
+        assert_eq!(
+            result["data"]["strings"]
+                .as_array()
+                .expect("an array")
+                .len(),
+            0
+        );
+        assert_eq!(result["diagnostics"][0]["severity"], "error");
+        assert_eq!(result["diagnostics"][0]["code"], "parsing");
+        assert!(
+            result["diagnostics"][0]["message"]
+                .as_str()
+                .expect("a message")
+                .starts_with("Invalid JSON: "),
+            "the prefix is the shared half of the message: {}",
+            result["diagnostics"][0]["message"]
+        );
+    }
+
+    /// A source language has no shape it can reject, so it never carries
+    /// a parse diagnostic — and an unterminated literal is a document
+    /// that yielded nothing, not a document that failed.
+    #[test]
+    fn a_source_language_never_reports_a_parse_failure() {
+        let result =
+            run(&json!({ "content": "let s = r#\"never closed", "format": "rust" })).expect("ok");
+        assert_eq!(result["ok"], true);
+        assert_eq!(result["diagnostics"].as_array().expect("an array").len(), 0);
+        assert_eq!(
+            result["data"]["strings"]
+                .as_array()
+                .expect("an array")
+                .len(),
+            0
+        );
     }
 
     #[test]

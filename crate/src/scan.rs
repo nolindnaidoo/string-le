@@ -97,7 +97,7 @@ const BINARY_SNIFF_BYTES: usize = 8 * 1024;
 /// `skipped` diagnostic and keeps failing `--strict`. That distinction is
 /// the whole point.
 pub(crate) fn scan_file(path: &PathBuf, options: ScanOptions) -> Option<FileReport> {
-    let file = path.to_string_lossy().into_owned();
+    let file = report_path(path);
     let format = options.format.unwrap_or_else(|| format_of(path));
 
     let bytes = match std::fs::read(path) {
@@ -113,6 +113,28 @@ pub(crate) fn scan_file(path: &PathBuf, options: ScanOptions) -> Option<FileRepo
         // report is a file the reader believes was covered.
         Err(_) => Some(skipped(file, format, "not UTF-8 text")),
     }
+}
+
+/// The path as the report spells it: **always with `/`**, on every
+/// platform.
+///
+/// stdout is protocol. A report written on Windows and read on a Linux
+/// runner is the ordinary case for this tool — a QA lead diffing last
+/// release against this one, a pipeline grepping for a file — and
+/// `src\ui\messages.ts` there matches nothing that `src/ui/messages.ts`
+/// matches. A sibling crate shipped a release doing exactly that.
+///
+/// Only the separator is rewritten, and only where the separator *is*
+/// `\`: on unix a backslash is an ordinary character in a file name, and
+/// replacing it would rename the file the report names.
+#[cfg(windows)]
+fn report_path(path: &StdPath) -> String {
+    path.to_string_lossy().replace('\\', "/")
+}
+
+#[cfg(not(windows))]
+fn report_path(path: &StdPath) -> String {
+    path.to_string_lossy().into_owned()
 }
 
 fn is_binary(bytes: &[u8]) -> bool {
@@ -302,6 +324,18 @@ mod tests {
         let report = scan_file(&file, plain()).expect("a report");
         assert!(!report.was_skipped());
         assert_eq!(report.summary.strings, 1);
+    }
+
+    /// The report separator is rewritten only where `\` *is* the
+    /// separator. On unix it is an ordinary character in a file name,
+    /// and rewriting it would name a file that does not exist.
+    #[cfg(unix)]
+    #[test]
+    fn a_backslash_in_a_unix_file_name_is_not_a_separator() {
+        let tree = TempTree::new("scan-backslash");
+        let file = tree.write("od\\d.json", "{\"a\":\"value\"}");
+        let report = scan_file(&file, plain()).expect("a report");
+        assert!(report.file.ends_with("od\\d.json"), "{}", report.file);
     }
 
     #[test]

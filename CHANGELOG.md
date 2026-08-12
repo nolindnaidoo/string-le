@@ -44,6 +44,21 @@ separate product on its own cadence and keeps its own
   of it, and a new drift check holds the extension's alias table to the
   crate's, name by name.
 
+- **A heredoc that never closes now ends the batch it was queued in.**
+  A shell reading `diff <<A <<B` gives the rest of the file to `A` when
+  `A`'s tag never arrives, so `B` never gets a body; reading on to `B`
+  invented one. It also made a line carrying many tags re-read the whole
+  document once per tag. Extraction behaviour, so it lands on both
+  frontends in the same commit, and `crate/fixtures/unterminated.txt`
+  pins the answer for all ten languages.
+
+- **The heredoc closing-tag rule is spelled the same in both
+  frontends.** The identifier class here was `\p{L}`, and the crate asks
+  `char::is_alphabetic` — the Alphabetic property, which takes in
+  combining marks that general category L leaves out. Two spellings of
+  one rule is how two frontends start to disagree; it is `\p{Alphabetic}`
+  now.
+
 - A **Rust CLI and MCP server**, in [`crate/`](crate/README.md), to be
   published to crates.io as `string-le`. It runs
   the same extraction over a whole tree, with exit codes following grep —

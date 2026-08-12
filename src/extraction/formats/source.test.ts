@@ -126,6 +126,28 @@ describe('shell', () => {
 		expect(read("x=$((1 << 2))\ny='kept'", 'shell')).toEqual(['kept']);
 	});
 
+	// A shell gives the rest of the file to the first heredoc whose tag
+	// never arrives, so the ones queued behind it never get a body.
+	// Reading on regardless invented one — and made a line carrying a
+	// thousand tags scan the whole file a thousand times.
+	it('ends the batch at the first heredoc that never closes', () => {
+		expect(read('diff <<A <<B\nfirst\nB\n', 'shell')).toEqual([]);
+	});
+
+	// The same tag, never closing, twice: the second occurrence must not
+	// re-read the rest of the file to learn what the first found out.
+	it('searches for a tag once', () => {
+		expect(read('cat <<GONE\na\ncat <<GONE\nb\n', 'shell')).toEqual([]);
+	});
+
+	// `<<EOF` and `<<-EOF` look for different lines, so one failing says
+	// nothing about the other.
+	it('still searches for an indented tag after the bare one failed', () => {
+		expect(
+			read('cat <<EOF\nbody\n  EOF\ncat <<- EOF\nkept\n  EOF\n', 'shell'),
+		).toEqual(['kept']);
+	});
+
 	it('reads a hash inside a word as text, not a comment', () => {
 		expect(read("file=report#1\necho 'kept'", 'shell')).toEqual(['kept']);
 		expect(read('# a "noted" thing\necho \'kept\'', 'shell')).toEqual([

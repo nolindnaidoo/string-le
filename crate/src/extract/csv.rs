@@ -22,7 +22,7 @@ pub(crate) fn extract(text: &str, options: Options) -> Vec<String> {
             Some(column) => row.get(column).map_or_else(Vec::new, |cell| vec![cell]),
             None => row.iter().collect(),
         })
-        .map(|cell| cell.trim())
+        .map(|cell| super::text::trim(cell))
         .filter(|cell| !cell.is_empty())
         .map(str::to_string)
         .collect()
@@ -117,10 +117,13 @@ fn rows(text: &str) -> Result<Vec<Vec<String>>, String> {
         .collect()
 }
 
+/// Why the document could not be read as CSV.
+///
+/// `rows` already names the format in every error it returns, so this
+/// adds nothing: prefixing again produced `Invalid CSV: Invalid CSV: …`
+/// on the one message a reader ever sees.
 pub(crate) fn parse_error(text: &str) -> Option<String> {
-    rows(text)
-        .err()
-        .map(|error| format!("Invalid CSV: {error}"))
+    rows(text).err()
 }
 
 #[cfg(test)]
@@ -220,7 +223,12 @@ mod tests {
     #[test]
     fn an_unterminated_quote_is_a_parse_failure() {
         assert!(extract("a,\"unterminated", plain()).is_empty());
-        assert!(parse_error("a,\"unterminated").is_some());
+        let message = parse_error("a,\"unterminated").expect("a reason");
+        assert!(message.starts_with("Invalid CSV: "), "{message}");
+        assert!(
+            !message.starts_with("Invalid CSV: Invalid CSV: "),
+            "the format is named once: {message}"
+        );
     }
 
     #[test]

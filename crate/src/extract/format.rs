@@ -96,8 +96,7 @@ pub(crate) const SUPPORTED_FORMATS: [&str; 17] = [
 pub(crate) const FALLBACK_FORMAT: &str = "fallback";
 
 fn normalise(value: &str) -> String {
-    value
-        .trim()
+    super::text::trim(value)
         .to_lowercase()
         .trim_start_matches('.')
         .to_string()

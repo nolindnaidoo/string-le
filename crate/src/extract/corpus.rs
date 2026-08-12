@@ -32,6 +32,8 @@ pub(crate) fn document(name: &str) -> &'static str {
         "strings.cs" => include_str!("../../fixtures/documents/strings.cs"),
         "strings.js" => include_str!("../../fixtures/documents/strings.js"),
         "strings.ts" => include_str!("../../fixtures/documents/strings.ts"),
+        "unterminated.txt" => include_str!("../../fixtures/documents/unterminated.txt"),
+        "whitespace.env" => include_str!("../../fixtures/documents/whitespace.env"),
         other => panic!("the corpus has no document named {other}"),
     }
 }

@@ -53,7 +53,7 @@ fn walk(value: &Value, out: &mut Vec<String>, depth: usize) {
     }
     match value {
         Value::Str(text) => {
-            let trimmed = text.trim();
+            let trimmed = super::text::trim(text);
             if !trimmed.is_empty() {
                 out.push(trimmed.to_string());
             }
