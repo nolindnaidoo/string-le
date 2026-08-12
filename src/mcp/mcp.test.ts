@@ -83,9 +83,22 @@ describe('fileType: tolerant resolution', () => {
 		expect(resolveFormat(undefined, undefined)).toBe(FALLBACK_FORMAT);
 	});
 
-	it('advertises only formats with a dedicated extractor', () => {
+	it('advertises every format that resolves, and only those', () => {
 		expect(SUPPORTED_FORMATS).toContain('json');
-		expect(SUPPORTED_FORMATS).not.toContain(FALLBACK_FORMAT);
+		expect(SUPPORTED_FORMATS).toContain('python');
+		// `fallback` is advertised on purpose: a .py file is read as Python
+		// now, so asking for the quoted runs instead has to be sayable.
+		expect(SUPPORTED_FORMATS).toContain(FALLBACK_FORMAT);
+		for (const format of SUPPORTED_FORMATS) {
+			expect(resolveFormat(format, undefined)).toBe(format);
+		}
+	});
+
+	it('reads a source language by its id and by its extension', () => {
+		expect(resolveFormat('python', undefined)).toBe('python');
+		expect(resolveFormat(undefined, 'main.rs')).toBe('rust');
+		expect(resolveFormat('typescriptreact', undefined)).toBe('typescript');
+		expect(resolveFormat(undefined, 'README.md')).toBe(FALLBACK_FORMAT);
 	});
 });
 

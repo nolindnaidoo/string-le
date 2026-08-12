@@ -83,8 +83,8 @@ fn reports(run: &Run) -> Vec<serde_json::Value> {
         .collect()
 }
 
-/// A JSON config, a source file whose copy only the fallback finds, and
-/// a binary that must be skipped rather than failed.
+/// A JSON config, a TypeScript file carrying the copy, and prose with
+/// nothing quoted in it — the three shapes an audit walks past.
 fn audit_tree(name: &str) -> Tree {
     let tree = Tree::new(name);
     tree.write("config.json", "{\"title\":\"Settings\",\"count\":42}\n");
@@ -122,11 +122,11 @@ fn a_tree_with_none_exits_one() {
     assert!(run.stderr.contains("0 strings"), "{}", run.stderr);
 }
 
-/// The audit case, end to end: a source file is not a format this
-/// parses, and its copy comes out anyway.
+/// The audit case, end to end: a source file's copy comes out, and the
+/// report names the language it was read as rather than a shrug.
 #[test]
-fn a_source_file_yields_its_copy_through_the_fallback() {
-    let tree = audit_tree("fallback");
+fn a_source_file_yields_its_copy_as_its_own_language() {
+    let tree = audit_tree("source");
     let run = run(&[&tree.path().to_string_lossy()]);
     let source = reports(&run)
         .into_iter()
@@ -136,7 +136,7 @@ fn a_source_file_yields_its_copy_through_the_fallback() {
                 .is_some_and(|file| file.ends_with("messages.ts"))
         })
         .expect("the .ts file was read");
-    assert_eq!(source["format"], "fallback");
+    assert_eq!(source["format"], "typescript");
     let values: Vec<&str> = source["strings"]
         .as_array()
         .expect("strings")
@@ -146,16 +146,30 @@ fn a_source_file_yields_its_copy_through_the_fallback() {
     assert_eq!(values, ["Delete this permanently?", "Never mind"]);
 }
 
+/// A template literal spans lines because TypeScript says it does, so
+/// an email body or a consent notice — the copy an audit least wants to
+/// miss — needs no flag to be read.
+#[test]
+fn a_language_that_spans_lines_needs_no_flag() {
+    let tree = Tree::new("spanning");
+    tree.write(
+        "src/email.ts",
+        "const body = `Dear reader,\n\nWelcome aboard.`;\nconst short = 'Hi';\n",
+    );
+    let plain = run(&["--values", &tree.path().to_string_lossy()]);
+    assert!(plain.stdout.contains("Dear reader,"), "{}", plain.stdout);
+    assert!(plain.stdout.contains("Hi"), "{}", plain.stdout);
+}
+
 /// The one flag that makes this answer differently from the extension,
-/// and only when asked. A multi-line template literal in a source file
-/// is an email body or a consent notice — the copy an audit least wants
-/// to miss.
+/// and only when asked. It belongs to the fallback, where a run spanning
+/// lines really is a divergence rather than the language's own syntax.
 #[test]
 fn multiline_reads_copy_the_extension_cannot_see() {
     let tree = Tree::new("multiline");
     tree.write(
-        "src/email.ts",
-        "const body = `Dear reader,\n\nWelcome aboard.`;\nconst short = 'Hi';\n",
+        "notes.txt",
+        "body = `Dear reader,\n\nWelcome aboard.`\nshort = 'Hi'\n",
     );
     let path = tree.path().to_string_lossy().to_string();
 

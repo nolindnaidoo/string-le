@@ -21,6 +21,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { extractStrings } from '../src/extraction/extract';
+import { resolveFormat, SUPPORTED_FORMATS } from '../src/mcp/fileType';
 import { TOOLS } from '../src/mcp/tools';
 
 const ROOT = join(import.meta.dir, '..');
@@ -163,6 +164,50 @@ function checkTheSharedToolStaysPositionless(): void {
 	}
 }
 
+/**
+ * The two alias tables are hand-kept in two languages, and a name one
+ * side accepts and the other does not makes them two different tools —
+ * silently, because the loser just falls back. Read the crate's table and
+ * hold this side to it, name by name.
+ */
+function checkAliasTables(): void {
+	const source = readFileSync(
+		join(ROOT, 'crate', 'src', 'extract', 'format.rs'),
+		'utf8',
+	);
+
+	const aliases = block(source, 'const ALIASES');
+	const pairs = [...aliases.matchAll(/\("([^"]+)",\s*"([^"]+)"\)/g)];
+	if (pairs.length === 0) fail('the crate alias table could not be read');
+
+	for (const [, alias, key] of pairs) {
+		const resolved = resolveFormat(alias, undefined);
+		if (resolved !== key) {
+			fail(
+				`alias "${alias}": the crate resolves it to "${key}", the extension to "${resolved}"`,
+			);
+		}
+	}
+
+	const offered = block(source, 'const SUPPORTED_FORMATS');
+	const formats = [...offered.matchAll(/"([^"]+)"/g)].map(([, name]) => name);
+	if (!deepEqual(formats, [...SUPPORTED_FORMATS])) {
+		fail(
+			`the offered formats differ:\n  crate:     ${JSON.stringify(formats)}\n  extension: ${JSON.stringify(SUPPORTED_FORMATS)}`,
+		);
+	}
+}
+
+/** The array literal a `const NAME: [...] = [ … ];` declares. */
+function block(source: string, declaration: string): string {
+	const start = source.indexOf(declaration);
+	if (start === -1) return '';
+	const end = source.indexOf('];', start);
+	if (end === -1) return '';
+	return source.slice(start, end);
+}
+
+checkAliasTables();
 checkDocuments();
 checkTheSharedToolStaysPositionless();
 await checkMcpExtractStrings();

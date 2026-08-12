@@ -194,6 +194,195 @@
 				"café",
 				"readable"
 			]
+		},
+		{
+			"name": "strings.py as python",
+			"file": "strings.py",
+			"fileType": "python",
+			"options": {},
+			"expected": [
+				"Module docstring.\n\nTwo lines, one string.",
+				"the docs",
+				"Greet a user politely.",
+				"Hello, {name}!",
+				"\\d+ items",
+				"bytes",
+				"raw bytes",
+				"single quoted",
+				"a # inside a string"
+			]
+		},
+		{
+			"name": "strings.py as py",
+			"file": "strings.py",
+			"fileType": "py",
+			"options": {},
+			"expected": [
+				"Module docstring.\n\nTwo lines, one string.",
+				"the docs",
+				"Greet a user politely.",
+				"Hello, {name}!",
+				"\\d+ items",
+				"bytes",
+				"raw bytes",
+				"single quoted",
+				"a # inside a string"
+			]
+		},
+		{
+			"name": "strings.py as fallback",
+			"file": "strings.py",
+			"fileType": "fallback",
+			"options": {},
+			"expected": [
+				"the docs",
+				"Greet a user politely.",
+				"Hello, {name}!",
+				"\\d+ items",
+				"bytes",
+				"raw bytes",
+				"single quoted",
+				"a # inside a string"
+			]
+		},
+		{
+			"name": "strings.rs as rust",
+			"file": "strings.rs",
+			"fileType": "rust",
+			"options": {},
+			"expected": [
+				"the docs",
+				"a raw \"quoted\" string",
+				"holds a \"# sequence",
+				"C:\\Users\\test",
+				"payload",
+				"say \\\"hi\\\"",
+				"first\nsecond"
+			]
+		},
+		{
+			"name": "strings.rs as rs",
+			"file": "strings.rs",
+			"fileType": "rs",
+			"options": {},
+			"expected": [
+				"the docs",
+				"a raw \"quoted\" string",
+				"holds a \"# sequence",
+				"C:\\Users\\test",
+				"payload",
+				"say \\\"hi\\\"",
+				"first\nsecond"
+			]
+		},
+		{
+			"name": "strings.go as go",
+			"file": "strings.go",
+			"fileType": "go",
+			"options": {},
+			"expected": [
+				"the docs",
+				"line one\nline two",
+				"double quoted",
+				"say \\\"hi\\\""
+			]
+		},
+		{
+			"name": "strings.sh as shellscript",
+			"file": "strings.sh",
+			"fileType": "shellscript",
+			"options": {},
+			"expected": [
+				"the docs",
+				"The heredoc body.\nSecond line.",
+				"No $expansion here.",
+				"tab indented body",
+				"double quoted",
+				"single quoted",
+				"$file"
+			]
+		},
+		{
+			"name": "strings.php as php",
+			"file": "strings.php",
+			"fileType": "php",
+			"options": {},
+			"expected": [
+				"the docs",
+				"the notes",
+				"the manual",
+				"Dear reader,\nWelcome.",
+				"No $expansion here.",
+				"double quoted",
+				"single quoted"
+			]
+		},
+		{
+			"name": "strings.rb as ruby",
+			"file": "strings.rb",
+			"fileType": "ruby",
+			"options": {},
+			"expected": [
+				"the docs",
+				"the manual",
+				"Dear reader,\nWelcome.",
+				"No #{interpolation} here.",
+				"double quoted",
+				"single quoted"
+			]
+		},
+		{
+			"name": "strings.pl as perl",
+			"file": "strings.pl",
+			"fileType": "perl",
+			"options": {},
+			"expected": [
+				"the docs",
+				"the manual",
+				"Dear reader,\nWelcome.",
+				"double quoted",
+				"single quoted"
+			]
+		},
+		{
+			"name": "strings.cs as csharp",
+			"file": "strings.cs",
+			"fileType": "csharp",
+			"options": {},
+			"expected": [
+				"the docs",
+				"C:\\Users\\test",
+				"He said \"\"hi\"\" loudly",
+				"first\nsecond",
+				"say \\\"hi\\\"",
+				"Hello, {name}!"
+			]
+		},
+		{
+			"name": "strings.js as javascript",
+			"file": "strings.js",
+			"fileType": "javascript",
+			"options": {},
+			"expected": [
+				"Welcome back",
+				"Press ⌘K to search",
+				"You have ${count} unread messages"
+			]
+		},
+		{
+			"name": "strings.ts as typescript",
+			"file": "strings.ts",
+			"fileType": "typescript",
+			"options": {},
+			"expected": [
+				"the docs",
+				"Delete this permanently?",
+				"This can't be undone",
+				"Removing ${count} items",
+				"Dear reader,\n\nWelcome.",
+				"a ${flag ? `yes` : `no`} b",
+				"It\\'s fine"
+			]
 		}
 	]
 }

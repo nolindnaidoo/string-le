@@ -54,7 +54,13 @@ pub(crate) fn extract(text: &str) -> Vec<String> {
     extract_with(text, false)
 }
 
-pub(crate) fn extract_with(text: &str, multiline: bool) -> Vec<String> {
+/// The inside of every quoted run, exactly as the source spells it.
+///
+/// Separate from `extract_with` so `source` can reuse the pattern
+/// without reusing the trimming: what counts as a string is
+/// `collect`'s question, and answering it twice is how two frontends
+/// start to disagree.
+pub(crate) fn runs(text: &str, multiline: bool) -> Vec<&str> {
     let pattern = if multiline {
         &*QUOTED_MULTILINE
     } else {
@@ -64,8 +70,15 @@ pub(crate) fn extract_with(text: &str, multiline: bool) -> Vec<String> {
         .find_iter(text)
         .map(|found| {
             let matched = found.as_str();
-            matched[1..matched.len() - 1].trim()
+            &matched[1..matched.len() - 1]
         })
+        .collect()
+}
+
+pub(crate) fn extract_with(text: &str, multiline: bool) -> Vec<String> {
+    runs(text, multiline)
+        .into_iter()
+        .map(str::trim)
         .filter(|value| !value.is_empty())
         .map(str::to_string)
         .collect()

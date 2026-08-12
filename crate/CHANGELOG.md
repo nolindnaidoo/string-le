@@ -7,6 +7,42 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Ten source languages, read by their own literal syntax** — Python,
+  Rust, Go, shell, PHP, Ruby, Perl, C#, JavaScript and TypeScript. The
+  quoted-run fallback reads every source file through a
+  JavaScript-shaped lens, and on real code that lens is wrong rather than
+  coarse: a Python docstring spanning lines was missed entirely,
+  `r#"a raw "quoted" string"#` came back as `a raw` and `string`, a Go
+  backtick string and a shell heredoc were not there at all, and a C#
+  verbatim string split into three. Aliases carry both the VS Code
+  language id and the file extension, so the extension and the walk
+  cannot disagree about what a file is.
+
+  Every literal is handed to the same `collect` the parsed formats use,
+  so "what counts as a string" is answered once. Escapes stay unresolved
+  and comments still yield their quoted runs — the divergences from the
+  fallback are per-language facts, listed in SPEC.md.
+
+- **`--format fallback`**, and `markdown`/`md` resolving to it. Now that
+  a `.py` file is read as Python, asking for the quoted runs instead has
+  to be sayable.
+
+### Changed
+
+- **A source file reports its language, not `fallback`.** `messages.ts`
+  comes back as `typescript`, `app.py` as `python`. Every corpus case and
+  both surfaces move with it.
+- **`--multiline` belongs to the fallback only.** A Python triple-quoted
+  string, a Go or Rust raw string, a heredoc and a template literal span
+  lines because their language says so, and are read that way with no
+  flag — that is the language's syntax rather than a divergence from the
+  extension, which runs the same scanner. The flag still widens the
+  quoted-run fallback, where spanning lines really is a divergence.
+
 ## [0.1.0] - 2026-08-11
 
 First release. The extension's extraction engine, ported and pinned

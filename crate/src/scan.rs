@@ -257,12 +257,23 @@ mod tests {
         assert_eq!(report.summary.strings, 1);
     }
 
-    /// The audit case: a source file is not a format this parses, and it
-    /// still yields its copy.
+    /// The audit case: a source file yields its copy, and the report
+    /// says which language it was read as.
     #[test]
-    fn a_source_file_falls_back_and_still_answers() {
-        let tree = TempTree::new("scan-fallback");
+    fn a_source_file_is_read_as_its_language() {
+        let tree = TempTree::new("scan-source");
         let file = tree.write("messages.ts", "const m = 'Delete this?';\n");
+        let report = scan_file(&file, plain());
+        assert_eq!(report.format, "typescript");
+        assert_eq!(report.strings[0].value, "Delete this?");
+    }
+
+    /// A name no extractor claims is still read, which is what lets this
+    /// be pointed at a whole tree.
+    #[test]
+    fn an_unclaimed_extension_falls_back_and_still_answers() {
+        let tree = TempTree::new("scan-fallback");
+        let file = tree.write("notes.rtf", "note = 'Delete this?'\n");
         let report = scan_file(&file, plain());
         assert_eq!(report.format, "fallback");
         assert_eq!(report.strings[0].value, "Delete this?");

@@ -18,9 +18,10 @@ const USAGE: &str = "usage: string-le [options] <file|dir>...
        string-le --version | --help
 
 Gets every string value out of a tree and into one place a person can
-read: JSON, YAML, CSV, TOML, INI and dotenv are parsed, and anything else
-falls back to quoted runs — so a .ts or .py file yields the copy in it
-rather than nothing.
+read: JSON, YAML, CSV, TOML, INI and dotenv are parsed, ten source
+languages are read by their own literal syntax, and anything else falls
+back to quoted runs — so a .py or .rs file yields the copy in it rather
+than fragments of it.
 
 It reports what is there and nothing else. Which strings matter is yours
 to decide.
@@ -31,9 +32,9 @@ Options:
                        file name; an unknown name falls back rather than
                        failing
   --values             print only the values, one per line, for piping
-  --multiline          let a quoted run span lines, so a multi-line
-                       template literal is read too. The extension
-                       cannot do this and the two then differ on purpose
+  --multiline          let a *fallback* quoted run span lines. A language
+                       whose own syntax spans lines needs no flag; this
+                       is for the formats nothing here parses
   --csv-header         skip the first CSV row
   --csv-column <n>     take only this 0-based CSV column
   --strict             exit 2 if any file could not be read, rather than
@@ -336,8 +337,7 @@ mod tests {
     /// extractor, not a refusal.
     #[test]
     fn an_unknown_format_falls_back_rather_than_being_refused() {
-        let options =
-            parse(&["--format".into(), "typescript".into(), "x".into()]).expect("accepted");
+        let options = parse(&["--format".into(), "klingon".into(), "x".into()]).expect("accepted");
         assert_eq!(options.scan.format, Some(crate::extract::FALLBACK_FORMAT));
     }
 

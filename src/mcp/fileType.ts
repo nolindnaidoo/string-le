@@ -7,7 +7,14 @@
  * `fallback` is the deliberate default.
  */
 
-/** Every extractor key the engine registers, keyed by what a caller might send. */
+/**
+ * Every extractor key the engine registers, keyed by what a caller might send.
+ *
+ * The source languages carry both the VS Code language id and the file
+ * extension, because one frontend dispatches on the id it is handed and the
+ * other on the name of a file it walked. Held byte-for-byte equal to
+ * crate/src/extract/format.rs.
+ */
 const ALIASES: Readonly<Record<string, string>> = Object.freeze({
 	json: 'json',
 	jsonc: 'json',
@@ -21,9 +28,48 @@ const ALIASES: Readonly<Record<string, string>> = Object.freeze({
 	conf: 'ini',
 	env: 'env',
 	dotenv: 'env',
+	python: 'python',
+	py: 'python',
+	rust: 'rust',
+	rs: 'rust',
+	go: 'go',
+	shellscript: 'shellscript',
+	sh: 'shellscript',
+	bash: 'shellscript',
+	zsh: 'shellscript',
+	php: 'php',
+	ruby: 'ruby',
+	rb: 'ruby',
+	perl: 'perl',
+	pl: 'perl',
+	pm: 'perl',
+	csharp: 'csharp',
+	cs: 'csharp',
+	javascript: 'javascript',
+	javascriptreact: 'javascript',
+	js: 'javascript',
+	jsx: 'javascript',
+	mjs: 'javascript',
+	cjs: 'javascript',
+	typescript: 'typescript',
+	typescriptreact: 'typescript',
+	ts: 'typescript',
+	tsx: 'typescript',
+	mts: 'typescript',
+	cts: 'typescript',
+	// Prose has no literals; naming it asks for the quoted runs a fenced
+	// code block and a backtick span leave behind.
+	markdown: 'fallback',
+	md: 'fallback',
 });
 
-/** The formats a caller can name, for the tool schema's enum. */
+/**
+ * The formats a caller can name, for the tool schema's enum.
+ *
+ * `fallback` is nameable on purpose: now that a `.py` file is read as
+ * Python, asking for the quoted runs instead has to be something a caller
+ * can say.
+ */
 export const SUPPORTED_FORMATS: readonly string[] = Object.freeze([
 	'json',
 	'yaml',
@@ -31,6 +77,17 @@ export const SUPPORTED_FORMATS: readonly string[] = Object.freeze([
 	'toml',
 	'ini',
 	'env',
+	'python',
+	'rust',
+	'go',
+	'shellscript',
+	'php',
+	'ruby',
+	'perl',
+	'csharp',
+	'javascript',
+	'typescript',
+	'fallback',
 ]);
 
 /** What the engine uses when it recognises nothing. */

@@ -68,7 +68,20 @@
 		"onLanguage:toml",
 		"onLanguage:ini",
 		"onLanguage:dotenv",
-		"onLanguage:env"
+		"onLanguage:env",
+		"onLanguage:python",
+		"onLanguage:rust",
+		"onLanguage:go",
+		"onLanguage:shellscript",
+		"onLanguage:php",
+		"onLanguage:ruby",
+		"onLanguage:perl",
+		"onLanguage:csharp",
+		"onLanguage:javascript",
+		"onLanguage:javascriptreact",
+		"onLanguage:typescript",
+		"onLanguage:typescriptreact",
+		"onLanguage:markdown"
 	],
 	"capabilities": {
 		"virtualWorkspaces": {

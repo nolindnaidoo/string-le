@@ -4,7 +4,7 @@
 <h1 align="center">Strings-LE: Zero Hassle String Extraction</h1>
 <p align="center">
   <b>Pull every string value out of the current file in one keystroke</b><br/>
-  <i>JSON, YAML, CSV, TOML, INI, and Environment files</i>
+  <i>JSON, YAML, CSV, TOML, INI, Environment files, and ten source languages</i>
 </p>
 
 <p align="center">
@@ -112,9 +112,16 @@ That prints the tool list and exits — if you see `extract_strings`, the server
 | TOML | `toml` | String values including multiline strings; dates and numbers are excluded as typed values |
 | INI | `ini` | Values (INI is untyped, so numeric-looking values are extracted as strings) |
 | Environment | `dotenv`, `env` | Values (`export` prefixes, quotes, and inline comments handled) |
-| Anything else | — | Fallback scan for `"double"`, `'single'`, or `` `backtick` `` quoted strings on a single line |
+| Python | `python` | Triple-quoted docstrings as one string, f-strings, `r`/`b`/`u` prefixes |
+| Rust | `rust` | Raw strings `r"…"`, `r#"…"#`, `r##"…"##` as one string with their inner quotes; byte strings |
+| Go | `go` | Backtick raw strings as one string, across lines |
+| Shell | `shellscript` | Heredocs (`<<EOF`, `<<'EOF'`, `<<-EOF`) as one string |
+| PHP, Ruby, Perl | `php`, `ruby`, `perl` | Heredocs and nowdocs (`<<<EOT`, `<<<'NOW'`, `<<~EOS`) as one string |
+| C# | `csharp` | Verbatim `@"…"` where `""` is one quote; interpolated `$"…"` |
+| JavaScript, TypeScript | `javascript`, `typescript` (+ the react ids) | Template literals as **one** string, interpolation and nesting included |
+| Markdown, anything else | `markdown` | Fallback scan for `"double"`, `'single'`, or `` `backtick` `` quoted strings on a single line |
 
-Values are trimmed; empty values are dropped; keys are never extracted. The fallback scan cannot see unquoted or multi-line strings — that is why the six formats above get real parsers. Parse errors are silent unless `string-le.showParseErrors` is on.
+Values are trimmed; empty values are dropped; keys are never extracted — one rule, shared by every extractor above. The fallback scan cannot see unquoted or multi-line strings, which is why the parsed formats and the source languages get real readers. Parse errors are silent unless `string-le.showParseErrors` is on.
 
 ## The CLI
 
@@ -141,9 +148,10 @@ they do not have the editor open, and several of them cannot be handed a
 checkout at all. The CLI puts the whole repository into one file they can
 read.
 
-**The fallback is the main event there.** A `.ts` or `.py` file is not a
-format with a parser, so it falls through to quoted-string extraction —
-and those quoted strings are the user-facing copy the reviewer came for.
+**Source files are the main event there.** A `.ts` or `.py` file is where
+the user-facing copy lives, so each language is read by its own literal
+syntax and anything still unrecognised falls through to quoted-string
+extraction rather than being refused.
 
 **Exit codes follow grep** — 0 strings found, 1 none found, 2 the
 question was malformed — so finding nothing is an answer rather than an
@@ -248,12 +256,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 88.69% |
-| Branches | 78.30% |
-| Functions | 96.55% |
-| Lines | 90.08% |
+| Statements | 90.77% |
+| Branches | 83.52% |
+| Functions | 97.22% |
+| Lines | 92.16% |
 
-250 test cases across 22 files, plus an integration suite that runs
+281 test cases across 23 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 

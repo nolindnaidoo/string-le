@@ -20,6 +20,7 @@ pub(crate) mod ini;
 pub(crate) mod json;
 pub(crate) mod locate;
 pub(crate) mod position;
+pub(crate) mod source;
 pub(crate) mod toml;
 pub(crate) mod yaml;
 
@@ -64,6 +65,10 @@ pub(crate) struct Found {
 /// back to quoted-string extraction rather than failing — the case that
 /// matters most here, because a source file full of user-facing copy
 /// takes exactly that path.
+///
+/// A source language whose literals the fallback would misread takes
+/// `source` instead; everything else still lands on the fallback, which
+/// is why an unknown name is an answer rather than a refusal.
 pub(crate) fn extract(text: &str, format: &str, options: Options) -> Vec<String> {
     let trimmed = text.trim();
     if trimmed.is_empty() {
@@ -76,7 +81,10 @@ pub(crate) fn extract(text: &str, format: &str, options: Options) -> Vec<String>
         "toml" => toml::extract(trimmed),
         "ini" => ini::extract(trimmed),
         "env" => dotenv::extract(trimmed),
-        _ => fallback::extract_with(trimmed, options.multiline),
+        other => match source::language(other) {
+            Some(language) => source::extract(trimmed, language),
+            None => fallback::extract_with(trimmed, options.multiline),
+        },
     }
 }
 
@@ -141,9 +149,9 @@ pub(crate) fn parse_error(text: &str, format: &str) -> Option<String> {
         "csv" => csv::parse_error(trimmed),
         "toml" => toml::parse_error(trimmed),
         "ini" => ini::parse_error(trimmed),
-        // dotenv and the fallback cannot fail to parse: one reads lines
-        // and the other matches quoted runs. Neither has a shape it can
-        // reject.
+        // dotenv, the source scanners and the fallback cannot fail to
+        // parse: one reads lines, one walks characters and one matches
+        // quoted runs. None of them has a shape it can reject.
         _ => None,
     }
 }
@@ -159,16 +167,30 @@ mod tests {
         assert!(parse_error("   ", "json").is_none());
     }
 
-    /// The case the audit story rests on: a source file is not a format
-    /// this parses, and falling back is the useful answer rather than a
+    /// The case the audit story rests on: a name nothing here knows is
+    /// still read, because falling back is a useful answer rather than a
     /// refusal.
     #[test]
     fn an_unknown_format_falls_back_rather_than_failing() {
         assert_eq!(
-            extract("const a = 'hello';", "typescript", Options::default()),
+            extract("const a = 'hello';", "klingon", Options::default()),
             ["hello"]
         );
-        assert!(parse_error("const a = 'hello';", "typescript").is_none());
+        assert!(parse_error("const a = 'hello';", "klingon").is_none());
+    }
+
+    /// A source language is read by its own scanner, not by the
+    /// quoted-run pattern: this docstring is one value, and the fallback
+    /// reports none.
+    #[test]
+    fn a_source_language_is_read_by_its_own_rules() {
+        let source = "def f():\n    \"\"\"One\ndocstring.\"\"\"\n";
+        assert_eq!(
+            extract(source, "python", Options::default()),
+            ["One\ndocstring."]
+        );
+        assert!(extract(source, FALLBACK_FORMAT, Options::default()).is_empty());
+        assert!(parse_error(source, "python").is_none());
     }
 
     #[test]

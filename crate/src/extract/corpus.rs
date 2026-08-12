@@ -22,6 +22,16 @@ pub(crate) fn document(name: &str) -> &'static str {
         "strings.txt" => include_str!("../../fixtures/documents/strings.txt"),
         "messages.ts" => include_str!("../../fixtures/documents/messages.ts"),
         "escapes.json" => include_str!("../../fixtures/documents/escapes.json"),
+        "strings.py" => include_str!("../../fixtures/documents/strings.py"),
+        "strings.rs" => include_str!("../../fixtures/documents/strings.rs"),
+        "strings.go" => include_str!("../../fixtures/documents/strings.go"),
+        "strings.sh" => include_str!("../../fixtures/documents/strings.sh"),
+        "strings.php" => include_str!("../../fixtures/documents/strings.php"),
+        "strings.rb" => include_str!("../../fixtures/documents/strings.rb"),
+        "strings.pl" => include_str!("../../fixtures/documents/strings.pl"),
+        "strings.cs" => include_str!("../../fixtures/documents/strings.cs"),
+        "strings.js" => include_str!("../../fixtures/documents/strings.js"),
+        "strings.ts" => include_str!("../../fixtures/documents/strings.ts"),
         other => panic!("the corpus has no document named {other}"),
     }
 }
@@ -83,16 +93,19 @@ mod tests {
 
     /// Every format the corpus exercises, so a new extractor cannot land
     /// without a case pinning it against the extension.
+    ///
+    /// Derived from the offered list rather than written out beside it:
+    /// a hand-kept second list is a list that goes stale the first time
+    /// a format is added.
     #[test]
     fn the_corpus_covers_every_extractor() {
         let corpus: Corpus = serde_json::from_str(CORPUS).expect("the corpus is valid JSON");
-        for format in ["json", "yaml", "csv", "toml", "ini", "env", "fallback"] {
+        for format in crate::extract::SUPPORTED_FORMATS {
             assert!(
                 corpus
                     .documents
                     .iter()
-                    .any(|case| case.file_type == format
-                        || format == "yaml" && case.file_type == "yml"),
+                    .any(|case| crate::extract::format::canonical(&case.file_type) == format),
                 "no corpus case reads {format}"
             );
         }

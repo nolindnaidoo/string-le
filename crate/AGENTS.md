@@ -22,7 +22,7 @@ file, for the person who did not — a QA lead, a compliance reviewer, a
 localisation owner, several of whom cannot be handed a checkout. Every
 decision below follows from that.
 
-**Status: released.** All seven extractors, both surfaces and
+**Status: released.** Every extractor, both surfaces and
 the test layers below are green. Releases go out through
 `release-crate.yml`, which is dispatch-only and refuses a version that
 crates.io already carries, has no changelog entry, would ship a tarball
@@ -33,8 +33,9 @@ reproduces.
 
 ```
 crate/src/
-├── extract/     pure: the seven extractors, the shared collection rule,
-│                positions. No filesystem, pub(crate).
+├── extract/     pure: the parsed formats, the source languages, the
+│                shared collection rule, positions. No filesystem,
+│                pub(crate).
 ├── walk.rs      ignore-aware tree walking
 ├── scan.rs      one file end to end — the only path either surface calls
 ├── cli.rs       the terminal surface
@@ -66,10 +67,14 @@ crate/src/
   extraction, because that is what the extension does and because a
   `.ts` file taking that path is the entire audit. A contract test
   asserts `--format klingon` exits 0.
-- **The fallback extractor is the main event.** A source file is where
-  the user-facing copy lives and it is not a format with a parser here.
-  Anything that would make the fallback a second-class path is a change
-  to what this tool is for.
+- **Source files are the main event.** That is where the user-facing
+  copy lives, so each language is read by its own literal syntax
+  (`extract/source.rs`) and everything still unrecognised takes the
+  quoted-run fallback. Anything that would make either a second-class
+  path is a change to what this tool is for.
+- **A per-language extractor never decides what counts as a string.** It
+  finds literals and hands them to `collect`, which answers that once
+  for every format. Two answers is how the frontends drift.
 - **This tool has no opinions, and that is the product.** No spell check,
   no banned-word list, no reading-level score, no guess at which strings
   are user-facing. Which strings matter is the reviewer's call, and a
@@ -84,10 +89,10 @@ crate/src/
   its own description says so. Positions belong to the CLI and to
   `string_le_scan`, which read the file themselves. A test asserts the
   shared tool's values are bare strings.
-- **Positions come from one forward cursor for all seven formats**, and a
-  value that cannot be located reports none. Per-format spans would
-  locate more, at the cost of a position-preserving parser each; the
-  `unlocated` count is what says whether that is worth buying. Never
+- **Positions come from one forward cursor for every format but JSON**,
+  and a value that cannot be located reports none. Per-format spans
+  would locate more, at the cost of a position-preserving parser each;
+  the `unlocated` count is what says whether that is worth buying. Never
   report a nearby guess.
 - **One crate, self-contained.** No published `-core`, no shared crate,
   and nothing holding this code equal to the similar files in the

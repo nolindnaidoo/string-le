@@ -21,6 +21,18 @@ export const extractFallback: Extractor = (
 	return Object.freeze(strings);
 };
 
+/**
+ * The inside of every quoted run, exactly as the source spells it.
+ *
+ * Exported so the per-language extractor can reuse the pattern on a
+ * comment body without reusing the trimming: what counts as a string is
+ * collectStrings' question, and answering it twice is how two frontends
+ * start to disagree.
+ */
+export function quotedRuns(text: string): readonly string[] {
+	return findQuotedStrings(text).map(removeQuotes);
+}
+
 function findQuotedStrings(text: string): string[] {
 	return text.match(QUOTED_STRING_REGEX) ?? [];
 }

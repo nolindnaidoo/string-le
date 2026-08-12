@@ -73,16 +73,27 @@ question was malformed. Finding none is an answer, not an error.
 
 No runtime, no network, nothing written.
 
-## The fallback is the main event
+## Source files are the main event
 
-Six formats are parsed — **JSON, YAML, CSV, TOML, INI and dotenv** — and
-anything else falls back to quoted runs: single, double or backtick.
+Six formats are parsed — **JSON, YAML, CSV, TOML, INI and dotenv**. Ten
+source languages are read by their own literal syntax — **Python, Rust,
+Go, shell, PHP, Ruby, Perl, C#, JavaScript, TypeScript**. Anything else
+falls back to quoted runs: single, double or backtick.
 
-That fallback is not a consolation prize. A `.ts`, `.py`, `.go` or
-`.java` file is not a format with a parser here, so it lands exactly
-there — and the quoted strings in a source file are the user-facing copy
-the reviewer came for. **An unrecognised format is a normal, useful
-answer**, which is why it is not an error.
+That matters because a quoted-run pattern reads every source file
+through a JavaScript-shaped lens, and on real code the lens is wrong:
+
+| input | quoted runs | its own language |
+|---|---|---|
+| a Python docstring | missed entirely | one value |
+| Rust `r#"a raw "quoted" string"#` | `a raw`, `string` | one value, quotes intact |
+| a Go backtick string | missed entirely | one value |
+| a shell heredoc | missed entirely | one value |
+| a C# verbatim string | three fragments | one value |
+
+The fallback is still not a consolation prize: **an unrecognised format
+is a normal, useful answer**, which is why it is not an error, and
+`--format fallback` asks for it deliberately.
 
 The trade is honest: unquoted prose yields nothing. Point this at a
 README and you get nothing back, correctly.
@@ -111,9 +122,10 @@ Each value is reported with its file and, where it can be found in the
 source, a 1-based line and column in **UTF-16 units** — the number your
 editor shows.
 
-**JSON is placed by its parser; the other six by a forward search over the
-source.** Where a parser hands back real ranges they win, so a JSON value
-is always located even when its escapes mean it appears nowhere literally.
+**JSON is placed by its parser; everything else by a forward search over
+the source.** Where a parser hands back real ranges they win, so a JSON
+value is always located even when its escapes mean it appears nowhere
+literally.
 
 **The rest can miss, and the report says how many.** A parser resolves
 escapes and folds scalars, so a YAML block scalar and a CSV cell with an
@@ -125,11 +137,12 @@ is the difference between a limitation and a lie.
 ## Where it goes further than the extension
 
 **`--multiline`.** JavaScript's `.` does not match a newline, so the
-extension's quoted-run pattern cannot span lines and a multi-line
-template literal is invisible to it. That is an email body, a help
-paragraph, a consent notice — the copy an audit least wants to miss, and
-a terminal has no reason to inherit a limit that exists because a regex
-in an editor did not set a flag.
+quoted-run pattern cannot span lines. The flag belongs to the *fallback*:
+a Python docstring, a Go raw string, a heredoc and a template literal
+span lines because their languages say so and need no flag at all. What
+is left is a multi-line run in a format nothing here parses — an email
+body, a help paragraph, a consent notice — the copy an audit least wants
+to miss.
 
 It is off by default, so the default answer is the extension's answer,
 and the shared corpus keeps the two honest.
@@ -152,8 +165,8 @@ contract test asserts no flag asks for a judgment.
 --format <format>    force a format instead of inferring from the name;
                      an unknown name falls back rather than failing
 --values             print only the values, one per line, for piping
---multiline          let a quoted run span lines, so a multi-line
-                     template literal is read too
+--multiline          let a *fallback* quoted run span lines; a language
+                     whose own syntax spans lines needs no flag
 --csv-header         skip the first CSV row
 --csv-column <n>     take only this 0-based CSV column
 --stdin              read one document from stdin

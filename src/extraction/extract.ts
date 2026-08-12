@@ -4,6 +4,7 @@ import { extractDotenv } from './formats/dotenv';
 import { extractFallback } from './formats/fallback';
 import { extractIni } from './formats/ini';
 import { extractJson } from './formats/json';
+import { SOURCE_EXTRACTORS } from './formats/source';
 import { extractToml } from './formats/toml';
 import { extractYaml } from './formats/yaml';
 
@@ -15,7 +16,15 @@ const EXTRACTORS: Readonly<Record<string, Extractor>> = Object.freeze({
 	toml: extractToml,
 	ini: extractIni,
 	env: extractDotenv,
+	// Prose has no literals. Naming markdown is a way of asking for the
+	// quoted runs a fenced code block and a backtick span leave behind,
+	// which is what it has always got.
+	markdown: extractFallback,
+	md: extractFallback,
 	fallback: extractFallback,
+	// One entry per source language and per name a caller might send for
+	// it, built from the table in source.ts so the two cannot drift.
+	...SOURCE_EXTRACTORS,
 });
 
 const EMPTY_RESULT: readonly string[] = Object.freeze([]);

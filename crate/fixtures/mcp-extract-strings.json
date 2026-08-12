@@ -115,10 +115,96 @@
 		}
 	},
 	{
+		"name": "a python document, docstring included",
+		"file": "strings.py",
+		"arguments": {
+			"format": "python"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"Module docstring.\n\nTwo lines, one string.",
+					"the docs",
+					"Greet a user politely.",
+					"Hello, {name}!",
+					"\\d+ items",
+					"bytes",
+					"raw bytes",
+					"single quoted",
+					"a # inside a string"
+				],
+				"fileType": "python"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 9,
+				"truncated": false
+			}
+		}
+	},
+	{
+		"name": "a rust raw string is one value",
+		"file": "strings.rs",
+		"arguments": {
+			"filename": "strings.rs"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"the docs",
+					"a raw \"quoted\" string",
+					"holds a \"# sequence",
+					"C:\\Users\\test",
+					"payload",
+					"say \\\"hi\\\"",
+					"first\nsecond"
+				],
+				"fileType": "rust"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 7,
+				"truncated": false
+			}
+		}
+	},
+	{
+		"name": "a shell heredoc is one value",
+		"file": "strings.sh",
+		"arguments": {
+			"format": "sh"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"the docs",
+					"The heredoc body.\nSecond line.",
+					"No $expansion here.",
+					"tab indented body",
+					"double quoted",
+					"single quoted",
+					"$file"
+				],
+				"fileType": "shellscript"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 7,
+				"truncated": false
+			}
+		}
+	},
+	{
 		"name": "an unknown format falls back rather than failing",
 		"file": "messages.ts",
 		"arguments": {
-			"format": "typescript"
+			"format": "klingon"
 		},
 		"expected": {
 			"ok": true,

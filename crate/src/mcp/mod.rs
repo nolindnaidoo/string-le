@@ -427,7 +427,7 @@ mod tests {
     fn an_unknown_format_falls_back_rather_than_failing() {
         let response = call(
             "extract_strings",
-            &json!({ "content": "const a = 'copy';", "format": "typescript" }),
+            &json!({ "content": "const a = 'copy';", "format": "klingon" }),
         );
         assert_eq!(response["result"]["isError"], false);
         let envelope = &response["result"]["structuredContent"];

@@ -29,11 +29,12 @@ checkout at all. That is the whole reason this half exists: the extension
 answers this for one buffer for the person who wrote it, and this answers
 it for a repository, into a file, for the person who did not.
 
-It follows that **the fallback extractor is the main event, not the edge
-case.** A `.ts` file is not a format this parses, so it falls through to
-quoted-string extraction — and the quoted strings in a `.ts` file are
-exactly the user-facing copy the reviewer came for. An unrecognised
-format is a normal, useful answer here, which is why it is not an error.
+It follows that **source files are the main event, not the edge case.**
+The user-facing copy lives in `.py`, `.ts`, `.go` and `.rs`, so those are
+read by their own literal syntax, and anything still unrecognised falls
+through to quoted-string extraction rather than being refused. An
+unrecognised format is a normal, useful answer here, which is why it is
+not an error.
 
 ## Shape
 
@@ -45,8 +46,9 @@ right twice; where they diverge that is the point.
 ```
 crate/
 ├── src/
-│   ├── extract/    pure: the seven extractors, value collection,
-│   │               positions. No filesystem, pub(crate).
+│   ├── extract/    pure: the parsed formats, the source languages,
+│   │               value collection, positions. No filesystem,
+│   │               pub(crate).
 │   ├── walk.rs     ignore-aware tree walking and format detection
 │   ├── scan.rs     one file end to end — the only path either surface calls
 │   ├── cli.rs      the terminal surface
@@ -59,15 +61,27 @@ floor per module**.
 
 ## Extraction — parity scope
 
-### Seven extractors, one collection rule
+### Seventeen formats, one collection rule
 
-`json`, `yaml`, `csv`, `toml`, `ini`, `env`, and `fallback` for
-everything else. Aliases resolve as the extension resolves them —
-`jsonc`→json, `yml`→yaml, `tsv`→csv, `cfg`/`conf`→ini, `dotenv`→env — and
-a name that resolves to nothing is `fallback` rather than a refusal.
+Six parsed: `json`, `yaml`, `csv`, `toml`, `ini`, `env`. Ten source
+languages read by their own literal syntax: `python`, `rust`, `go`,
+`shellscript`, `php`, `ruby`, `perl`, `csharp`, `javascript`,
+`typescript`. And `fallback` — quoted runs — for everything else,
+`markdown` included.
+
+Aliases resolve as the extension resolves them, and carry both the VS
+Code language id and the file extension, because one frontend dispatches
+on the id it is handed and the other on the name of a file it walked:
+`jsonc`→json, `yml`→yaml, `tsv`→csv, `cfg`/`conf`→ini, `dotenv`→env,
+`py`→python, `rs`→rust, `sh`/`bash`/`zsh`→shellscript, `rb`→ruby,
+`pl`/`pm`→perl, `cs`→csharp, `js`/`jsx`/`mjs`/`cjs`/`javascriptreact`→
+javascript, `ts`/`tsx`/`mts`/`cts`/`typescriptreact`→typescript,
+`md`/`markdown`→fallback. A name that resolves to nothing is `fallback`
+rather than a refusal.
 
 The four parsed formats (`json`, `yaml`, `toml`, `ini`) share one rule,
-ported from `collectStrings`:
+ported from `collectStrings`, and **the source languages hand their
+literals to the same rule** rather than answering it a second time:
 
 - **keys are never extracted, only values**
 - non-string primitives are dropped — in a typed format a bare `42` is a
@@ -82,6 +96,62 @@ inline comments removed from unquoted values only, surrounding quotes
 removed. `csv` reads every cell, with optional header skip and optional
 single-column selection. `fallback` takes quoted runs — double, single
 or backtick.
+
+### The source languages
+
+The quoted-run pattern reads every source file through a
+JavaScript-shaped lens, and on real code that lens is wrong rather than
+merely coarse:
+
+| input | fallback | language |
+|---|---|---|
+| Python `"""a docstring"""` spanning lines | missed entirely | one value |
+| Rust `r#"a raw "quoted" string"#` | `a raw`, `string` | one value, quotes intact |
+| Go `` `raw` `` spanning lines | missed entirely | one value |
+| shell `<<EOF … EOF` | missed entirely | one value |
+| C# `@"He said ""hi"""` | three fragments | one value |
+
+What each language adds:
+
+- **Python** — triple-quoted `"""…"""` and `'''…'''`, and the `r`, `b`,
+  `u`, `f` prefixes in any order or case.
+- **Rust** — raw strings with any number of hashes (`r"…"`, `r#"…"#`,
+  `r##"…"##`), byte and C-string prefixes, nested block comments, and
+  character literals skipped so `'"'` cannot open a run.
+- **Go** — backtick raw strings, interpreted strings that stop at the
+  line, runes skipped.
+- **Shell, PHP, Ruby, Perl** — heredocs: `<<EOF`, `<<'EOF'`, `<<-EOF`,
+  `<<<EOT`, `<<<'NOW'`, `<<~EOS`. A body whose closing tag never arrives
+  is not a heredoc.
+- **C#** — verbatim `@"…"` where `""` is one quote, interpolated `$"…"`,
+  and both together in either order.
+- **JavaScript / TypeScript** — template literals as **one** value,
+  interpolation and nested templates included.
+
+**Three deliberate divergences from the naive fallback**, each of them a
+fact about the language rather than a judgment about the string:
+
+1. **A run may span lines when its language says it may** — a Python
+   triple-quote, a Go or Rust raw string, a template literal, a heredoc.
+   This needs no `--multiline`, because it is not a divergence from the
+   extension: the extension runs the same scanner.
+2. **A character literal is not a string.** `'a'` in Rust, Go and C# is
+   dropped, the way a bare `42` is dropped in a typed format.
+3. **An unterminated run is not a string.** The apostrophe in
+   `don't` costs itself a value rather than costing the rest of the file
+   its meaning.
+
+**Two things are kept from the fallback on purpose.** Escapes are *not*
+resolved — a backslash in the source survives into the value, which is
+also what lets a value be found again and given a position. And a comment
+is text like any other: its quoted runs are read with the fallback
+pattern, so language awareness buys correct literals without quietly
+deciding a string in a comment does not count.
+
+**Known limits, stated rather than discovered.** A regex literal
+containing a quote is read as though the quote opened a run, which dies
+at the end of the line. Ruby's `%w[]`/`%q()` forms and Perl's `q()`/`qq{}`
+are not recognised. Markdown is prose, so it takes the fallback.
 
 ### The order is the contract
 
@@ -101,7 +171,7 @@ and a 1-based line and column when the value can be located in the
 source. This is outside parity scope — the extension has nothing to
 disagree with.
 
-**JSON is placed by its parser; the other six by a forward cursor.** The
+**JSON is placed by its parser; everything else by a forward cursor.** The
 jsonc AST carries a range for every literal, so JSON needs no search and
 can place the values a search never finds. The cursor walks the source
 matching each extracted value in turn from where the previous one ended;
@@ -165,8 +235,8 @@ Options:
                        file name; an unknown name falls back rather than
                        failing
   --values             print only the values, one per line, for piping
-  --multiline          let a quoted run span lines, so a multi-line
-                       template literal is read too
+  --multiline          let a *fallback* quoted run span lines; a language
+                       whose own syntax spans lines needs no flag
   --csv-header         skip the first CSV row
   --csv-column <n>     take only this 0-based CSV column
   --stdin              read one document from stdin
@@ -195,13 +265,14 @@ person this was built for.
 Three places, each opt-in or reported, never silent.
 
 **`--multiline`.** JavaScript's `.` does not match a newline without the
-`s` flag, so the extension's quoted-run pattern cannot span lines and a
-multi-line template literal is invisible to it. Off by default, so the
-default answer is the extension's answer. Asked for, the fallback reads
-those runs — an email body, a help paragraph, a consent notice is exactly
-the copy an audit least wants to miss, and the terminal has no reason to
-inherit a limit that exists because a regex in an editor did not set a
-flag.
+`s` flag, so the quoted-run pattern cannot span lines. It belongs to the
+**fallback** only: a language whose own syntax spans lines is read that
+way with no flag, because there the extension does the same. Off by
+default, so the default answer is the extension's answer. Asked for, the
+fallback reads those runs too — an email body, a help paragraph, a
+consent notice is exactly the copy an audit least wants to miss, and the
+terminal has no reason to inherit a limit that exists because a regex in
+an editor did not set a flag.
 
 **Nesting limits.** Each parser here guards its own depth — jsonc-parser
 at 512, saphyr at 256 — below the 1000 the extension's walk stops at. A
@@ -226,10 +297,10 @@ Everything else is parity, and the corpus is what proves it.
 
 ## Not in v1
 
-- **Parser-exact spans for the other six formats.** JSON has them because
-  its parser already carried ranges; TOML, YAML and CSV would each need a
-  position-preserving parser bought for the purpose. The `unlocated`
-  count is what says whether that is worth it.
+- **Parser-exact spans for the formats a cursor places.** JSON has them
+  because its parser already carried ranges; TOML, YAML and CSV would
+  each need a position-preserving parser bought for the purpose. The
+  `unlocated` count is what says whether that is worth it.
 - **CSV streaming.** The extension streams for large files because it
   must stay responsive in an editor; a CLI that reads a file and exits
   has no such constraint.

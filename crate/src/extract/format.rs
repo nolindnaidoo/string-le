@@ -11,7 +11,12 @@
 /// Ported from the extension's `ALIASES` rather than re-derived: two
 /// frontends disagreeing about whether `conf` is INI is two frontends
 /// reading the same file differently.
-const ALIASES: [(&str, &str); 12] = [
+///
+/// The source languages carry both the VS Code language id and the file
+/// extension, because one frontend dispatches on the id it is handed and
+/// the other on the name of a file it walked. A language read here and
+/// not there would be the same tool answering two ways.
+const ALIASES: [(&str, &str); 43] = [
     ("json", "json"),
     ("jsonc", "json"),
     ("yaml", "yaml"),
@@ -24,12 +29,68 @@ const ALIASES: [(&str, &str); 12] = [
     ("conf", "ini"),
     ("env", "env"),
     ("dotenv", "env"),
+    ("python", "python"),
+    ("py", "python"),
+    ("rust", "rust"),
+    ("rs", "rust"),
+    ("go", "go"),
+    ("shellscript", "shellscript"),
+    ("sh", "shellscript"),
+    ("bash", "shellscript"),
+    ("zsh", "shellscript"),
+    ("php", "php"),
+    ("ruby", "ruby"),
+    ("rb", "ruby"),
+    ("perl", "perl"),
+    ("pl", "perl"),
+    ("pm", "perl"),
+    ("csharp", "csharp"),
+    ("cs", "csharp"),
+    ("javascript", "javascript"),
+    ("javascriptreact", "javascript"),
+    ("js", "javascript"),
+    ("jsx", "javascript"),
+    ("mjs", "javascript"),
+    ("cjs", "javascript"),
+    ("typescript", "typescript"),
+    ("typescriptreact", "typescript"),
+    ("ts", "typescript"),
+    ("tsx", "typescript"),
+    ("mts", "typescript"),
+    ("cts", "typescript"),
+    // Prose has no literals. Naming it is a way of asking for the
+    // quoted runs a fenced code block and a backtick span leave behind,
+    // which is what it has always got.
+    ("markdown", "fallback"),
+    ("md", "fallback"),
 ];
 
 /// The formats a caller can name, for the tool schema's enum. Held equal
 /// to the alias table by a test, so a format can never be offered and
 /// then not resolve.
-pub(crate) const SUPPORTED_FORMATS: [&str; 6] = ["json", "yaml", "csv", "toml", "ini", "env"];
+///
+/// `fallback` is nameable on purpose: now that a `.py` file is read as
+/// Python, asking for the quoted runs instead has to be something a
+/// caller can say.
+pub(crate) const SUPPORTED_FORMATS: [&str; 17] = [
+    "json",
+    "yaml",
+    "csv",
+    "toml",
+    "ini",
+    "env",
+    "python",
+    "rust",
+    "go",
+    "shellscript",
+    "php",
+    "ruby",
+    "perl",
+    "csharp",
+    "javascript",
+    "typescript",
+    "fallback",
+];
 
 /// What the engine uses when it recognises nothing.
 pub(crate) const FALLBACK_FORMAT: &str = "fallback";
@@ -103,8 +164,33 @@ mod tests {
             ("cfg", "ini"),
             ("conf", "ini"),
             ("dotenv", "env"),
+            ("py", "python"),
+            ("rs", "rust"),
+            ("bash", "shellscript"),
+            ("rb", "ruby"),
+            ("cs", "csharp"),
+            ("javascriptreact", "javascript"),
+            ("tsx", "typescript"),
+            ("md", "fallback"),
         ] {
             assert_eq!(resolve_format(Some(alias), None), expected, "{alias}");
+        }
+    }
+
+    /// A source file is now read as its own language rather than through
+    /// the quoted-run lens, and the filename is enough to say which.
+    #[test]
+    fn a_source_file_resolves_to_its_language() {
+        for (filename, expected) in [
+            ("main.rs", "rust"),
+            ("app.py", "python"),
+            ("server.go", "go"),
+            ("deploy.sh", "shellscript"),
+            ("Widget.cs", "csharp"),
+            ("index.tsx", "typescript"),
+            ("README.md", "fallback"),
+        ] {
+            assert_eq!(resolve_format(None, Some(filename)), expected, "{filename}");
         }
     }
 
@@ -132,10 +218,10 @@ mod tests {
     /// reads a source file.
     #[test]
     fn anything_unrecognised_falls_back() {
-        for name in ["typescript", "rust", "", "wat"] {
+        for name in ["klingon", "", "wat"] {
             assert_eq!(resolve_format(Some(name), None), FALLBACK_FORMAT, "{name}");
         }
-        assert_eq!(resolve_format(None, Some("main.rs")), FALLBACK_FORMAT);
+        assert_eq!(resolve_format(None, Some("notes.rtf")), FALLBACK_FORMAT);
         assert_eq!(resolve_format(None, Some("Makefile")), FALLBACK_FORMAT);
         assert_eq!(resolve_format(None, None), FALLBACK_FORMAT);
     }

@@ -13,6 +13,37 @@ separate product on its own cadence and keeps its own
 
 ### Added
 
+- **Ten source languages read by their own literal syntax** — Python,
+  Rust, Go, shell, PHP, Ruby, Perl, C#, JavaScript and TypeScript — where
+  before every one of them went through the quoted-run fallback. That
+  fallback reads a source file through a JavaScript-shaped lens, and on
+  real code the lens is wrong: a Python docstring spanning lines was
+  missed entirely, `r#"a raw "quoted" string"#` came back as the two
+  fragments `a raw` and `string`, a Go backtick string and a shell
+  heredoc were not there at all, and a C# `@"He said ""hi"""` split into
+  three.
+
+  Each language hands its literals to the existing `collectStrings`, so
+  "what counts as a string" is still answered once. Escapes stay
+  unresolved and a comment's quoted runs are still read, because
+  language awareness is about literals, not about deciding which strings
+  matter.
+
+  `markdown` now resolves too — to the fallback, deliberately: prose has
+  no literals. The MCP tool's `format` enum grows to seventeen names,
+  `fallback` among them, so asking for quoted runs on a `.py` file is
+  something a caller can say.
+
+### Changed
+
+- **Extraction output changes for every source file.** A `.ts` document
+  now reports `fileType: "typescript"` rather than `"fallback"`, a
+  template literal spanning lines is one value where it used to be
+  invisible, and an apostrophe in `don't` no longer opens a run that eats
+  the rest of the line. The shared corpus in `crate/fixtures/` pins all
+  of it, and a new drift check holds the extension's alias table to the
+  crate's, name by name.
+
 - A **Rust CLI and MCP server**, in [`crate/`](crate/README.md), to be
   published to crates.io as `string-le`. It runs
   the same extraction over a whole tree, with exit codes following grep —
