@@ -22,7 +22,7 @@ file, for the person who did not — a QA lead, a compliance reviewer, a
 localisation owner, several of whom cannot be handed a checkout. Every
 decision below follows from that.
 
-**Status: built, unpublished.** All seven extractors, both surfaces and
+**Status: released.** All seven extractors, both surfaces and
 the test layers below are green. Releases go out through
 `release-crate.yml`, which is dispatch-only and refuses a version that
 crates.io already carries, has no changelog entry, would ship a tarball
