@@ -30,9 +30,13 @@ with its own `CLAUDE.md`.
   list, no "this looks user-facing" guess — see SPEC.md. Contract tests
   on both surfaces enforce it.
 - `fixtures/` is shared with the extension — changing it changes both
-  frontends and needs a CHANGELOG entry. The extension is the reference
-  implementation for extraction; a difference is a regression until
-  SPEC.md says otherwise.
+  frontends and needs a CHANGELOG entry. **What it holds equal is the
+  shared `extract_strings` MCP tool**, which must answer identically from
+  either server; a difference there is a bug. The surfaces themselves
+  are IDE-first and terminal-first and are meant to differ —
+  the walk, `--multiline`, `--strict`, `--dedupe`, the exit codes and JSON Lines have no
+  editor equivalent and are not drift. SPEC.md's "Deliberate
+  divergences" is the bar for a new one.
 - Write regression tests for every bug you fix; keep unit tests free of
   clocks, randomness, and the filesystem outside `walk`/`scan`.
 - **Run the binary, not only the tests.** Two parity breaks got through a

@@ -4,10 +4,11 @@ A port of the [String-LE](https://github.com/nolindnaidoo/string-le) VS
 Code extension to a Rust CLI and MCP server: get every string value out
 of a codebase so a person can read them.
 
-**Parity first.** For extraction, the extension is the reference
-implementation. The values this produces for a given document, and the
-order they come in, must match what the extension produces. A difference
-is a regression until proven otherwise.
+**One answer is held equal; the surfaces are not.** The shared
+`extract_strings` MCP tool must return the same values and the order they come in
+from either server — a difference there is a bug. Everything else is
+IDE-first in the extension and terminal-first here, and is meant to
+differ. See "Deliberate divergences".
 
 ## The one question
 
