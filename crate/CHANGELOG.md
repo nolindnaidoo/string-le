@@ -159,8 +159,6 @@ which strings are user-facing. Which strings matter is the reviewer's
 call, and a tool that pre-filtered would decide the audit before the
 auditor saw it. A contract test asserts no flag asks for a judgment.
 
-[0.2.0]: https://github.com/nolindnaidoo/string-le/releases/tag/crate-v0.2.0
-[0.1.0]: https://github.com/nolindnaidoo/string-le/releases/tag/crate-v0.1.0
 
 ### Fixed
 
@@ -182,3 +180,6 @@ auditor saw it. A contract test asserts no flag asks for a judgment.
 - **A file that is not text is named rather than dropped.** It used to
   vanish from the report entirely, which reads to whoever ran it as
   "that file was clean".
+
+[0.2.0]: https://crates.io/crates/string-le/0.2.0
+[0.1.0]: https://crates.io/crates/string-le/0.1.0
