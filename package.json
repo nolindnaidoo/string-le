@@ -2,7 +2,7 @@
 	"name": "string-le",
 	"publisher": "nolindnaidoo",
 	"displayName": "Strings-LE",
-	"description": "Zero Hassle Extraction from JSON, YAML, CSV, TOML, INI, and .ENV",
+	"description": "Extract every string in a codebase, with its position, so a person can read them",
 	"version": "2.3.0",
 	"license": "MIT",
 	"author": {
