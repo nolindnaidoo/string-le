@@ -9,7 +9,7 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
-## [2.3.0] - 2026-08-12
+## [2.3.0] - 2026-08-14
 
 Source files are where the copy in a codebase actually lives, and until
 now String-LE read every one of them the same way: look for quotes, take
