@@ -68,7 +68,7 @@ question was malformed. Finding none is an answer, not an error.
 
 | Route | Command | Worth knowing |
 |---|---|---|
-| **cargo** | `cargo install string-le` | Any platform, needs **Rust 1.88+**. *(publishing shortly)* |
+| **cargo** | `cargo install string-le` | Any platform, needs **Rust 1.88+**. |
 | **From source** | `git clone https://github.com/nolindnaidoo/string-le`<br>`cd string-le/crate && cargo build --release` | The same build CI runs. |
 
 No runtime, no network, nothing written.
@@ -207,7 +207,7 @@ strings is a result, not an error.
 | **Any MCP agent, via Node** | `extract_strings` over stdio | `npx string-le-mcp` · [npm](https://www.npmjs.com/package/string-le-mcp) |
 | **Zed** | The MCP server as a context server | [add it by hand](https://zed.dev/docs/ai/mcp) *(no listing yet)* |
 
-All ten LE tools are on **[letools.dev](https://letools.dev)**.
+All sixteen LE tools are on **[letools.dev](https://letools.dev)**.
 
 ## More from the LE family
 
@@ -243,6 +243,7 @@ Each stands on its own: no shared crate, no published core. Where two of them
 agree, it is because the same answer was right twice.
 
 **Contact** — [nolindnaidoo.com](https://nolindnaidoo.com) · [GitHub](https://github.com/nolindnaidoo) · [LinkedIn](https://www.linkedin.com/in/nolindnaidoo/)
+
 ## Also by nolindnaidoo
 
 **Rust** — pixelcoords and pixelactions are one loop: pixelcoords answers

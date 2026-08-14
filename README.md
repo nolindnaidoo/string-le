@@ -17,6 +17,9 @@
   <a href="https://www.npmjs.com/package/string-le-mcp">
     <img src="https://img.shields.io/npm/v/string-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="string-le-mcp on npm" />
   </a>
+  <a href="https://crates.io/crates/string-le">
+    <img src="https://img.shields.io/crates/v/string-le?style=for-the-badge&label=Rust%20CLI&color=blue&logo=rust" alt="string-le on crates.io" />
+  </a>
   <a href="https://letools.dev/tools/string-le">
     <img src="https://img.shields.io/badge/LE%20Tools-letools.dev-blue?style=for-the-badge" alt="LE Tools" />
   </a>
@@ -40,6 +43,16 @@ Open a file, press `Ctrl+Alt+E` (`Cmd+Alt+E` on Mac), and every string value in 
 - **i18n prep** — flatten locale files (JSON/YAML) into a clean list of translatable values
 - **Config review** — see every string value in a TOML/INI/.env file at a glance
 - **CSV mining** — pull one column, several, or all of them; stream very large files
+
+## Install
+
+| Where | What you get | Install |
+|---|---|---|
+| **VS Code** | The same extraction, in your editor, on a keystroke | [Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le) |
+| **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/OffensiveEdge/string-le) |
+| **A terminal or a CI step** | The same run over a whole tree, with exit codes | `cargo install string-le` · [crates.io](https://crates.io/crates/string-le) |
+| **Any MCP agent, via Node** | `extract_strings` over stdio | `npx string-le-mcp` · [npm](https://www.npmjs.com/package/string-le-mcp) |
+| **Zed** | The MCP server as a context server | [add it by hand](https://zed.dev/docs/ai/mcp) *(no listing yet)* |
 
 ## Use it from an AI agent
 
@@ -76,7 +89,7 @@ Most hosts read a JSON config. Add one entry:
 }
 ```
 
-`-y` skips the install prompt on first run. Pin a version if you would rather not track releases — `string-le-mcp@2.2.1`.
+`-y` skips the install prompt on first run. Pin a version if you would rather not track releases — `string-le-mcp@2.3.0`.
 
 Prefer not to go through `npx` on every launch? Install it once and point at the binary instead:
 
@@ -157,19 +170,6 @@ extraction rather than being refused.
 question was malformed — so finding nothing is an answer rather than an
 error.
 
-Install it with `cargo install string-le` once it is published; until
-then it builds from `crate/`. The spec
-([`crate/SPEC.md`](crate/SPEC.md)) and the engineering standard
-([`crate/AGENTS.md`](crate/AGENTS.md)) live alongside it, and it keeps
-its own [CHANGELOG](crate/CHANGELOG.md).
-
-**Two MCP servers, one tool.** `string-le mcp` offers `extract_strings`
-exactly as [`string-le-mcp`](https://www.npmjs.com/package/string-le-mcp)
-does — [`crate/fixtures/mcp-extract-strings.json`](crate/fixtures/mcp-extract-strings.json)
-runs against both and CI fails if they diverge. Take the npm one if Node
-is already there; take the binary if you want no runtime, or if you want
-`string_le_scan` too.
-
 ## Commands
 
 | Command | Description |
@@ -220,19 +220,15 @@ setting of its own.
 - **The MCP server holds the same line.** It takes content as an argument and returns data: no filesystem access, no network calls, no telemetry. Your agent already has file-read tools, so duplicating them inside the server would add a path-traversal surface for no capability. `check:mcp-bundle` fails the build if the server ever imports something that could reach either.
 - Error notifications redact home directories and credential-shaped fragments.
 
-## Development
+## Documentation
 
-```bash
-bun install
-bun run build            # esbuild bundle -> dist/extension.js
-bun run typecheck        # tsc --noEmit (includes tests)
-bun run test             # vitest unit suite
-bun run test:integration # real VS Code extension host
-bun run lint             # biome
-bun run package          # VSIX into release/
-```
-
-Architecture and conventions live in [AGENTS.md](AGENTS.md). Changes are tracked in [CHANGELOG.md](CHANGELOG.md).
+| What | Where |
+|---|---|
+| What the tool is allowed to say — scope, output contract, refusals, non-goals | [`crate/SPEC.md`](crate/SPEC.md) |
+| How the extension is built and held together — architecture, invariants, toolchain, release | [AGENTS.md](AGENTS.md) |
+| How the CLI is built and held together | [`crate/AGENTS.md`](crate/AGENTS.md) |
+| What changed | [CHANGELOG.md](CHANGELOG.md) · [`crate/CHANGELOG.md`](crate/CHANGELOG.md) |
+| The tool's page, and the other fifteen | [letools.dev/tools/string-le](https://letools.dev/tools/string-le) |
 
 ## Performance
 
@@ -305,6 +301,7 @@ Each stands on its own: no shared crate, no published core. Where two of them
 agree, it is because the same answer was right twice.
 
 **Contact** — [nolindnaidoo.com](https://nolindnaidoo.com) · [GitHub](https://github.com/nolindnaidoo) · [LinkedIn](https://www.linkedin.com/in/nolindnaidoo/)
+
 ## Also by nolindnaidoo
 
 **Rust** — pixelcoords and pixelactions are one loop: pixelcoords answers
