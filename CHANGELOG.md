@@ -71,6 +71,12 @@ both directions.
   property, which takes in combining marks that `\p{L}` leaves out. Two
   spellings of one rule is how two frontends start to disagree.
 
+- **New icon artwork.** All sixteen tools were redrawn in one style, so
+  the family reads as one set wherever the listings sit side by side —
+  the Marketplace, Open VSX and letools.dev. The framing is unchanged:
+  the drawing fills 65.8% of an 800×800 canvas, and every smaller size
+  is derived from that one file rather than drawn again.
+
 ### Added — the command line
 
 - A **Rust CLI and MCP server**, in [`crate/`](crate/README.md),
