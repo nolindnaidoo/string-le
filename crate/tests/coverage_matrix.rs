@@ -70,8 +70,11 @@ fn offered() -> Vec<String> {
 fn document(format: &str) -> &'static str {
     match format {
         "json" => "{\"a\":\"value\"}\n",
+        // The two loosenings that define the format, so this document
+        // is one the strict reader would refuse.
+        "jsonc" => "{\n  // a comment\n  \"a\": \"value\",\n}\n",
         "yaml" => "a: \"value\"\n",
-        "csv" => "value\n",
+        "csv" | "tsv" => "value\n",
         "ini" => "a = value\n",
         "env" => "A=value\n",
         "python" => "x = \"value\"\n",

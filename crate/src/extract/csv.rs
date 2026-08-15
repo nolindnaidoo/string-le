@@ -8,8 +8,15 @@
 
 use super::Options;
 
-pub(crate) fn extract(text: &str, options: Options) -> Vec<String> {
-    let Ok(rows) = rows(text) else {
+/// The byte between cells. Tab-separated files are the same grammar
+/// with a different one, and reading a tab row on commas made the whole
+/// row a single cell — so `Alice\tHello, world` came back as the two
+/// values `Alice\tHello` and `world`, neither of which is in the file.
+pub(crate) const COMMA: u8 = b',';
+pub(crate) const TAB: u8 = b'\t';
+
+pub(crate) fn extract(text: &str, options: Options, delimiter: u8) -> Vec<String> {
+    let Ok(rows) = rows(text, delimiter) else {
         return Vec::new();
     };
     let start = usize::from(options.csv_has_header);
@@ -99,9 +106,17 @@ fn trim_around_quotes(text: &str) -> Result<String, String> {
     Ok(out)
 }
 
-fn rows(text: &str) -> Result<Vec<Vec<String>>, String> {
-    let text = trim_around_quotes(text)?;
+fn rows(text: &str, delimiter: u8) -> Result<Vec<Vec<String>>, String> {
+    // The quote-trim repair below is comma-only on purpose: it exists
+    // for ` "b, c"`, a shape hand-written CSV has and a tab file does
+    // not, and a tab is whitespace to that pass.
+    let text = if delimiter == COMMA {
+        trim_around_quotes(text)?
+    } else {
+        text.to_string()
+    };
     csv::ReaderBuilder::new()
+        .delimiter(delimiter)
         // csv-parse's `columns: false`: every record is cells, and the
         // first row is not special until a caller says it is.
         .has_headers(false)
@@ -122,8 +137,8 @@ fn rows(text: &str) -> Result<Vec<Vec<String>>, String> {
 /// `rows` already names the format in every error it returns, so this
 /// adds nothing: prefixing again produced `Invalid CSV: Invalid CSV: …`
 /// on the one message a reader ever sees.
-pub(crate) fn parse_error(text: &str) -> Option<String> {
-    rows(text).err()
+pub(crate) fn parse_error(text: &str, delimiter: u8) -> Option<String> {
+    rows(text, delimiter).err()
 }
 
 #[cfg(test)]
@@ -136,7 +151,7 @@ mod tests {
 
     #[test]
     fn every_cell_is_a_value() {
-        assert_eq!(extract("a,b\nc,d", plain()), ["a", "b", "c", "d"]);
+        assert_eq!(extract("a,b\nc,d", plain(), COMMA), ["a", "b", "c", "d"]);
     }
 
     /// The header is data until the caller says it is a header. That is
@@ -148,8 +163,11 @@ mod tests {
             csv_has_header: true,
             ..plain()
         };
-        assert_eq!(extract("name,city\nAda,London", plain()).len(), 4);
-        assert_eq!(extract("name,city\nAda,London", with), ["Ada", "London"]);
+        assert_eq!(extract("name,city\nAda,London", plain(), COMMA).len(), 4);
+        assert_eq!(
+            extract("name,city\nAda,London", with, COMMA),
+            ["Ada", "London"]
+        );
     }
 
     #[test]
@@ -159,7 +177,7 @@ mod tests {
             csv_column: Some(1),
             ..plain()
         };
-        assert_eq!(extract("a,b\n1,2\n3,4", options), ["2", "4"]);
+        assert_eq!(extract("a,b\n1,2\n3,4", options, COMMA), ["2", "4"]);
     }
 
     #[test]
@@ -168,35 +186,38 @@ mod tests {
             csv_column: Some(2),
             ..plain()
         };
-        assert_eq!(extract("a,b,c\nd,e", options), ["c"]);
+        assert_eq!(extract("a,b,c\nd,e", options, COMMA), ["c"]);
     }
 
     #[test]
     fn empty_cells_are_dropped() {
-        assert_eq!(extract("a,,b", plain()), ["a", "b"]);
+        assert_eq!(extract("a,,b", plain(), COMMA), ["a", "b"]);
     }
 
     #[test]
     fn cells_are_trimmed() {
-        assert_eq!(extract("  padded  ,b", plain()), ["padded", "b"]);
+        assert_eq!(extract("  padded  ,b", plain(), COMMA), ["padded", "b"]);
     }
 
     /// A numeric-looking cell is text: CSV has no types.
     #[test]
     fn numeric_cells_are_strings() {
-        assert_eq!(extract("1,2.5", plain()), ["1", "2.5"]);
+        assert_eq!(extract("1,2.5", plain(), COMMA), ["1", "2.5"]);
     }
 
     #[test]
     fn a_quoted_cell_may_contain_the_delimiter() {
-        assert_eq!(extract("\"a,b\",c", plain()), ["a,b", "c"]);
+        assert_eq!(extract("\"a,b\",c", plain(), COMMA), ["a,b", "c"]);
     }
 
     /// An escaped quote is resolved by the parser, so the value is not
     /// the source spelling — which is why it cannot be located.
     #[test]
     fn an_escaped_quote_is_resolved() {
-        assert_eq!(extract("\"say \"\"hi\"\"\"", plain()), [r#"say "hi""#]);
+        assert_eq!(
+            extract("\"say \"\"hi\"\"\"", plain(), COMMA),
+            [r#"say "hi""#]
+        );
     }
 
     /// csv-parse trims a cell and then decides whether it is quoted;
@@ -205,16 +226,19 @@ mod tests {
     /// hand-written CSV is full of that space.
     #[test]
     fn whitespace_before_a_quoted_field_does_not_break_it() {
-        assert_eq!(extract("a, \"b, c\"", plain()), ["a", "b, c"]);
-        assert_eq!(extract(" \"x\"\"y\" ,c", plain()), ["x\"y", "c"]);
-        assert_eq!(extract("a,\" spaced \"", plain()), ["a", "spaced"]);
+        assert_eq!(extract("a, \"b, c\"", plain(), COMMA), ["a", "b, c"]);
+        assert_eq!(extract(" \"x\"\"y\" ,c", plain(), COMMA), ["x\"y", "c"]);
+        assert_eq!(extract("a,\" spaced \"", plain(), COMMA), ["a", "spaced"]);
     }
 
     /// Whitespace inside a quoted field is content, not padding.
     #[test]
     fn whitespace_inside_a_quoted_field_survives_the_pre_pass() {
-        assert_eq!(extract("\"a  b\",c", plain()), ["a  b", "c"]);
-        assert_eq!(extract("\"multi\nline\",b", plain()), ["multi\nline", "b"]);
+        assert_eq!(extract("\"a  b\",c", plain(), COMMA), ["a  b", "c"]);
+        assert_eq!(
+            extract("\"multi\nline\",b", plain(), COMMA),
+            ["multi\nline", "b"]
+        );
     }
 
     /// The extension's parser fails here and reports it; the `csv` crate
@@ -222,8 +246,8 @@ mod tests {
     /// where there should be none.
     #[test]
     fn an_unterminated_quote_is_a_parse_failure() {
-        assert!(extract("a,\"unterminated", plain()).is_empty());
-        let message = parse_error("a,\"unterminated").expect("a reason");
+        assert!(extract("a,\"unterminated", plain(), COMMA).is_empty());
+        let message = parse_error("a,\"unterminated", COMMA).expect("a reason");
         assert!(message.starts_with("Invalid CSV: "), "{message}");
         assert!(
             !message.starts_with("Invalid CSV: Invalid CSV: "),
@@ -233,7 +257,7 @@ mod tests {
 
     #[test]
     fn ragged_rows_are_data_not_failure() {
-        assert_eq!(extract("a,b,c\nd", plain()), ["a", "b", "c", "d"]);
-        assert!(parse_error("a,b,c\nd").is_none());
+        assert_eq!(extract("a,b,c\nd", plain(), COMMA), ["a", "b", "c", "d"]);
+        assert!(parse_error("a,b,c\nd", COMMA).is_none());
     }
 }

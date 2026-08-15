@@ -16,6 +16,8 @@ pub(crate) fn document(name: &str) -> &'static str {
         "strings.json" => include_str!("../../fixtures/documents/strings.json"),
         "strings.yaml" => include_str!("../../fixtures/documents/strings.yaml"),
         "strings.csv" => include_str!("../../fixtures/documents/strings.csv"),
+        "strings.tsv" => include_str!("../../fixtures/documents/strings.tsv"),
+        "strings.jsonc" => include_str!("../../fixtures/documents/strings.jsonc"),
         "strings.toml" => include_str!("../../fixtures/documents/strings.toml"),
         "strings.ini" => include_str!("../../fixtures/documents/strings.ini"),
         "strings.env" => include_str!("../../fixtures/documents/strings.env"),

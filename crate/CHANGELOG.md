@@ -7,6 +7,35 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-08-15
+
+Three formats named a reader that could not read them. An audit drove
+the binary instead of reading the spec.
+
+### Fixed
+
+- **`.conf` and `.cfg` are read by the quoted-run scan.** They named the
+  INI reader, which accepts free-form text as a valid document holding
+  no values — so an sshd config's `Banner "Authorized users only."` came
+  back as nothing at all, with an empty `diagnostics` and exit 1. That
+  is a file reading to whoever ran it as a file that was clean.
+  `.properties` keeps the INI reader.
+
+- **`.tsv` is read with a tab.** It named the comma reader, so
+  `Alice\tHello, world` came back as the two values `Alice\tHello` and
+  `world` — neither of which is in the document. This one did not merely
+  lose values; it invented them.
+
+- **`.jsonc` reads comments and trailing commas.** It named the strict
+  reader, which rejects both.
+
+### Added
+
+- `jsonc` and `tsv` are formats in their own right, with corpus
+  documents pinning each, and a contract test — observed failing before
+  the fix — asserting that a named format reads the document it was
+  named for.
+
 ## [0.2.2] - 2026-08-15
 
 ### Added
@@ -209,6 +238,7 @@ auditor saw it. A contract test asserts no flag asks for a judgment.
   vanish from the report entirely, which reads to whoever ran it as
   "that file was clean".
 
+[0.3.0]: https://crates.io/crates/string-le/0.3.0
 [0.2.2]: https://crates.io/crates/string-le/0.2.2
 [0.2.1]: https://crates.io/crates/string-le/0.2.1
 [0.2.0]: https://crates.io/crates/string-le/0.2.0

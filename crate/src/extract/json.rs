@@ -23,8 +23,8 @@ use jsonc_parser::{CollectOptions, ParseOptions, parse_to_ast};
 /// `\n` or `\"` has no literal occurrence in the document, and on this
 /// family's own repositories that was every unlocated value in the
 /// largest format.
-pub(crate) fn extract_spanned(text: &str) -> Vec<(String, usize)> {
-    let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &strict()) else {
+pub(crate) fn extract_spanned(text: &str, comments: bool) -> Vec<(String, usize)> {
+    let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &options(comments)) else {
         return Vec::new();
     };
     let Some(root) = result.value else {
@@ -59,8 +59,8 @@ fn visit_spanned(node: &Node, values: &mut Vec<(String, usize)>) {
     }
 }
 
-pub(crate) fn extract(text: &str) -> Vec<String> {
-    let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &strict()) else {
+pub(crate) fn extract(text: &str, comments: bool) -> Vec<String> {
+    let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &options(comments)) else {
         // A parse failure is nothing found, matching the extension: it
         // reports the error through `onParseError` and returns an empty
         // array. The CLI surfaces that as a diagnostic on the report, so
@@ -75,11 +75,14 @@ pub(crate) fn extract(text: &str) -> Vec<String> {
     values
 }
 
-fn strict() -> ParseOptions {
+/// The two loosenings that define JSONC, and nothing else. `.jsonc`
+/// named the strict reader, so a comment — the one thing the format
+/// exists for — made the document unreadable.
+fn options(comments: bool) -> ParseOptions {
     ParseOptions {
-        allow_comments: false,
+        allow_comments: comments,
         allow_loose_object_property_names: false,
-        allow_trailing_commas: false,
+        allow_trailing_commas: comments,
         allow_missing_commas: false,
         allow_single_quoted_strings: false,
         allow_hexadecimal_numbers: false,
@@ -117,8 +120,8 @@ fn visit_object(object: &Object, values: &mut Vec<String>) {
 }
 
 /// Why the document yielded nothing, when the reason is a parse failure.
-pub(crate) fn parse_error(text: &str) -> Option<String> {
-    parse_to_ast(text, &CollectOptions::default(), &strict())
+pub(crate) fn parse_error(text: &str, comments: bool) -> Option<String> {
+    parse_to_ast(text, &CollectOptions::default(), &options(comments))
         .err()
         .map(|error| format!("Invalid JSON: {error}"))
 }
@@ -129,13 +132,13 @@ mod tests {
 
     #[test]
     fn string_values_are_extracted_and_keys_are_not() {
-        assert_eq!(extract(r#"{"key":"value"}"#), ["value"]);
+        assert_eq!(extract(r#"{"key":"value"}"#, false), ["value"]);
     }
 
     #[test]
     fn non_string_primitives_are_dropped() {
         assert_eq!(
-            extract(r#"{"a":42,"b":true,"c":null,"d":"kept"}"#),
+            extract(r#"{"a":42,"b":true,"c":null,"d":"kept"}"#, false),
             ["kept"]
         );
     }
@@ -143,7 +146,7 @@ mod tests {
     #[test]
     fn nesting_is_followed_in_document_order() {
         let document = r#"{"a":"one","b":{"c":"two","d":["three","four"]}}"#;
-        assert_eq!(extract(document), ["one", "two", "three", "four"]);
+        assert_eq!(extract(document, false), ["one", "two", "three", "four"]);
     }
 
     /// The reason this walks the AST. A hash-ordered map would answer
@@ -159,13 +162,13 @@ mod tests {
                 .join(",")
         );
         let expected: Vec<String> = (0..64).map(|n| format!("v{n}")).collect();
-        assert_eq!(extract(&document), expected);
+        assert_eq!(extract(&document, false), expected);
     }
 
     #[test]
     fn values_are_trimmed_and_empty_ones_dropped() {
         assert_eq!(
-            extract(r#"{"a":"  padded  ","b":"","c":"   "}"#),
+            extract(r#"{"a":"  padded  ","b":"","c":"   "}"#, false),
             ["padded"]
         );
     }
@@ -175,8 +178,14 @@ mod tests {
     /// such a value cannot be located in the document.
     #[test]
     fn escapes_are_resolved() {
-        assert_eq!(extract(r#"{"a":"first\nsecond"}"#), ["first\nsecond"]);
-        assert_eq!(extract(r#"{"a":"she said \"hi\""}"#), [r#"she said "hi""#]);
+        assert_eq!(
+            extract(r#"{"a":"first\nsecond"}"#, false),
+            ["first\nsecond"]
+        );
+        assert_eq!(
+            extract(r#"{"a":"she said \"hi\""}"#, false),
+            [r#"she said "hi""#]
+        );
     }
 
     /// The values and their order are the same either way; only the
@@ -184,18 +193,18 @@ mod tests {
     #[test]
     fn the_spanned_walk_yields_the_same_values_in_the_same_order() {
         let document = r#"{"a":"one","b":{"c":"two","d":["three","four"]}}"#;
-        let spanned: Vec<String> = extract_spanned(document)
+        let spanned: Vec<String> = extract_spanned(document, false)
             .into_iter()
             .map(|(value, _)| value)
             .collect();
-        assert_eq!(spanned, extract(document));
+        assert_eq!(spanned, extract(document, false));
     }
 
     /// The offset points at the text, not at the quote around it.
     #[test]
     fn a_span_starts_inside_the_quotes() {
         let document = r#"{"a":"one"}"#;
-        let (value, offset) = extract_spanned(document)[0].clone();
+        let (value, offset) = extract_spanned(document, false)[0].clone();
         assert_eq!(value, "one");
         assert_eq!(&document[offset..offset + value.len()], "one");
     }
@@ -204,35 +213,35 @@ mod tests {
     /// literal occurrence to search for, and the span knows anyway.
     #[test]
     fn a_resolved_escape_still_has_a_span() {
-        let spanned = extract_spanned(r#"{"a":"first\nsecond"}"#);
+        let spanned = extract_spanned(r#"{"a":"first\nsecond"}"#, false);
         assert_eq!(spanned[0].0, "first\nsecond");
         assert_eq!(spanned[0].1, 6);
     }
 
     #[test]
     fn a_broken_document_yields_nothing_and_says_why() {
-        assert!(extract("{not json").is_empty());
+        assert!(extract("{not json", false).is_empty());
         assert!(
-            parse_error("{not json")
+            parse_error("{not json", false)
                 .expect("a message")
                 .contains("Invalid JSON")
         );
-        assert!(parse_error(r#"{"a":"b"}"#).is_none());
+        assert!(parse_error(r#"{"a":"b"}"#, false).is_none());
     }
 
     /// The loosenings are off, so this reads what `JSON.parse` reads and
     /// nothing more.
     #[test]
     fn comments_and_trailing_commas_are_not_accepted() {
-        assert!(parse_error(r#"{"a":"b"} // trailing comment"#).is_some());
-        assert!(parse_error(r#"{"a":"b",}"#).is_some());
-        assert!(parse_error(r"{'a':'b'}").is_some());
+        assert!(parse_error(r#"{"a":"b"} // trailing comment"#, false).is_some());
+        assert!(parse_error(r#"{"a":"b",}"#, false).is_some());
+        assert!(parse_error(r"{'a':'b'}", false).is_some());
     }
 
     /// An empty document is a valid parse of nothing, not a failure.
     #[test]
     fn an_empty_object_is_not_an_error() {
-        assert!(extract("{}").is_empty());
-        assert!(parse_error("{}").is_none());
+        assert!(extract("{}", false).is_empty());
+        assert!(parse_error("{}", false).is_none());
     }
 }

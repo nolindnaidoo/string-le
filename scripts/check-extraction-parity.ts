@@ -66,6 +66,18 @@ interface DocumentCase {
 	readonly fileType: string;
 	readonly options: Record<string, unknown>;
 	readonly expected: readonly string[];
+	/**
+	 * A format the crate reads and this extension does not.
+	 *
+	 * **What the two frontends owe each other is the shared `extract_strings`
+	 * tool's answer, not the same list of readers.** The crate is the
+	 * terminal-first surface and is free to read a format the editor has no
+	 * language id for; holding it back until the extension grows one would
+	 * make drift management outrank being right. The case still runs on the
+	 * crate side — `cargo test` walks the whole corpus — and it is named
+	 * below so a skip is never silent.
+	 */
+	readonly crateOnly?: boolean;
 }
 
 function checkDocuments(): void {
@@ -74,7 +86,12 @@ function checkDocuments(): void {
 	};
 	if (corpus.documents.length === 0) fail('the corpus has no documents');
 
+	const skipped: string[] = [];
 	for (const testCase of corpus.documents) {
+		if (testCase.crateOnly === true) {
+			skipped.push(`${testCase.name} (${testCase.fileType})`);
+			continue;
+		}
 		const actual = [
 			...extractStrings(
 				readDocument(testCase.file),
@@ -87,6 +104,11 @@ function checkDocuments(): void {
 				`document "${testCase.name}":\n  expected: ${JSON.stringify(testCase.expected)}\n  got:      ${JSON.stringify(actual)}`,
 			);
 		}
+	}
+	if (skipped.length > 0) {
+		console.log(
+			`crate-only formats, checked by cargo test and not here: ${skipped.join(', ')}`,
+		);
 	}
 }
 
@@ -180,7 +202,15 @@ function checkAliasTables(): void {
 	const pairs = [...aliases.matchAll(/\("([^"]+)",\s*"([^"]+)"\)/g)];
 	if (pairs.length === 0) fail('the crate alias table could not be read');
 
+	const offered = block(source, 'const SUPPORTED_FORMATS');
+	const formats = [...offered.matchAll(/"([^"]+)"/g)].map(([, name]) => name);
+	const crateOnly = formats.filter((name) => !SUPPORTED_FORMATS.includes(name));
+
+	// An alias is compared only when both frontends have the reader it
+	// names. The crate is terminal-first and may read a format the editor
+	// has no language id for.
 	for (const [, alias, key] of pairs) {
+		if (crateOnly.includes(key)) continue;
 		const resolved = resolveFormat(alias, undefined);
 		if (resolved !== key) {
 			fail(
@@ -189,11 +219,23 @@ function checkAliasTables(): void {
 		}
 	}
 
-	const offered = block(source, 'const SUPPORTED_FORMATS');
-	const formats = [...offered.matchAll(/"([^"]+)"/g)].map(([, name]) => name);
-	if (!deepEqual(formats, [...SUPPORTED_FORMATS])) {
+	// **The extension's readers must be a subset of the crate's, not equal
+	// to it.** What the two owe each other is the shared `extract_strings`
+	// tool answering the same way, and a format only one of them has is
+	// not that tool disagreeing — it is one surface reading more. The
+	// reverse would be a real failure: a format the editor offers and the
+	// terminal cannot read is a document the CLI turns away.
+	const missingFromCrate = SUPPORTED_FORMATS.filter(
+		(name) => !formats.includes(name),
+	);
+	if (missingFromCrate.length > 0) {
 		fail(
-			`the offered formats differ:\n  crate:     ${JSON.stringify(formats)}\n  extension: ${JSON.stringify(SUPPORTED_FORMATS)}`,
+			`the extension offers formats the crate does not read: ${JSON.stringify(missingFromCrate)}`,
+		);
+	}
+	if (crateOnly.length > 0) {
+		console.log(
+			`formats the crate reads and the extension does not: ${crateOnly.join(', ')}`,
 		);
 	}
 }

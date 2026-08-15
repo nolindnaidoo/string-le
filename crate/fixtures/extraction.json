@@ -17,6 +17,17 @@
 			]
 		},
 		{
+			"name": "strings.jsonc as jsonc",
+			"file": "strings.jsonc",
+			"fileType": "jsonc",
+			"options": {},
+			"expected": [
+				"Settings",
+				"Never mind"
+			],
+			"crateOnly": true
+		},
+		{
 			"name": "strings.yaml as yaml",
 			"file": "strings.yaml",
 			"fileType": "yaml",
@@ -73,6 +84,21 @@
 				"plain text",
 				"5"
 			]
+		},
+		{
+			"name": "strings.tsv as tsv",
+			"file": "strings.tsv",
+			"fileType": "tsv",
+			"options": {},
+			"expected": [
+				"name",
+				"message",
+				"Alice",
+				"Hello, world",
+				"Bob",
+				"She said hi"
+			],
+			"crateOnly": true
 		},
 		{
 			"name": "strings.csv as csv {\"csvHasHeader\":true}",
@@ -191,7 +217,7 @@
 				"readable",
 				"first\nsecond",
 				"she said \"hi\"",
-				"café",
+				"caf\u00e9",
 				"readable"
 			]
 		},
@@ -365,7 +391,7 @@
 			"options": {},
 			"expected": [
 				"Welcome back",
-				"Press ⌘K to search",
+				"Press \u2318K to search",
 				"You have ${count} unread messages"
 			]
 		},
@@ -507,7 +533,7 @@
 			"expected": [
 				"value",
 				"  ",
-				"﻿"
+				"\ufeff"
 			]
 		}
 	]

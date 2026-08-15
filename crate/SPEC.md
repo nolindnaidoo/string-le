@@ -62,9 +62,16 @@ floor per module**.
 
 ## Extraction — parity scope
 
-### Seventeen formats, one collection rule
+### Nineteen formats, one collection rule
 
-Six parsed: `json`, `yaml`, `csv`, `toml`, `ini`, `env`. Ten source
+Eight parsed: `json`, `jsonc`, `yaml`, `csv`, `tsv`, `toml`, `ini`,
+`env`. `jsonc` is `json` with the two loosenings that define it, and
+`tsv` is `csv` with a tab; each is its own name because sharing one made
+the other unreadable — a comment made a `.jsonc` yield nothing, and a
+comma made `Alice\tHello, world` come back as two values that are not in
+the file. `.conf` and `.cfg` name no parser: they went to `ini`, which
+takes free-form text as a document holding no values, so an sshd or
+nginx config read as a file that was clean. Ten source
 languages read by their own literal syntax: `python`, `rust`, `go`,
 `shellscript`, `php`, `ruby`, `perl`, `csharp`, `javascript`,
 `typescript`. And `fallback` — quoted runs — for everything else,

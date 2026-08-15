@@ -16,17 +16,15 @@
 /// extension, because one frontend dispatches on the id it is handed and
 /// the other on the name of a file it walked. A language read here and
 /// not there would be the same tool answering two ways.
-const ALIASES: [(&str, &str); 43] = [
+const ALIASES: [(&str, &str); 41] = [
     ("json", "json"),
-    ("jsonc", "json"),
+    ("jsonc", "jsonc"),
     ("yaml", "yaml"),
     ("yml", "yaml"),
     ("csv", "csv"),
-    ("tsv", "csv"),
+    ("tsv", "tsv"),
     ("toml", "toml"),
     ("ini", "ini"),
-    ("cfg", "ini"),
-    ("conf", "ini"),
     ("env", "env"),
     ("dotenv", "env"),
     ("python", "python"),
@@ -72,10 +70,12 @@ const ALIASES: [(&str, &str); 43] = [
 /// `fallback` is nameable on purpose: now that a `.py` file is read as
 /// Python, asking for the quoted runs instead has to be something a
 /// caller can say.
-pub(crate) const SUPPORTED_FORMATS: [&str; 17] = [
+pub(crate) const SUPPORTED_FORMATS: [&str; 19] = [
     "json",
+    "jsonc",
     "yaml",
     "csv",
+    "tsv",
     "toml",
     "ini",
     "env",
@@ -157,11 +157,9 @@ mod tests {
     #[test]
     fn the_extensions_aliases_are_honoured() {
         for (alias, expected) in [
-            ("jsonc", "json"),
+            ("jsonc", "jsonc"),
             ("yml", "yaml"),
-            ("tsv", "csv"),
-            ("cfg", "ini"),
-            ("conf", "ini"),
+            ("tsv", "tsv"),
             ("dotenv", "env"),
             ("py", "python"),
             ("rs", "rust"),

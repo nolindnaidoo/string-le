@@ -4,7 +4,7 @@
 <h1 align="center">Strings-LE: Zero Hassle String Extraction</h1>
 <p align="center">
   <b>Pull every string value out of the current file in one keystroke</b><br/>
-  <i>JSON, YAML, CSV, TOML, INI, Environment files, and ten source languages</i>
+  <i>JSON/JSONC, YAML, CSV/TSV, TOML, INI, Environment files, and ten source languages</i>
 </p>
 
 <p align="center">

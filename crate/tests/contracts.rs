@@ -444,3 +444,45 @@ fn the_cli_and_the_mcp_server_report_the_same_thing() {
         .clone();
     assert_eq!(from_mcp, from_cli, "the two surfaces disagree");
 }
+
+/// **Naming a format may never find less than not naming one, and a
+/// named format may never invent a value the file does not hold.**
+///
+/// Three shipped from one shape. `.conf` and `.cfg` named the INI
+/// reader, which accepts free-form text as a document with no values, so
+/// an sshd config reported nothing with an empty `diagnostics`. `.tsv`
+/// named the comma reader, so `Alice\tHello, world` came back as
+/// `Alice\tHello` and `world` — two values, neither of them in the file.
+/// `.jsonc` named the strict reader, which rejects the comment the
+/// format exists for.
+#[test]
+fn a_named_format_reads_the_document_it_was_named_for() {
+    let tree = Tree::new("named-formats");
+
+    let conf = tree.write("sshd.conf", "Port 22\nBanner \"Authorized users only.\"\n");
+    let text = tree.write("sshd.txt", "Port 22\nBanner \"Authorized users only.\"\n");
+    let values = |path: &std::path::Path| -> Vec<String> {
+        let run = run(&[&path.to_string_lossy()]);
+        reports(&run)[0]["strings"]
+            .as_array()
+            .expect("strings")
+            .iter()
+            .map(|s| s["value"].as_str().expect("a value").to_string())
+            .collect()
+    };
+    assert_eq!(values(&conf), values(&text));
+    assert_eq!(values(&conf), ["Authorized users only."]);
+
+    let tsv = tree.write("rows.tsv", "name\tmessage\nAlice\tHello, world\n");
+    assert_eq!(
+        values(&tsv),
+        ["name", "message", "Alice", "Hello, world"],
+        "a comma reader split the one cell that holds a comma"
+    );
+
+    let jsonc = tree.write(
+        "s.jsonc",
+        "{\n  // the point of the format\n  \"a\": \"one\",\n}\n",
+    );
+    assert_eq!(values(&jsonc), ["one"]);
+}

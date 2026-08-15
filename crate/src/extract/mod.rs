@@ -78,9 +78,11 @@ pub(crate) fn extract(text: &str, format: &str, options: Options) -> Vec<String>
         return Vec::new();
     }
     match format::canonical(format) {
-        "json" => json::extract(trimmed),
+        "json" => json::extract(trimmed, false),
+        "jsonc" => json::extract(trimmed, true),
         "yaml" => yaml::extract(trimmed),
-        "csv" => csv::extract(trimmed, options),
+        "csv" => csv::extract(trimmed, options, csv::COMMA),
+        "tsv" => csv::extract(trimmed, options, csv::TAB),
         "toml" => toml::extract(trimmed),
         "ini" => ini::extract(trimmed),
         "env" => dotenv::extract(trimmed),
@@ -117,16 +119,17 @@ pub(crate) fn examine(text: &str, format: &str, options: Options) -> Extraction 
     // literal occurrence in the document. Positions are outside parity
     // scope, so a format may be placed however it can be placed
     // honestly; the other six have no spans to offer.
-    if format::canonical(format) == "json" {
+    let canonical = format::canonical(format);
+    if canonical == "json" || canonical == "jsonc" {
         return Extraction {
-            found: json::extract_spanned(trimmed)
+            found: json::extract_spanned(trimmed, canonical == "jsonc")
                 .into_iter()
                 .map(|(value, offset)| Found {
                     value,
                     position: Some(index.at(offset + shift)),
                 })
                 .collect(),
-            parse_error: json::parse_error(trimmed),
+            parse_error: json::parse_error(trimmed, canonical == "jsonc"),
         };
     }
 
@@ -147,9 +150,11 @@ pub(crate) fn parse_error(text: &str, format: &str) -> Option<String> {
         return None;
     }
     match format::canonical(format) {
-        "json" => json::parse_error(trimmed),
+        "json" => json::parse_error(trimmed, false),
+        "jsonc" => json::parse_error(trimmed, true),
         "yaml" => yaml::parse_error(trimmed),
-        "csv" => csv::parse_error(trimmed),
+        "csv" => csv::parse_error(trimmed, csv::COMMA),
+        "tsv" => csv::parse_error(trimmed, csv::TAB),
         "toml" => toml::parse_error(trimmed),
         "ini" => ini::parse_error(trimmed),
         // dotenv, the source scanners and the fallback cannot fail to
