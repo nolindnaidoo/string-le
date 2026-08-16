@@ -9,6 +9,18 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
+## [Unreleased]
+
+### Changed
+
+- **New icon artwork.** A new drawing in the style the family is moving
+  to, framed like the rest of the set.
+
+### Fixed
+
+- **The agent-files check no longer times out on Windows.** A test-only
+  fix; nothing a user of the extension can observe.
+
 ## [2.3.0] - 2026-08-14
 
 Source files are where the copy in a codebase actually lives, and until
