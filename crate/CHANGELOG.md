@@ -7,6 +7,21 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-08-15
+
+### Fixed
+
+- **`.env.local` and its siblings are read as dotenv.** Resolution split
+  on the last dot, so `.env.local` and `.env.production` asked `local`
+  and `production` for a format, got nothing, and fell to the quoted-run
+  scan — which finds only what is quoted. An unquoted `NAME=plain`
+  vanished, while the `.env` beside it reported it.
+
+  The leading dot is the signal, so the check runs before `normalise`
+  strips it: reading `env.ts` as dotenv would silence a real source
+  file, which is the worse mistake. `.envrc` is direnv's shell script
+  and stays out. Both exclusions are pinned.
+
 ## [0.3.0] - 2026-08-15
 
 Three formats named a reader that could not read them. An audit drove
@@ -238,6 +253,7 @@ auditor saw it. A contract test asserts no flag asks for a judgment.
   vanish from the report entirely, which reads to whoever ran it as
   "that file was clean".
 
+[0.3.1]: https://crates.io/crates/string-le/0.3.1
 [0.3.0]: https://crates.io/crates/string-le/0.3.0
 [0.2.2]: https://crates.io/crates/string-le/0.2.2
 [0.2.1]: https://crates.io/crates/string-le/0.2.1

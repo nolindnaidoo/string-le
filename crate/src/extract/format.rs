@@ -136,11 +136,70 @@ pub(crate) fn resolve_format(format: Option<&str>, filename: Option<&str>) -> &'
         return whole;
     }
 
+    // **A dotenv file is `.env` and everything after it.** Splitting on
+    // the last dot asks `local` for a format and gets nothing, so
+    // `.env.local` fell to the quoted-run scan — which finds only what
+    // is quoted, so an unquoted `NAME=plain` vanished while the `.env`
+    // beside it read both values.
+    if is_dotenv(&super::text::trim(filename).to_lowercase()) {
+        return canonical("env");
+    }
+
     filename
         .rsplit_once('.')
         .map_or(FALLBACK_FORMAT, |(_, extension)| {
             canonical(&normalise(extension))
         })
+}
+
+/// Whether a filename names a dotenv file.
+///
+/// `.env` and any suffix of it — `.env.local`, `.env.production`,
+/// `.env.test.local` — plus the `<name>.env` spelling.
+///
+/// **The leading dot is the signal**, so this takes the name before
+/// `normalise` strips it. Without it `env.ts` — an ordinary TypeScript
+/// file — would read as dotenv, which is the worse mistake: it silences
+/// a real source file rather than adding noise to a config. `.envrc` is
+/// direnv's shell script and is likewise not a dotenv file.
+fn is_dotenv(name: &str) -> bool {
+    name == ".env"
+        || name.starts_with(".env.")
+        || name == "env"
+        || name
+            .strip_suffix(".env")
+            .is_some_and(|stem| !stem.is_empty())
+}
+
+#[cfg(test)]
+mod dotenv_tests {
+    use super::resolve_format;
+
+    /// Not only a miss: the quoted-run fallback finds only what is
+    /// quoted, so an unquoted value disappeared from a `.env.local`
+    /// while the `.env` beside it reported it.
+    #[test]
+    fn every_dotenv_spelling_resolves() {
+        for name in [
+            ".env",
+            ".env.local",
+            ".env.production",
+            ".env.test.local",
+            "app.env",
+            "env",
+        ] {
+            assert_eq!(resolve_format(None, Some(name)), "env", "{name}");
+        }
+    }
+
+    /// The exclusions matter more than the inclusions: reading a source
+    /// file as dotenv would silence it.
+    #[test]
+    fn a_name_that_merely_starts_with_env_is_not_dotenv() {
+        for name in [".envrc", "environment.json", "env.ts", "sender.env.rs"] {
+            assert_ne!(resolve_format(None, Some(name)), "env", "{name}");
+        }
+    }
 }
 
 #[cfg(test)]
