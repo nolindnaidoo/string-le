@@ -48,7 +48,7 @@ rust-ini = "0.21"
 # YAML. js-yaml is YAML 1.2 with the core schema, and so is this — the
 # `yes`/`no`-are-booleans behaviour that would change which values are
 # strings belongs to YAML 1.1 and is in neither.
-saphyr = "0.0.11"
+saphyr = "0.1.0"
 # CSV, matching csv-parse's options: no headers of its own, flexible
 # record length, relaxed quoting.
 csv = "1"
