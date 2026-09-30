@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "Mostrar solo errores",
 	"manifest.settings.open.new-file.desc": "Abre los resultados del posprocesamiento en un nuevo editor, en lugar de sobrescribir el archivo.",
 	"manifest.settings.open.side-by-side.desc": "Al abrir la extracción, se abre un nuevo editor en una ventana lateral, en lugar de sustituir al editor actual.",
+	"manifest.settings.fallback.multiline.desc": "En un formato que no se analiza aquí, permite que una cadena entre comillas abarque varias líneas, para leer también plantillas o mensajes de varias líneas. Los lenguajes cuyas cadenas ya abarcan líneas —comillas triples de Python, literales de plantilla, cadenas sin procesar— ya se leen así.",
 	"manifest.settings.parse-errors.desc": "Mostrar mensajes de error si falla el análisis sintáctico.",
 	"manifest.settings.safety.enabled.desc": "Activa las comprobaciones de seguridad para archivos de gran tamaño, resultados y divisiones de documentos.",
 	"manifest.settings.safety.warn.file-size.desc": "Avisar si el tamaño del archivo supera este límite.",

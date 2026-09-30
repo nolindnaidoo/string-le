@@ -306,9 +306,9 @@ Three places, each opt-in or reported, never silent.
 way with no flag, because there the extension does the same. Off by
 default, so the default answer is the extension's answer. Asked for, the
 fallback reads those runs too — an email body, a help paragraph, a
-consent notice is exactly the copy an audit least wants to miss, and the
-terminal has no reason to inherit a limit that exists because a regex in
-an editor did not set a flag.
+consent notice is exactly the copy an audit least wants to miss. The
+extension has the same switch, `string-le.fallback.multiline`, and the
+shared `extract_strings` tool takes it as `multiline` on both servers.
 
 **Nesting limits.** Each parser here guards its own depth — jsonc-parser
 at 512, saphyr at 256 — below the 1000 the extension's walk stops at. A
@@ -342,7 +342,7 @@ is one tool with two servers, and an agent must get the same answer
 whichever it reaches. The surfaces are meant to differ: the extension is
 IDE-first, for one open buffer, and this is terminal-first, for trees,
 exit codes and pipes. The walk, `--strict`, `--values`, `--dedupe`, the
-exit codes, JSON Lines and `--multiline` are this half's alone, and are
+exit codes and JSON Lines are this half's alone, and are
 not held against the other.
 
 ## Non-goals

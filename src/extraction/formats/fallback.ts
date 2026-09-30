@@ -1,6 +1,9 @@
 import type { Extractor } from '../../types';
 
 const QUOTED_STRING_REGEX = /(["'`])(?:(?=(\\?))\2.)*?\1/g;
+// The same run with `[\s\S]` for `.`, so it may span lines: opt-in, as
+// in the crate's `--multiline`.
+const QUOTED_MULTILINE_REGEX = /(["'`])(?:(?=(\\?))\2[\s\S])*?\1/g;
 const EMPTY_RESULT: readonly string[] = Object.freeze([]);
 
 /**
@@ -9,9 +12,11 @@ const EMPTY_RESULT: readonly string[] = Object.freeze([]);
  */
 export const extractFallback: Extractor = (
 	text,
-	_options,
+	options,
 ): readonly string[] => {
-	const matches = findQuotedStrings(text);
+	const matches = options?.multiline
+		? (text.match(QUOTED_MULTILINE_REGEX) ?? [])
+		: findQuotedStrings(text);
 
 	if (matches.length === 0) {
 		return EMPTY_RESULT;

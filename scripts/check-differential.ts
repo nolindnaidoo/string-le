@@ -285,6 +285,7 @@ interface Case {
 	readonly format: string;
 	readonly content: string;
 	readonly dedupe: boolean;
+	readonly multiline: boolean;
 }
 
 function cases(): Case[] {
@@ -296,6 +297,7 @@ function cases(): Case[] {
 			format,
 			content: document(format),
 			dedupe: chance(0.2),
+			multiline: chance(0.5),
 		});
 	}
 	return built;
@@ -379,6 +381,7 @@ async function checkGeneratedDocuments(): Promise<void> {
 				content: testCase.content,
 				format: testCase.format,
 				...(testCase.dedupe ? { dedupe: true } : {}),
+				...(testCase.multiline ? { multiline: true } : {}),
 			},
 		})),
 	);
@@ -388,6 +391,7 @@ async function checkGeneratedDocuments(): Promise<void> {
 			content: testCase.content,
 			format: testCase.format,
 			...(testCase.dedupe ? { dedupe: true } : {}),
+			...(testCase.multiline ? { multiline: true } : {}),
 		});
 		const fromCrate = replies.get(testCase.id);
 		if (canonical(fromExtension) === canonical(fromCrate)) continue;

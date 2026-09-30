@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "Afficher uniquement les erreurs",
 	"manifest.settings.open.new-file.desc": "Ouvrir les résultats du post-traitement dans un nouvel éditeur au lieu de remplacer le fichier.",
 	"manifest.settings.open.side-by-side.desc": "L'extraction en mode « ouvert » ouvre un nouvel éditeur à côté de l'éditeur actuel, au lieu de le remplacer.",
+	"manifest.settings.fallback.multiline.desc": "Pour un format qui n'est pas analysé ici, autorise une chaîne entre guillemets à s'étendre sur plusieurs lignes, afin de lire aussi les modèles ou messages multilignes. Les langages dont les chaînes s'étendent déjà sur plusieurs lignes — triples guillemets Python, littéraux de gabarit, chaînes brutes — sont déjà lus ainsi.",
 	"manifest.settings.parse-errors.desc": "Afficher les messages d'erreur en cas d'échec de l'analyse.",
 	"manifest.settings.safety.enabled.desc": "Activer les contrôles de sécurité pour les fichiers volumineux, les sorties et le fractionnement de documents.",
 	"manifest.settings.safety.warn.file-size.desc": "Afficher un message d'avertissement si la taille du fichier dépasse ce seuil.",

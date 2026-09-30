@@ -120,8 +120,8 @@ fn tool_definitions() -> Value {
                         "type": "boolean",
                         "default": false,
                         "description": "Let a quoted run span lines, so a multi-line template \
-                                        literal is read too. The editor extension cannot do \
-                                        this, so the two then answer differently on purpose.",
+                                        literal is read too, as the extension's \
+                                        `string-le.fallback.multiline` setting does.",
                     },
                     "hidden": {
                         "type": "boolean",

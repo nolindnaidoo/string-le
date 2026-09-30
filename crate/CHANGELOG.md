@@ -7,6 +7,18 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **A quoted string can span lines in the fallback scan.** In a format
+  nothing here parses, a multi-line message or template was invisible,
+  because a quoted run stopped at the end of a line. The new
+  `string-le.fallback.multiline` setting, off by default, lets it span
+  lines, as the CLI's `--multiline` already did. The shared
+  `extract_strings` MCP tool takes the same `multiline`, on both servers.
+  Languages whose own strings span lines were already read that way.
+
 ## [0.3.1] - 2026-08-15
 
 ### Fixed

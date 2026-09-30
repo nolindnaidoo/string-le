@@ -66,7 +66,7 @@ The same engine runs as an [MCP](https://modelcontextprotocol.io) server, so an 
 | **Cursor, Windsurf, anything else** | point it at `npx string-le-mcp` |
 
 ```
-extract_strings(content, format?, filename?, dedupe?, maxResults?)
+extract_strings(content, format?, filename?, dedupe?, multiline?, maxResults?)
 ```
 
 Returns the values in document order, capped at 500 by default with `meta.truncated`. A format is optional — any unrecognised format falls back to quoted strings.
@@ -134,7 +134,7 @@ That prints the tool list and exits — if you see `extract_strings`, the server
 | JavaScript, TypeScript | `javascript`, `typescript` (+ the react ids) | Template literals as **one** string, interpolation and nesting included |
 | Markdown, anything else | `markdown` | Fallback scan for `"double"`, `'single'`, or `` `backtick` `` quoted strings on a single line |
 
-Values are trimmed; empty values are dropped; keys are never extracted — one rule, shared by every extractor above. The fallback scan cannot see unquoted or multi-line strings, which is why the parsed formats and the source languages get real readers. Parse errors are silent unless `string-le.showParseErrors` is on.
+Values are trimmed; empty values are dropped; keys are never extracted — one rule, shared by every extractor above. The fallback scan cannot see unquoted strings, which is why the parsed formats and the source languages get real readers; it reads a quoted run across lines when `string-le.fallback.multiline` is on (the MCP tool's `multiline`). Parse errors are silent unless `string-le.showParseErrors` is on.
 
 ## The CLI
 
@@ -253,11 +253,11 @@ a build only tells you how busy the runner was.
 | Metric | Coverage |
 | --- | --- |
 | Statements | 90.84% |
-| Branches | 83.48% |
+| Branches | 83.43% |
 | Functions | 97.24% |
-| Lines | 92.26% |
+| Lines | 92.27% |
 
-306 test cases across 24 files, plus an integration suite that runs
+310 test cases across 25 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 

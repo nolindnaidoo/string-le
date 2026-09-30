@@ -333,7 +333,7 @@ Order matters beyond this repo: npm must be published *before* any Zed registry 
 
 ## Known limitations (documented, not bugs)
 
-- The fallback scan (unknown file types) only finds single-line quoted strings; unquoted and multi-line strings are invisible to it.
+- The fallback scan (unknown file types) finds quoted strings only, never unquoted ones; a quoted run spans lines only with `string-le.fallback.multiline` (the shared tool's `multiline`, the CLI's `--multiline`), off by default in all three.
 - INI and .env are untyped formats: numeric-looking values are extracted as strings. Typed formats (JSON/YAML/TOML) drop numbers, booleans, and dates.
 - Streaming CSV mode disables deduplication (results never accumulate in memory) and never auto-copies to the clipboard.
 - Extraction order is parser traversal order (document order for all current formats); dedupe/sort operate on the flat result lines, not source positions.

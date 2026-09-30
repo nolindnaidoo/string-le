@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "Hanya tampilkan kesalahan",
 	"manifest.settings.open.new-file.desc": "Buka hasil pasca-pemrosesan di editor baru, bukan mengganti berkas tersebut.",
 	"manifest.settings.open.side-by-side.desc": "Hasil ekstraksi akan ditampilkan di editor baru yang muncul di samping, bukan menggantikan editor yang sedang digunakan.",
+	"manifest.settings.fallback.multiline.desc": "Untuk format yang tidak diurai di sini, izinkan string berkutip mencakup beberapa baris, sehingga template atau pesan multibaris juga terbaca. Bahasa yang string-nya memang bisa multibaris — kutip tiga Python, template literal, raw string — sudah dibaca demikian.",
 	"manifest.settings.parse-errors.desc": "Tampilkan pesan kesalahan jika proses penguraian gagal.",
 	"manifest.settings.safety.enabled.desc": "Aktifkan pemeriksaan keamanan untuk berkas berukuran besar, hasil keluaran, dan pemisahan dokumen.",
 	"manifest.settings.safety.warn.file-size.desc": "Berikan peringatan jika ukuran file melebihi batas ini.",

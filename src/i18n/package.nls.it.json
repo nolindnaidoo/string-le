@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "Mostra solo gli errori",
 	"manifest.settings.open.new-file.desc": "Apri i risultati della post-elaborazione in un nuovo editor invece di sostituire il file.",
 	"manifest.settings.open.side-by-side.desc": "L'estrazione apre una nuova finestra dell'editor a lato, anziché sostituire quella corrente.",
+	"manifest.settings.fallback.multiline.desc": "Per un formato che qui non viene analizzato, consente a una stringa tra virgolette di estendersi su più righe, così vengono letti anche modelli o messaggi multiriga. I linguaggi le cui stringhe si estendono già su più righe — virgolette triple di Python, template literal, stringhe raw — vengono già letti così.",
 	"manifest.settings.parse-errors.desc": "Visualizza i messaggi di errore in caso di errore durante l'analisi.",
 	"manifest.settings.safety.enabled.desc": "Abilita i controlli di sicurezza per file di grandi dimensioni, output e suddivisioni di documenti.",
 	"manifest.settings.safety.warn.file-size.desc": "Avvisare se la dimensione del file supera questa soglia.",

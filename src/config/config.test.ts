@@ -23,6 +23,7 @@ describe('config defaults parity with package.json', () => {
 		'string-le.copyToClipboardEnabled': 'copyToClipboardEnabled',
 		'string-le.csv.streamingEnabled': 'csvStreamingEnabled',
 		'string-le.dedupeEnabled': 'dedupeEnabled',
+		'string-le.fallback.multiline': 'fallbackMultiline',
 		'string-le.notificationsLevel': 'notificationsLevel',
 		'string-le.postProcess.openInNewFile': 'openInNewFile',
 		'string-le.openResultsSideBySide': 'openResultsSideBySide',

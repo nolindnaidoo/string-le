@@ -4,6 +4,8 @@ export type ExtractorOptions = Readonly<{
 	csvColumnIndex?: number;
 	csvColumnIndexes?: readonly number[];
 	selectAllColumns?: boolean;
+	/** Let a fallback quoted run span lines. */
+	multiline?: boolean;
 }>;
 
 export type Extractor = (

@@ -103,6 +103,7 @@ async function handleNormalExtraction(
 
 	const extractedStrings = extractStrings(text, fileType, {
 		...csvOptions,
+		multiline: config.fallbackMultiline,
 		onParseError: (message): void => {
 			if (config.showParseErrors) deps.notifier.error(message);
 		},

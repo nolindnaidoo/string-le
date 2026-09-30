@@ -12,6 +12,7 @@ export const CONFIG_DEFAULTS = Object.freeze({
 	copyToClipboardEnabled: false,
 	csvStreamingEnabled: false,
 	dedupeEnabled: false,
+	fallbackMultiline: false,
 	notificationsLevel: 'silent' as const,
 	openInNewFile: true,
 	openResultsSideBySide: true,
@@ -34,6 +35,11 @@ export function readConfig(): StringLeConfig {
 			cfg,
 			'dedupeEnabled',
 			CONFIG_DEFAULTS.dedupeEnabled,
+		),
+		fallbackMultiline: readBoolean(
+			cfg,
+			'fallback.multiline',
+			CONFIG_DEFAULTS.fallbackMultiline,
 		),
 		sortEnabled: readBoolean(cfg, 'sortEnabled', CONFIG_DEFAULTS.sortEnabled),
 		sortMode: readSortMode(cfg),
@@ -158,6 +164,7 @@ export function isValidNotificationLevel(
 
 export type StringLeConfig = Readonly<{
 	dedupeEnabled: boolean;
+	fallbackMultiline: boolean;
 	sortEnabled: boolean;
 	sortMode: SortMode;
 	showParseErrors: boolean;
