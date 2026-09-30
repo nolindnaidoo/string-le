@@ -9,6 +9,14 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
+## [Unreleased]
+
+### Fixed
+
+- **Two sort options were never translated.** "By length (short → long)"
+  and "(long → short)" showed in English in ten locales and title-cased
+  English in the other two; every locale now carries them in its language.
+
 ## [2.4.0] - 2026-09-30
 
 ### Added
