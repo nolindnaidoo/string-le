@@ -302,6 +302,52 @@
 		}
 	},
 	{
+		"name": "a fallback run stops at a line end by default",
+		"content": "notice = \"Your data is kept for\n30 days, then deleted.\"\nshort = \"one line\"\n",
+		"arguments": {
+			"format": "unknown"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"one line"
+				],
+				"fileType": "fallback"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 1,
+				"truncated": false
+			}
+		}
+	},
+	{
+		"name": "a fallback run spans lines when asked",
+		"content": "notice = \"Your data is kept for\n30 days, then deleted.\"\nshort = \"one line\"\n",
+		"arguments": {
+			"format": "unknown",
+			"multiline": true
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"Your data is kept for\n30 days, then deleted.",
+					"one line"
+				],
+				"fileType": "fallback"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 2,
+				"truncated": false
+			}
+		}
+	},
+	{
 		"name": "nothing to find",
 		"content": "",
 		"arguments": {

@@ -229,6 +229,11 @@
 					"minimum": 1,
 					"description": "%manifest.settings.safety.warn.many-documents.desc%"
 				},
+				"string-le.fallback.multiline": {
+					"type": "boolean",
+					"default": false,
+					"description": "%manifest.settings.fallback.multiline.desc%"
+				},
 				"string-le.showParseErrors": {
 					"type": "boolean",
 					"default": false,

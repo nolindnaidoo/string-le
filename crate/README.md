@@ -153,7 +153,9 @@ body, a help paragraph, a consent notice — the copy an audit least wants
 to miss.
 
 It is off by default, so the default answer is the extension's answer,
-and the shared corpus keeps the two honest.
+and the shared corpus keeps the two honest. The extension has the same
+switch, `string-le.fallback.multiline`, and the shared `extract_strings`
+tool takes it as `multiline` on both servers.
 
 **Binary files are skipped, and counted.** A NUL byte in the first 8KB
 means binary — ripgrep's heuristic. Those files get no report line and

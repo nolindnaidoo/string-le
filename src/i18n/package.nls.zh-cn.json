@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "仅显示错误",
 	"manifest.settings.open.new-file.desc": "在新的编辑器中打开后处理结果，而不是覆盖原文件。",
 	"manifest.settings.open.side-by-side.desc": "“打开”提取操作会在侧边打开一个新的编辑器，而不是替换当前的编辑器。",
+	"manifest.settings.fallback.multiline.desc": "对于此处不解析的格式，允许带引号的字符串跨越多行，从而也读取多行模板或消息。本身支持多行字符串的语言（Python 三引号、模板字面量、原始字符串）已按此方式读取。",
 	"manifest.settings.parse-errors.desc": "如果解析失败，则显示错误信息。",
 	"manifest.settings.safety.enabled.desc": "启用针对大文件、输出结果和文档拆分的安全检查。",
 	"manifest.settings.safety.warn.file-size.desc": "如果文件大小超过此阈值，则发出警告。",

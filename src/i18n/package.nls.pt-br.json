@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "Mostrar apenas erros",
 	"manifest.settings.open.new-file.desc": "Abrir os resultados do pós-processamento em um novo editor, em vez de substituir o arquivo.",
 	"manifest.settings.open.side-by-side.desc": "A extração aberta abre um novo editor ao lado, em vez de substituir o editor atual.",
+	"manifest.settings.fallback.multiline.desc": "Em um formato que não é analisado aqui, permite que uma string entre aspas abranja várias linhas, para ler também modelos ou mensagens de várias linhas. Linguagens cujas strings já abrangem linhas — aspas triplas do Python, template literals, strings brutas — já são lidas assim.",
 	"manifest.settings.parse-errors.desc": "Exibir mensagens de erro caso a análise falhe.",
 	"manifest.settings.safety.enabled.desc": "Ativar verificações de segurança para arquivos grandes, saídas e divisões de documentos.",
 	"manifest.settings.safety.warn.file-size.desc": "Avisar se o tamanho do arquivo ultrapassar esse limite.",

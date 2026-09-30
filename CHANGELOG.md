@@ -9,6 +9,18 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
+## [Unreleased]
+
+### Added
+
+- **A quoted string can span lines in the fallback scan.** In a format
+  nothing here parses, a multi-line message or template was invisible,
+  because a quoted run stopped at the end of a line. The new
+  `string-le.fallback.multiline` setting, off by default, lets it span
+  lines, as the CLI's `--multiline` already did. The shared
+  `extract_strings` MCP tool takes the same `multiline`, on both servers.
+  Languages whose own strings span lines were already read that way.
+
 ## [2.3.1] - 2026-08-16
 
 ### Changed

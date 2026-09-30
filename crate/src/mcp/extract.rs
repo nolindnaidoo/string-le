@@ -44,6 +44,14 @@ pub(crate) fn definition() -> Value {
                     "default": false,
                     "description": "Collapse repeated values to their first occurrence.",
                 },
+                "multiline": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "For a format nothing here parses, let a quoted run span \
+                                    lines, so a multi-line template literal or message is \
+                                    read too. Languages whose own strings span lines are read \
+                                    that way regardless.",
+                },
                 "maxResults": {
                     "type": "integer",
                     "minimum": 1,
@@ -76,7 +84,11 @@ pub(crate) fn run(arguments: &Value) -> Result<Value, String> {
         arguments.get("filename").and_then(Value::as_str),
     );
 
-    let mut values: Vec<Value> = extract::extract(content, format, Options::default())
+    let options = Options {
+        multiline: arguments.get("multiline").and_then(Value::as_bool) == Some(true),
+        ..Options::default()
+    };
+    let mut values: Vec<Value> = extract::extract(content, format, options)
         .into_iter()
         .map(Value::String)
         .collect();

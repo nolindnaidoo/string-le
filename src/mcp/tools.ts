@@ -58,6 +58,7 @@ function extract(args: Record<string, unknown>): Promise<unknown> {
 	const sink = createDiagnosticSink();
 	const values = extractStrings(content, fileType, {
 		onParseError: sink.onParseError,
+		multiline: args.multiline === true,
 	});
 
 	const deduped = args.dedupe === true ? [...new Set(values)] : values;
@@ -101,6 +102,12 @@ export const TOOLS: readonly ToolDefinition[] = Object.freeze([
 					type: 'boolean',
 					default: false,
 					description: 'Collapse repeated values to their first occurrence.',
+				},
+				multiline: {
+					type: 'boolean',
+					default: false,
+					description:
+						'For a format nothing here parses, let a quoted run span lines, so a multi-line template literal or message is read too. Languages whose own strings span lines are read that way regardless.',
 				},
 				maxResults: MAX_RESULTS_SCHEMA,
 			},

@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "오류만 표시",
 	"manifest.settings.open.new-file.desc": "파일을 덮어쓰지 않고 새로운 편집기에서 후처리 결과를 엽니다.",
 	"manifest.settings.open.side-by-side.desc": "추출을 실행하면 현재 편집기를 대체하는 대신 옆에 새로운 편집기가 열립니다.",
+	"manifest.settings.fallback.multiline.desc": "여기서 구문 분석하지 않는 형식에서는 따옴표로 묶인 문자열이 여러 줄에 걸칠 수 있도록 하여 여러 줄 템플릿이나 메시지도 읽습니다. Python 삼중 따옴표, 템플릿 리터럴, raw 문자열처럼 언어 자체의 문자열이 여러 줄에 걸치는 경우는 이미 그렇게 읽습니다.",
 	"manifest.settings.parse-errors.desc": "구문 분석에 실패하면 오류 메시지를 표시합니다.",
 	"manifest.settings.safety.enabled.desc": "대용량 파일, 출력 결과 및 문서 분할에 대한 안전 검사를 활성화합니다.",
 	"manifest.settings.safety.warn.file-size.desc": "파일 크기가 이 임계값을 초과하면 경고를 표시합니다.",

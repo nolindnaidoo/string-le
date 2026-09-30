@@ -16,6 +16,7 @@
 	"manifest.settings.notifications.level.option.silent": "Chỉ hiển thị lỗi",
 	"manifest.settings.open.new-file.desc": "Mở kết quả xử lý hậu kỳ trong trình soạn thảo mới thay vì ghi đè lên tệp.",
 	"manifest.settings.open.side-by-side.desc": "Khi mở kết quả trích xuất, một trình soạn thảo mới sẽ xuất hiện ở bên cạnh thay vì thay thế trình soạn thảo hiện tại.",
+	"manifest.settings.fallback.multiline.desc": "Với định dạng không được phân tích ở đây, cho phép chuỗi trong dấu nháy trải trên nhiều dòng để đọc cả mẫu hoặc thông điệp nhiều dòng. Các ngôn ngữ có chuỗi vốn trải nhiều dòng — nháy ba của Python, template literal, chuỗi thô — đã được đọc như vậy.",
 	"manifest.settings.parse-errors.desc": "Hiển thị thông báo lỗi nếu quá trình phân tích cú pháp không thành công.",
 	"manifest.settings.safety.enabled.desc": "Bật tính năng kiểm tra an toàn cho các tệp tin dung lượng lớn, kết quả đầu ra và việc tách tài liệu.",
 	"manifest.settings.safety.warn.file-size.desc": "Cảnh báo nếu kích thước tệp vượt quá ngưỡng này.",
