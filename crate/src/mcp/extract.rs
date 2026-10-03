@@ -58,7 +58,7 @@ pub(crate) fn definition() -> Value {
                     "maximum": MAX_MAX_RESULTS,
                     "default": DEFAULT_MAX_RESULTS,
                     "description": format!(
-                        "Cap on returned values (default {DEFAULT_MAX_RESULTS}). meta.truncated \
+                        "Cap on returned strings (default {DEFAULT_MAX_RESULTS}). meta.truncated \
                          reports whether any were dropped."
                     ),
                 },

@@ -17,15 +17,13 @@
  */
 const ALIASES: Readonly<Record<string, string>> = Object.freeze({
 	json: 'json',
-	jsonc: 'json',
+	jsonc: 'jsonc',
 	yaml: 'yaml',
 	yml: 'yaml',
 	csv: 'csv',
-	tsv: 'csv',
+	tsv: 'tsv',
 	toml: 'toml',
 	ini: 'ini',
-	cfg: 'ini',
-	conf: 'ini',
 	env: 'env',
 	dotenv: 'env',
 	python: 'python',
@@ -72,8 +70,10 @@ const ALIASES: Readonly<Record<string, string>> = Object.freeze({
  */
 export const SUPPORTED_FORMATS: readonly string[] = Object.freeze([
 	'json',
+	'jsonc',
 	'yaml',
 	'csv',
+	'tsv',
 	'toml',
 	'ini',
 	'env',

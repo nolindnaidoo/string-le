@@ -17,6 +17,7 @@ export function normalizeFileType(
  */
 export type SupportedFileType =
 	| 'json'
+	| 'jsonc'
 	| 'yaml'
 	| 'yml'
 	| 'csv'
@@ -40,6 +41,7 @@ export type SupportedFileType =
 
 const SUPPORTED: ReadonlySet<string> = new Set([
 	'json',
+	'jsonc',
 	'yaml',
 	'yml',
 	'csv',

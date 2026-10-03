@@ -9,6 +9,29 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
+## [Unreleased]
+
+### Fixed
+
+- **`.jsonc` and `.tsv` were read as JSON and CSV.** A comment in a `.jsonc`
+  failed the strict JSON parse, and a `.tsv` was split on commas, so neither
+  gave the right answer — in the editor and from the npm server. Both are now
+  read the way the Rust CLI has read them since August: JSONC tolerates
+  comments and trailing commas, TSV splits on tabs.
+- **`.conf` and `.cfg` were read as INI.** A redis or nginx config has no
+  sections and no `=`, and the INI reader took it as a valid document holding
+  nothing. Both are read for quoted strings, as the CLI reads them.
+- The npm server's `format` list now offers `jsonc` and `tsv`, which it
+  accepts, and its README names them.
+
+### Added
+
+- `scripts/check-mcp-definition.ts`, run in CI after the differential: it fails
+  when the two servers define the shared MCP tool differently — its
+  description or any part of its schema. Six of the ten had drifted.
+- The npm README test also checks that every value an argument offers is
+  named in that argument's row.
+
 ## [2.4.2] - 2026-10-03
 
 ### Fixed

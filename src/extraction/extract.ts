@@ -1,18 +1,21 @@
 import type { Extractor, ExtractorOptions } from '../types';
-import { extractCsv } from './formats/csv';
+import { extractCsv, extractTsv } from './formats/csv';
 import { extractDotenv } from './formats/dotenv';
 import { extractFallback } from './formats/fallback';
 import { extractIni } from './formats/ini';
 import { extractJson } from './formats/json';
+import { stripJsonc } from './formats/jsonc';
 import { SOURCE_EXTRACTORS } from './formats/source';
 import { extractToml } from './formats/toml';
 import { extractYaml } from './formats/yaml';
 
 const EXTRACTORS: Readonly<Record<string, Extractor>> = Object.freeze({
 	json: extractJson,
+	jsonc: (text, options) => extractJson(stripJsonc(text), options),
 	yaml: extractYaml,
 	yml: extractYaml,
 	csv: extractCsv,
+	tsv: extractTsv,
 	toml: extractToml,
 	ini: extractIni,
 	env: extractDotenv,
