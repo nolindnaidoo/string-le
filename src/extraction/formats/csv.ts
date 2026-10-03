@@ -17,10 +17,18 @@ const CSV_PARSE_OPTIONS = {
 /**
  * Extract strings from CSV with optional header detection and column selection.
  */
-export const extractCsv: Extractor = (
-	text,
+export const extractCsv: Extractor = (text, options) =>
+	extractDelimited(text, ',', options);
+
+/** Tab-separated values: the same grammar, split on tabs, as the crate reads it. */
+export const extractTsv: Extractor = (text, options) =>
+	extractDelimited(text, '\t', options);
+
+function extractDelimited(
+	text: string,
+	delimiter: string,
 	options?: ExtractorOptions,
-): readonly string[] => {
+): readonly string[] {
 	// Guard: Empty input
 	if (text.trim().length === 0) {
 		return EMPTY_RESULT;
@@ -32,7 +40,7 @@ export const extractCsv: Extractor = (
 	// it — and the onParseError handlers the callers pass in could never fire.
 	let rows: ReadonlyArray<ReadonlyArray<string>>;
 	try {
-		rows = parseCsvRows(text);
+		rows = parseCsvRows(text, delimiter);
 	} catch (error) {
 		if (error instanceof Error) {
 			options?.onParseError?.(`Invalid CSV: ${error.message}`);
@@ -45,12 +53,15 @@ export const extractCsv: Extractor = (
 
 	const strings = extractFromRows(rows, hasHeader, columnIndex);
 	return Object.freeze(strings);
-};
+}
 
-function parseCsvRows(text: string): ReadonlyArray<ReadonlyArray<string>> {
+function parseCsvRows(
+	text: string,
+	delimiter: string,
+): ReadonlyArray<ReadonlyArray<string>> {
 	// csv-parse's sync parse is typed `any`; with `columns: false` it yields
 	// rows of cells, which is what one cast states directly.
-	return parse(text, CSV_PARSE_OPTIONS) as string[][];
+	return parse(text, { ...CSV_PARSE_OPTIONS, delimiter }) as string[][];
 }
 
 /**

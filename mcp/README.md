@@ -90,7 +90,7 @@ If that prints the tool name, the server works.
 | argument | type | |
 |---|---|---|
 | `content` | string | **required.** The document text to scan. |
-| `format` | string | `json`, `yaml`, `csv`, `toml`, `ini` or `env`, or a language: `python`, `rust`, `go`, `shellscript`, `php`, `ruby`, `perl`, `csharp`, `javascript`, `typescript`. Optional — anything else, or nothing, falls back to quoted strings, so unquoted prose yields nothing. |
+| `format` | string | `json`, `jsonc`, `yaml`, `csv`, `tsv`, `toml`, `ini` or `env`, or a language: `python`, `rust`, `go`, `shellscript`, `php`, `ruby`, `perl`, `csharp`, `javascript`, `typescript`. `fallback` asks for quoted strings explicitly. Optional — anything else, or nothing, falls back to quoted strings, so unquoted prose yields nothing. |
 | `filename` | string | Used to infer `format` when it is absent — `config.toml` resolves to `toml`. |
 | `dedupe` | boolean | Collapse repeated values to their first occurrence. Default `false`. |
 | `multiline` | boolean | For a format nothing here parses, let a quoted run span lines, so a multi-line template literal or message is read too. Languages whose own strings span lines are read that way regardless. Default `false`. |

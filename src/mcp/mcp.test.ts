@@ -65,7 +65,12 @@ describe('fileType: tolerant resolution', () => {
 	it('accepts the shorthands an agent actually sends', () => {
 		expect(resolveFormat('yml', undefined)).toBe('yaml');
 		expect(resolveFormat('.TOML', undefined)).toBe('toml');
-		expect(resolveFormat(' conf ', undefined)).toBe('ini');
+		expect(resolveFormat(' jsonc ', undefined)).toBe('jsonc');
+		expect(resolveFormat(undefined, 'data.tsv')).toBe('tsv');
+		// `conf` is not INI: a redis or nginx config has no sections and no `=`,
+		// and the INI reader took it as a valid document holding nothing. The
+		// crate reads it as text, and so does this.
+		expect(resolveFormat(' conf ', undefined)).toBe('fallback');
 	});
 
 	it('resolves a dotfile whose whole name is the type', () => {

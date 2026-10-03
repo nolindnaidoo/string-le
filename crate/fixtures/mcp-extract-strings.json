@@ -381,5 +381,79 @@
 			"maxResults": 0
 		},
 		"expectedError": "maxResults must be a positive integer"
+	},
+	{
+		"name": "a jsonc document: comments and a trailing comma are the format, not a parse failure",
+		"file": "strings.jsonc",
+		"arguments": {
+			"format": "jsonc"
+		},
+		"expected": {
+			"data": {
+				"fileType": "jsonc",
+				"strings": [
+					"Settings",
+					"Never mind"
+				]
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 2,
+				"tool": "extract_strings",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "a tsv document: split on tabs, not commas",
+		"file": "strings.tsv",
+		"arguments": {
+			"format": "tsv"
+		},
+		"expected": {
+			"data": {
+				"fileType": "tsv",
+				"strings": [
+					"name",
+					"message",
+					"Alice",
+					"Hello, world",
+					"Bob",
+					"She said hi"
+				]
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 6,
+				"tool": "extract_strings",
+				"truncated": false
+			},
+			"ok": true
+		}
+	},
+	{
+		"name": "conf is not INI: it falls back to quoted strings",
+		"file": "strings.ini",
+		"arguments": {
+			"format": "conf"
+		},
+		"expected": {
+			"data": {
+				"fileType": "fallback",
+				"strings": [
+					"Quoted Value",
+					"inside a comment",
+					"single quoted greeting"
+				]
+			},
+			"diagnostics": [],
+			"meta": {
+				"count": 3,
+				"tool": "extract_strings",
+				"truncated": false
+			},
+			"ok": true
+		}
 	}
 ]

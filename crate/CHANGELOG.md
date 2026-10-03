@@ -7,6 +7,14 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- The `extract_strings` MCP tool's `maxResults` description now matches the npm
+  server's word for word ("Cap on returned strings"). CI now fails when the two
+  servers' definitions differ.
+
 ## [0.4.0] - 2026-09-30
 
 ### Added
