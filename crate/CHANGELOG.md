@@ -7,7 +7,7 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.1] - 2026-10-03
 
 ### Fixed
 
@@ -273,6 +273,7 @@ auditor saw it. A contract test asserts no flag asks for a judgment.
   vanish from the report entirely, which reads to whoever ran it as
   "that file was clean".
 
+[0.4.1]: https://crates.io/crates/string-le/0.4.1
 [0.4.0]: https://crates.io/crates/string-le/0.4.0
 [0.3.1]: https://crates.io/crates/string-le/0.3.1
 [0.3.0]: https://crates.io/crates/string-le/0.3.0
