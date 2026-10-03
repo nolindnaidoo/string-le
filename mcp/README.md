@@ -15,8 +15,8 @@
   </a>
 </p>
 
-An [MCP](https://modelcontextprotocol.io) server that extracts URLs from
-documentation, configuration and code — the extraction engine behind the
+An [MCP](https://modelcontextprotocol.io) server that extracts every string value from
+configuration, data files and source code — the extraction engine behind the
 [String-LE](https://letools.dev/tools/string-le)
 editor extension, exposed as a tool an agent can call.
 
@@ -89,24 +89,30 @@ If that prints the tool name, the server works.
 
 | argument | type | |
 |---|---|---|
-| `content` | string | **required.** The text to scan. |
-| `format` | string | The language: `markdown`, `yaml`, `json`, `typescript`… Required unless `filename` is given. |
-| `filename` | string | Used to infer `format` when it is absent — `README.md` resolves to `markdown`. |
-| `dedupe` | boolean | Collapse repeats. Default `false`. |
+| `content` | string | **required.** The document text to scan. |
+| `format` | string | `json`, `yaml`, `csv`, `toml`, `ini` or `env`, or a language: `python`, `rust`, `go`, `shellscript`, `php`, `ruby`, `perl`, `csharp`, `javascript`, `typescript`. Optional — anything else, or nothing, falls back to quoted strings, so unquoted prose yields nothing. |
+| `filename` | string | Used to infer `format` when it is absent — `config.toml` resolves to `toml`. |
+| `dedupe` | boolean | Collapse repeated values to their first occurrence. Default `false`. |
+| `multiline` | boolean | For a format nothing here parses, let a quoted run span lines, so a multi-line template literal or message is read too. Languages whose own strings span lines are read that way regardless. Default `false`. |
 | `maxResults` | number | Default `500`, ceiling `5000`. |
 
-Returns each URL with its protocol and 1-based line and column, plus
-`meta.truncated` so a capped result is never mistaken for a complete one.
+Returns the values themselves, in document order — not their positions —
+plus `meta.truncated` so a capped result is never mistaken for a complete
+one.
 
 ```json
 {
   "ok": true,
   "data": {
-    "strings": [
-      { "value": "https://example.com/guide", "protocol": "https", "line": 2, "column": 15 }
-    ]
+    "strings": ["Welcome", "one", "two"],
+    "fileType": "json"
   },
-  "meta": { "count": 1, "truncated": false }
+  "diagnostics": [],
+  "meta": {
+    "tool": "extract_strings",
+    "count": 3,
+    "truncated": false
+  }
 }
 ```
 
@@ -150,7 +156,7 @@ Architecture. [nolindnaidoo.com](https://nolindnaidoo.com) ·
 
 Twelve Rust tools built the same way: small, single-purpose, and driven by a
 machine rather than a person. pixelcoords and pixelactions make up one loop —
-pixelcoords answers *where*, pixelactions *acts* there. The nine LE crates are
+pixelcoords answers *where*, pixelactions *acts* there. The ten LE crates are
 the terminal half of the extensions they sit in: the same detection, held to
 the extension's own corpus, and an exit code instead of a results editor.
 
@@ -166,6 +172,7 @@ the extension's own corpus, and an exit code instead of a results editor.
 | **[numbers-le](https://github.com/nolindnaidoo/numbers-le/tree/main/crate)** | Find every hardcoded number in a codebase so a person can check them | [crates.io](https://crates.io/crates/numbers-le) |
 | **[envsync-le](https://github.com/nolindnaidoo/envsync-le/tree/main/crate)** | Compare the dotenv files in a tree and say which keys are missing from which | [crates.io](https://crates.io/crates/envsync-le) |
 | **[colors-le](https://github.com/nolindnaidoo/colors-le/tree/main/crate)** | Find every colour in a codebase, and say which are not in your palette | [crates.io](https://crates.io/crates/colors-le) |
+| **[dates-le](https://github.com/nolindnaidoo/dates-le/tree/main/crate)** | Extract every date and timestamp, and the exact instant each one resolves to | [crates.io](https://crates.io/crates/dates-le) |
 | **[scrape-le](https://github.com/nolindnaidoo/scrape-le/tree/main/crate)** | Check whether a page is scrapeable before the scraper is written | [crates.io](https://crates.io/crates/scrape-le) |
 
 ## Licence
