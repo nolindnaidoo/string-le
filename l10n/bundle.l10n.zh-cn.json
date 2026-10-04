@@ -1,5 +1,9 @@
 {
 	"Extract from all columns": "从所有列中提取数据",
+	"Enjoying {0}? A rating helps other developers find it.": "喜欢 {0} 吗？评分可以帮助其他开发者发现它。",
+	"Rate": "评分",
+	"Later": "稍后",
+	"Don't Ask Again": "不再询问",
 	"Select a CSV column or all columns": "选择一个 CSV 列或所有列",
 	"Enter column indexes (comma-separated), or leave empty for all columns": "输入列索引（以逗号分隔），或留空以包含所有列",
 	"Fallback (quoted strings)": "备用方案（带引号的字符串）",

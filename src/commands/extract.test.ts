@@ -42,6 +42,7 @@ async function runExtract(): Promise<void> {
 		telemetry: createTelemetry(context as never),
 		notifier: createNotifier(),
 		statusBar: createStatusBar(context as never),
+		ratingPrompt: { recordSuccess: async () => {} },
 	});
 	const handler = _registeredCommands().get('string-le.extractStrings');
 	if (!handler) throw new Error('extract command not registered');

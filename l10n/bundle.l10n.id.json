@@ -1,5 +1,9 @@
 {
 	"Extract from all columns": "Ekstrak dari semua kolom",
+	"Enjoying {0}? A rating helps other developers find it.": "Suka dengan {0}? Penilaian membantu pengembang lain menemukannya.",
+	"Rate": "Beri Nilai",
+	"Later": "Nanti",
+	"Don't Ask Again": "Jangan Tanya Lagi",
 	"Select a CSV column or all columns": "Pilih satu kolom CSV atau semua kolom",
 	"Enter column indexes (comma-separated), or leave empty for all columns": "Masukkan indeks kolom (dipisahkan dengan koma), atau biarkan kosong untuk semua kolom",
 	"Fallback (quoted strings)": "Fallback (string yang diapit tanda kutip)",

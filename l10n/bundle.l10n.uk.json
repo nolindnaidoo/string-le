@@ -1,5 +1,9 @@
 {
 	"Extract from all columns": "Витяг з усіх стовпців",
+	"Enjoying {0}? A rating helps other developers find it.": "Подобається {0}? Оцінка допомагає іншим розробникам знайти це розширення.",
+	"Rate": "Оцінити",
+	"Later": "Пізніше",
+	"Don't Ask Again": "Більше не питати",
 	"Select a CSV column or all columns": "Виберіть стовпець CSV або всі стовпці",
 	"Enter column indexes (comma-separated), or leave empty for all columns": "Введіть індекси стовпців (розділені комами) або залиште поле порожнім, щоб застосувати до всіх стовпців",
 	"Fallback (quoted strings)": "Резервний варіант (рядки у лапках)",

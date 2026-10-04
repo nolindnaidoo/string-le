@@ -11,6 +11,7 @@ import {
 	promptCsvOptionsIfNeeded,
 	promptForFileType,
 } from '../ui/prompts';
+import type { RatingPrompt } from '../ui/ratingPrompt';
 import type { StatusBar } from '../ui/statusBar';
 import { detectEnvExtension } from '../utils/filename';
 import { onValues, positioned, withPosition } from '../utils/positions';
@@ -48,6 +49,7 @@ export type ExtractionContext = Readonly<{
 		telemetry: Telemetry;
 		notifier: Notifier;
 		statusBar: StatusBar;
+		ratingPrompt: RatingPrompt;
 	};
 }>;
 
@@ -238,6 +240,9 @@ async function processAndOutputResults(
 		count: String(finalStrings.length),
 		type: fileType,
 	});
+	// Not awaited: it resolves when the toast is answered, and a command that
+	// waited on that would stay pending for as long as the toast is ignored.
+	void deps.ratingPrompt.recordSuccess();
 
 	deps.statusBar.flash(
 		clipboardSuccess
@@ -252,9 +257,10 @@ export function registerExtractStringsCommand(
 		telemetry: Telemetry;
 		notifier: Notifier;
 		statusBar: StatusBar;
+		ratingPrompt: RatingPrompt;
 	}>,
 ): void {
-	const { telemetry, notifier, statusBar } = deps;
+	const { telemetry, notifier, statusBar, ratingPrompt } = deps;
 
 	const disposable = vscode.commands.registerCommand(
 		'string-le.extractStrings',
@@ -266,6 +272,7 @@ export function registerExtractStringsCommand(
 				telemetry,
 				notifier,
 				statusBar,
+				ratingPrompt,
 			});
 			if (!prepared) return;
 
@@ -305,7 +312,7 @@ export function registerExtractStringsCommand(
 						fileType,
 						csvOptions,
 						config,
-						deps: { telemetry, notifier, statusBar },
+						deps: { telemetry, notifier, statusBar, ratingPrompt },
 					};
 
 					// Step 3: Route to appropriate handler
