@@ -26,6 +26,7 @@ function makeDeps(context: ReturnType<typeof _createExtensionContext>) {
 		telemetry: createTelemetry(context as never),
 		notifier: createNotifier(),
 		statusBar: createStatusBar(context as never),
+		ratingPrompt: { recordSuccess: async () => {} },
 	};
 }
 

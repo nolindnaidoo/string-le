@@ -1,5 +1,9 @@
 {
 	"Extract from all columns": "Trích xuất từ tất cả các cột",
+	"Enjoying {0}? A rating helps other developers find it.": "Bạn thích {0}? Một lượt đánh giá giúp các nhà phát triển khác tìm thấy tiện ích này.",
+	"Rate": "Đánh giá",
+	"Later": "Để sau",
+	"Don't Ask Again": "Không hỏi lại",
 	"Select a CSV column or all columns": "Chọn một cột CSV hoặc tất cả các cột",
 	"Enter column indexes (comma-separated), or leave empty for all columns": "Nhập các chỉ mục cột (cách nhau bằng dấu phẩy) hoặc để trống để áp dụng cho tất cả các cột",
 	"Fallback (quoted strings)": "Giải pháp dự phòng (chuỗi ký tự được đặt trong dấu ngoặc kép)",

@@ -42,6 +42,7 @@ function makeDeps(events: string[]) {
 			hide: () => {},
 			dispose: () => {},
 		},
+		ratingPrompt: { recordSuccess: async () => {} },
 	} as never;
 }
 

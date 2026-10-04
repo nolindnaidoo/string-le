@@ -1,5 +1,9 @@
 {
   "Run String-LE: Extract": "Run String-LE: Extract",
+  "Enjoying {0}? A rating helps other developers find it.": "Enjoying {0}? A rating helps other developers find it.",
+  "Rate": "Rate",
+  "Later": "Later",
+  "Don't Ask Again": "Don't Ask Again",
   "Extract from all columns": "Extract from all columns",
   "Select a CSV column or all columns": "Select a CSV column or all columns",
   "Enter column indexes (comma-separated), or leave empty for all columns": "Enter column indexes (comma-separated), or leave empty for all columns",

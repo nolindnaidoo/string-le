@@ -1,5 +1,9 @@
 {
 	"Extract from all columns": "Estrai da tutte le colonne",
+	"Enjoying {0}? A rating helps other developers find it.": "Ti piace {0}? Una valutazione aiuta altri sviluppatori a trovarlo.",
+	"Rate": "Valuta",
+	"Later": "Più tardi",
+	"Don't Ask Again": "Non chiedere più",
 	"Select a CSV column or all columns": "Seleziona una colonna del file CSV o tutte le colonne",
 	"Enter column indexes (comma-separated), or leave empty for all columns": "Inserire gli indici delle colonne (separati da virgole) oppure lasciare il campo vuoto per selezionare tutte le colonne",
 	"Fallback (quoted strings)": "Fallback (stringhe tra virgolette)",

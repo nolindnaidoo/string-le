@@ -6,6 +6,7 @@ import { registerMcpProvider } from './mcp/provider';
 import { registerCodeActions } from './providers/codeActions';
 import { createTelemetry } from './telemetry/telemetry';
 import { createNotifier } from './ui/notifier';
+import { createRatingPromptFor } from './ui/ratingPrompt';
 import { createStatusBar } from './ui/statusBar';
 
 export function deactivate(): void {}
@@ -16,7 +17,12 @@ export function activate(context: vscode.ExtensionContext): void {
 	const statusBar = createStatusBar(context);
 
 	// Keep activation lean; heavy work runs behind commands and withProgress.
-	registerAllCommands(context, { telemetry, notifier, statusBar });
+	registerAllCommands(context, {
+		telemetry,
+		notifier,
+		statusBar,
+		ratingPrompt: createRatingPromptFor(context, telemetry.event),
+	});
 	registerCodeActions(context);
 	registerOpenSettingsCommand(context, telemetry);
 	registerMcpProvider(context);
