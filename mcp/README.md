@@ -4,8 +4,8 @@
   <a href="https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le">
     <img src="https://img.shields.io/badge/Install%20from-VS%20Code-blue?style=for-the-badge&logo=visualstudiocode" alt="Install from VS Code Marketplace" />
   </a>
-  <a href="https://open-vsx.org/extension/OffensiveEdge/string-le">
-    <img src="https://img.shields.io/open-vsx/dt/OffensiveEdge/string-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
+  <a href="https://open-vsx.org/extension/nolindnaidoo/string-le">
+    <img src="https://img.shields.io/open-vsx/dt/nolindnaidoo/string-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
   </a>
   <a href="https://www.npmjs.com/package/string-le-mcp">
     <img src="https://img.shields.io/npm/v/string-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="string-le-mcp on npm" />
@@ -49,7 +49,7 @@ claude mcp add string-le -- npx -y string-le-mcp
 **VS Code and Zed** need nothing here. Install the extension instead — it
 carries this server and registers it for you:
 [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le)
-· [Open VSX](https://open-vsx.org/extension/OffensiveEdge/string-le)
+· [Open VSX](https://open-vsx.org/extension/nolindnaidoo/string-le)
 · [Zed](https://zed.dev/docs/ai/mcp) *(no listing yet — add it by hand)*
 
 **No Node?** The same `extract_strings` tool ships in a static Rust

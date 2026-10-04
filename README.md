@@ -11,8 +11,8 @@
   <a href="https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le">
     <img src="https://img.shields.io/badge/Install%20from-VS%20Code-blue?style=for-the-badge&logo=visualstudiocode" alt="Install from VS Code Marketplace" />
   </a>
-  <a href="https://open-vsx.org/extension/OffensiveEdge/string-le">
-    <img src="https://img.shields.io/open-vsx/dt/OffensiveEdge/string-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
+  <a href="https://open-vsx.org/extension/nolindnaidoo/string-le">
+    <img src="https://img.shields.io/open-vsx/dt/nolindnaidoo/string-le?style=for-the-badge&label=Open%20VSX&color=blue" alt="Open VSX downloads" />
   </a>
   <a href="https://www.npmjs.com/package/string-le-mcp">
     <img src="https://img.shields.io/npm/v/string-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="string-le-mcp on npm" />
@@ -33,7 +33,7 @@
 
 > **Useful?** A star or rating is how other developers find it —
 > [★ GitHub](https://github.com/nolindnaidoo/string-le) ·
-> [★ Open VSX](https://open-vsx.org/extension/OffensiveEdge/string-le/reviews) ·
+> [★ Open VSX](https://open-vsx.org/extension/nolindnaidoo/string-le/reviews) ·
 > [★ Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le&ssr=false#review-details)
 
 ## What it does
@@ -49,7 +49,7 @@ Open a file, press `Ctrl+Alt+E` (`Cmd+Alt+E` on Mac), and every string value in 
 | Where | What you get | Install |
 |---|---|---|
 | **VS Code** | The same extraction, in your editor, on a keystroke | [Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le) |
-| **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/OffensiveEdge/string-le) |
+| **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/nolindnaidoo/string-le) |
 | **A terminal or a CI step** | The same run over a whole tree, with exit codes | `cargo install string-le` · [crates.io](https://crates.io/crates/string-le) |
 | **Any MCP agent, via Node** | `extract_strings` over stdio | `npx string-le-mcp` · [npm](https://www.npmjs.com/package/string-le-mcp) |
 | **Zed** | The MCP server as a context server | [add it by hand](https://zed.dev/docs/ai/mcp) *(no listing yet)* |
