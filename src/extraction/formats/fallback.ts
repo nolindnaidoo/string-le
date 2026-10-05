@@ -1,9 +1,9 @@
 import type { Extractor } from '../../types';
 
-const QUOTED_STRING_REGEX = /(["'`])(?:(?=(\\?))\2.)*?\1/g;
+export const QUOTED_STRING_REGEX = /(["'`])(?:(?=(\\?))\2.)*?\1/g;
 // The same run with `[\s\S]` for `.`, so it may span lines: opt-in, as
 // in the crate's `--multiline`.
-const QUOTED_MULTILINE_REGEX = /(["'`])(?:(?=(\\?))\2[\s\S])*?\1/g;
+export const QUOTED_MULTILINE_REGEX = /(["'`])(?:(?=(\\?))\2[\s\S])*?\1/g;
 const EMPTY_RESULT: readonly string[] = Object.freeze([]);
 
 /**
@@ -36,6 +36,16 @@ export const extractFallback: Extractor = (
  */
 export function quotedRuns(text: string): readonly string[] {
 	return findQuotedStrings(text).map(removeQuotes);
+}
+
+/** The same runs with where each opening quote is, in UTF-16 units. */
+export function quotedRunsSpanned(
+	text: string,
+): readonly { value: string; index: number }[] {
+	return [...text.matchAll(QUOTED_STRING_REGEX)].map((match) => ({
+		value: removeQuotes(match[0]),
+		index: match.index,
+	}));
 }
 
 function findQuotedStrings(text: string): string[] {

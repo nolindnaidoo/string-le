@@ -187,7 +187,9 @@ No command is bound to a key by default. Give any of them one under **Keyboard S
 |---|---|---|
 | `string-le.openResultsSideBySide` | `true` | Open results beside the current editor |
 | `string-le.postProcess.openInNewFile` | `true` | Post-process commands write to a new file instead of editing in place |
+| `string-le.showPositions` | `false` | Show the line and column of each string |
 | `string-le.copyToClipboardEnabled` | `false` | Also copy results to the clipboard (disabled for CSV output) |
+| `string-le.clipboardIncludesPositions` | `false` | Include the line and column in that copy |
 | `string-le.dedupeEnabled` | `false` | Deduplicate results automatically after extraction |
 | `string-le.sortEnabled` | `false` | Sort results automatically after extraction |
 | `string-le.sortMode` | `off` | `alpha-asc`, `alpha-desc`, `length-asc`, `length-desc` |
@@ -252,12 +254,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 86.98% |
-| Branches | 79.23% |
-| Functions | 95.75% |
-| Lines | 88.57% |
+| Statements | 87.61% |
+| Branches | 79.97% |
+| Functions | 96.15% |
+| Lines | 89.30% |
 
-316 test cases across 26 files, plus an integration suite that runs
+338 test cases across 28 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 

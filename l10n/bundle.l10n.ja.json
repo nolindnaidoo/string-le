@@ -23,5 +23,7 @@
 	"CSV streaming enabled": "CSVストリーミングが有効になっています",
 	"Dedupe/sort applied": "重複排除・並べ替えを適用しました",
 	"Enter valid column indexes separated by commas, or leave empty": "有効な列インデックスをコンマで区切って入力するか、空欄のままにしてください",
-	"Run String-LE: Extract": "String-LEの実行：抽出"
+	"Run String-LE: Extract": "String-LEの実行：抽出",
+	"Each value shows its first position only.": "各値には最初の位置のみが表示されます。",
+	"Positions are not available for this file type.": "このファイル形式では位置を表示できません。"
 }

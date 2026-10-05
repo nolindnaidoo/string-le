@@ -161,6 +161,60 @@ describe('extract command', () => {
 		expect(_clipboardText()).toBe('copy me');
 	});
 
+	it('leads each string with its position when asked, on screen and in the copy separately', async () => {
+		register();
+		_setConfig('string-le.copyToClipboardEnabled', true);
+		_setConfig('string-le.showPositions', true);
+		_setActiveEditor(
+			_createDocument({
+				content: '{"a": "first", "b": {"c": "second"}, "n": 7}',
+				languageId: 'json',
+				fileName: '/mock/data.json',
+			}),
+		);
+
+		await commands.executeCommand('string-le.extractStrings');
+
+		expect(_openedDocuments()[0]?.getText()).toBe('1:7\tfirst\n1:27\tsecond');
+		// The clipboard has its own setting, and that one is still off.
+		expect(_clipboardText()).toBe('first\nsecond');
+	});
+
+	it('keeps the first position of a string through the dedupe and sort settings', async () => {
+		register();
+		_setConfig('string-le.showPositions', true);
+		_setConfig('string-le.dedupeEnabled', true);
+		_setConfig('string-le.sortEnabled', true);
+		_setConfig('string-le.sortMode', 'alpha-asc');
+		_setActiveEditor(
+			_createDocument({
+				content: '["b", "a", "b"]',
+				languageId: 'json',
+				fileName: '/mock/data.json',
+			}),
+		);
+
+		await commands.executeCommand('string-le.extractStrings');
+
+		expect(_openedDocuments()[0]?.getText()).toBe('1:7\ta\n1:2\tb');
+	});
+
+	it('shows bare strings where the file type has no positions', async () => {
+		register();
+		_setConfig('string-le.showPositions', true);
+		_setActiveEditor(
+			_createDocument({
+				content: 'a: first\nb: second\n',
+				languageId: 'yaml',
+				fileName: '/mock/data.yaml',
+			}),
+		);
+
+		await commands.executeCommand('string-le.extractStrings');
+
+		expect(_openedDocuments()[0]?.getText()).toBe('first\nsecond');
+	});
+
 	it('prompts for file type on unknown extensions', async () => {
 		register();
 		_respondToQuickPick(() => 'JSON');
@@ -218,6 +272,35 @@ describe('post-process commands', () => {
 		await commands.executeCommand('string-le.postProcess.dedupe');
 
 		expect(_openedDocuments()[0]?.getText()).toBe('a\nb\nc');
+	});
+
+	it('dedupe works on the string when positions are shown, keeping the first', async () => {
+		register();
+		_setActiveEditor(
+			_createDocument({
+				content: '1:1\ta\n2:1\tb\n9:4\ta',
+				languageId: 'plaintext',
+			}),
+		);
+
+		await commands.executeCommand('string-le.postProcess.dedupe');
+
+		// Whole lines all differ here. Only by string is there a duplicate.
+		expect(_openedDocuments()[0]?.getText()).toBe('1:1\ta\n2:1\tb');
+	});
+
+	it('sort works on the string when positions are shown, and each keeps its own', async () => {
+		register();
+		_respondToQuickPick(() => 'Alphabetical (Z → A)');
+		_setActiveEditor(
+			_createDocument({ content: '1:1\talpha\n2:1\tcharlie\n10:1\tbravo' }),
+		);
+
+		await commands.executeCommand('string-le.postProcess.sort');
+
+		expect(_openedDocuments()[0]?.getText()).toBe(
+			'2:1\tcharlie\n10:1\tbravo\n1:1\talpha',
+		);
 	});
 
 	it('sort respects the picked mode', async () => {

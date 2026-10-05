@@ -23,5 +23,7 @@
 	"CSV streaming enabled": "Đã bật tính năng truyền dữ liệu CSV",
 	"Dedupe/sort applied": "Đã áp dụng tính năng loại bỏ trùng lặp/sắp xếp",
 	"Enter valid column indexes separated by commas, or leave empty": "Nhập các chỉ mục cột hợp lệ, cách nhau bằng dấu phẩy, hoặc để trống",
-	"Run String-LE: Extract": "Chạy String-LE: Trích xuất"
+	"Run String-LE: Extract": "Chạy String-LE: Trích xuất",
+	"Each value shows its first position only.": "Mỗi giá trị chỉ hiển thị vị trí đầu tiên của nó.",
+	"Positions are not available for this file type.": "Vị trí không khả dụng cho loại tệp này."
 }

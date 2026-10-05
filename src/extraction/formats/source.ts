@@ -1,6 +1,6 @@
 import type { Extractor } from '../../types';
 import { collectStrings } from '../collect';
-import { quotedRuns } from './fallback';
+import { quotedRuns, quotedRunsSpanned } from './fallback';
 
 /**
  * String literals, in the language that wrote them.
@@ -84,7 +84,37 @@ export const SOURCE_EXTRACTORS: Readonly<Record<string, Extractor>> =
 
 export function createSourceExtractor(language: SourceLanguage): Extractor {
 	return (text): readonly string[] =>
-		Object.freeze(collectStrings(scan(text, language)));
+		Object.freeze(collectStrings(scan(text, language).values));
+}
+
+export function isSourceFileType(fileType: string): boolean {
+	return Object.hasOwn(LANGUAGE_BY_FILE_TYPE, fileType);
+}
+
+/**
+ * What the extractor for this file type returns, with where each string
+ * starts: the offset of its opening delimiter, in UTF-16 units. The same
+ * scan and the same collection rule, so the two cannot disagree.
+ */
+export function scanSourceSpanned(
+	text: string,
+	fileType: string,
+): readonly { value: string; offset: number }[] | undefined {
+	if (!isSourceFileType(fileType)) return undefined;
+	const language = LANGUAGE_BY_FILE_TYPE[fileType];
+	if (language === undefined) return undefined;
+
+	const scanner = scan(text, language, true);
+	// The scanner counts code points. An editor counts UTF-16 units.
+	const units = [0];
+	for (const char of scanner.chars)
+		units.push((units[units.length - 1] as number) + char.length);
+	return scanner.values
+		.map((value, i) => ({
+			value: value.trim(),
+			offset: units[scanner.offsets?.[i] ?? 0] ?? 0,
+		}))
+		.filter((found) => found.value.length > 0);
 }
 
 /** How a run reaches its closing delimiter. */
@@ -103,6 +133,8 @@ type Scanner = {
 	readonly chars: readonly string[];
 	readonly language: SourceLanguage;
 	readonly values: string[];
+	/** Where each value starts, in code points. Kept only when asked for. */
+	readonly offsets: number[] | null;
 	readonly heredocs: Pending[];
 	/** Every `tag\0indented` already searched for and not found. */
 	readonly unclosed: Set<string>;
@@ -132,18 +164,23 @@ const UPPERCASE = /\p{Uppercase}/u;
 const WHITESPACE = /\s/u;
 const WORD_BREAK = new Set([';', '&', '|', '(', ')']);
 
-function scan(text: string, language: SourceLanguage): readonly string[] {
+function scan(
+	text: string,
+	language: SourceLanguage,
+	spanned = false,
+): Scanner {
 	const scanner: Scanner = {
 		chars: Array.from(text),
 		language,
 		values: [],
+		offsets: spanned ? [] : null,
 		heredocs: [],
 		unclosed: new Set(),
 		closable: null,
 		at: 0,
 	};
 	run(scanner);
-	return scanner.values;
+	return scanner;
 }
 
 function run(scanner: Scanner): void {
@@ -170,8 +207,16 @@ function takeComment(scanner: Scanner): boolean {
 	const end = COMMENT_READERS[scanner.language](scanner);
 	if (end === null) return false;
 
-	for (const run of quotedRuns(slice(scanner, scanner.at, end))) {
-		scanner.values.push(run);
+	const body = slice(scanner, scanner.at, end);
+	if (scanner.offsets === null) {
+		for (const run of quotedRuns(body)) scanner.values.push(run);
+	} else {
+		for (const run of quotedRunsSpanned(body)) {
+			scanner.values.push(run.value);
+			scanner.offsets.push(
+				scanner.at + Array.from(body.slice(0, run.index)).length,
+			);
+		}
 	}
 	scanner.at = end;
 	return true;
@@ -182,6 +227,7 @@ function takeString(scanner: Scanner): boolean {
 	if (!taken) return false;
 
 	scanner.values.push(taken.value);
+	scanner.offsets?.push(scanner.at);
 	scanner.at = taken.end;
 	return true;
 }
@@ -638,6 +684,7 @@ function takeHeredocBodies(scanner: Scanner): void {
 		const body = heredocBody(scanner, heredoc);
 		if (!body) return;
 		scanner.values.push(body.value);
+		scanner.offsets?.push(scanner.at);
 		scanner.at = body.end;
 	}
 }

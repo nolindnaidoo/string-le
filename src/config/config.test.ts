@@ -20,6 +20,7 @@ describe('config defaults parity with package.json', () => {
 	const props = manifest.contributes.configuration.properties;
 
 	const KEY_MAP: Record<string, keyof typeof CONFIG_DEFAULTS> = {
+		'string-le.clipboardIncludesPositions': 'clipboardIncludesPositions',
 		'string-le.copyToClipboardEnabled': 'copyToClipboardEnabled',
 		'string-le.csv.streamingEnabled': 'csvStreamingEnabled',
 		'string-le.dedupeEnabled': 'dedupeEnabled',
@@ -34,6 +35,7 @@ describe('config defaults parity with package.json', () => {
 		'string-le.showParseErrors': 'showParseErrors',
 		'string-le.sortEnabled': 'sortEnabled',
 		'string-le.sortMode': 'sortMode',
+		'string-le.showPositions': 'showPositions',
 		'string-le.statusBar.enabled': 'statusBarEnabled',
 		'string-le.telemetryEnabled': 'telemetryEnabled',
 	};

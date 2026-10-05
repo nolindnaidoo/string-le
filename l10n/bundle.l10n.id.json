@@ -23,5 +23,7 @@
 	"CSV streaming enabled": "Fitur streaming CSV diaktifkan",
 	"Dedupe/sort applied": "Proses deduplikasi/pengurutan telah diterapkan",
 	"Enter valid column indexes separated by commas, or leave empty": "Masukkan indeks kolom yang valid, dipisahkan dengan koma, atau biarkan kosong",
-	"Run String-LE: Extract": "Jalankan String-LE: Ekstrak"
+	"Run String-LE: Extract": "Jalankan String-LE: Ekstrak",
+	"Each value shows its first position only.": "Setiap nilai hanya menampilkan posisi pertamanya.",
+	"Positions are not available for this file type.": "Posisi tidak tersedia untuk jenis file ini."
 }
