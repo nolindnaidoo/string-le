@@ -38,7 +38,7 @@ regex = "1"
 # The format parsers, each chosen against what the extension uses:
 # jsonc-parser for JSON.parse, toml for @iarna/toml, csv for csv-parse,
 # saphyr for js-yaml. dotenv is hand-written in the extension and here.
-jsonc-parser = "0.33"
+jsonc-parser = "0.34"
 # `preserve_order` for the same reason paths-le needs it: without it a
 # TOML table iterates alphabetically and extraction stops following the
 # document, which is the order this tool's whole output contract is.
