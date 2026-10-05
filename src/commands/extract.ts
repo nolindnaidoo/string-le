@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { readConfig } from '../config/config';
 import { normalizeFileType, type SupportedFileType } from '../config/fileTypes';
 import { extractStrings } from '../extraction/extract';
+import { exactPositions } from '../extraction/positions';
 import type { Telemetry } from '../telemetry/telemetry';
 import { chooseLargeOutputAction } from '../ui/largeOutput';
 import type { Notifier } from '../ui/notifier';
@@ -12,6 +13,7 @@ import {
 } from '../ui/prompts';
 import type { StatusBar } from '../ui/statusBar';
 import { detectEnvExtension } from '../utils/filename';
+import { onValues, positioned, withPosition } from '../utils/positions';
 import { dedupe, sortStrings } from '../utils/text';
 import {
 	handleCsvMultiColumnExtraction,
@@ -114,12 +116,29 @@ async function handleNormalExtraction(
 	const sortMode = config.sortMode;
 
 	if (token.isCancellationRequested) return;
-	const dedupedStrings = shouldDedupe
-		? dedupe(extractedStrings)
-		: extractedStrings;
-	const finalStrings = sortEnabled
-		? sortStrings(dedupedStrings, sortMode)
-		: dedupedStrings;
+	// Where each string starts, for the file types that know it rather than
+	// guess. Dedupe and sort still work on the strings: `onValues` carries
+	// each position through, and a duplicate keeps its first.
+	const wanted = config.showPositions || config.clipboardIncludesPositions;
+	const positions = wanted
+		? exactPositions(text, fileType, extractedStrings, {
+				multiline: config.fallbackMultiline,
+			})
+		: undefined;
+	if (wanted && positions === undefined && extractedStrings.length > 0) {
+		deps.notifier.warn(
+			vscode.l10n.t('Positions are not available for this file type.'),
+		);
+	}
+	const finalStrings = onValues(
+		extractedStrings.map((value, i) => withPosition(value, positions?.[i])),
+		(values) => {
+			const dedupedStrings = shouldDedupe ? dedupe(values) : values;
+			return sortEnabled
+				? sortStrings(dedupedStrings, sortMode)
+				: dedupedStrings;
+		},
+	);
 
 	if (finalStrings.length === 0) {
 		deps.notifier.info(vscode.l10n.t('No strings found'));
@@ -181,7 +200,7 @@ async function processAndOutputResults(
 	if (openDoc) {
 		try {
 			const resultDocument = await vscode.workspace.openTextDocument({
-				content: finalStrings.join('\n'),
+				content: positioned(finalStrings.join('\n'), config.showPositions),
 				language: 'plaintext',
 			});
 			await vscode.window.showTextDocument(
@@ -200,7 +219,9 @@ async function processAndOutputResults(
 	let clipboardSuccess = false;
 	if (copyRequested || (config.copyToClipboardEnabled && fileType !== 'csv')) {
 		try {
-			await vscode.env.clipboard.writeText(finalStrings.join('\n'));
+			await vscode.env.clipboard.writeText(
+				positioned(finalStrings.join('\n'), config.clipboardIncludesPositions),
+			);
 			clipboardSuccess = true;
 		} catch {
 			deps.notifier.warn(vscode.l10n.t('Could not copy to clipboard'));

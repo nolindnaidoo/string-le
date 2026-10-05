@@ -23,5 +23,7 @@
 	"CSV streaming enabled": "Увімкнено потокову передачу даних у форматі CSV",
 	"Dedupe/sort applied": "Застосовано дедуплікацію/сортування",
 	"Enter valid column indexes separated by commas, or leave empty": "Введіть допустимі індекси стовпців, розділивши їх комами, або залиште поле порожнім",
-	"Run String-LE: Extract": "Запустити String-LE: Витягнути"
+	"Run String-LE: Extract": "Запустити String-LE: Витягнути",
+	"Each value shows its first position only.": "Для кожного значення показано лише його першу позицію.",
+	"Positions are not available for this file type.": "Для цього типу файлів позиції недоступні."
 }

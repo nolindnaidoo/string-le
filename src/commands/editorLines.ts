@@ -27,6 +27,15 @@ export function showNoEditorWarning(): void {
 	createNotifier().warn(vscode.l10n.t('No active editor'));
 }
 
-export function showSuccessMessage(): void {
-	createNotifier().info(vscode.l10n.t('Dedupe/sort applied'));
+/**
+ * `firstPositionOnly` is for a dedupe over lines that show positions: a
+ * string found five times has five, and only the first can stay.
+ */
+export function showSuccessMessage(firstPositionOnly = false): void {
+	const applied = vscode.l10n.t('Dedupe/sort applied');
+	createNotifier().info(
+		firstPositionOnly
+			? `${applied}. ${vscode.l10n.t('Each value shows its first position only.')}`
+			: applied,
+	);
 }

@@ -23,5 +23,7 @@
 	"CSV streaming enabled": "CSV-Streaming aktiviert",
 	"Dedupe/sort applied": "Deduplizierung/Sortierung durchgeführt",
 	"Enter valid column indexes separated by commas, or leave empty": "Geben Sie gültige Spaltenindizes durch Kommas getrennt ein oder lassen Sie das Feld leer",
-	"Run String-LE: Extract": "String-LE ausführen: Extrahieren"
+	"Run String-LE: Extract": "String-LE ausführen: Extrahieren",
+	"Each value shows its first position only.": "Jeder Wert zeigt nur seine erste Position.",
+	"Positions are not available for this file type.": "Für diesen Dateityp sind keine Positionen verfügbar."
 }

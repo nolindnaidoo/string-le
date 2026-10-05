@@ -9,6 +9,7 @@ import type { SortMode } from '../utils/text';
  * two drifting apart. The export is the seam that test needs.
  */
 export const CONFIG_DEFAULTS = Object.freeze({
+	clipboardIncludesPositions: false,
 	copyToClipboardEnabled: false,
 	csvStreamingEnabled: false,
 	dedupeEnabled: false,
@@ -23,6 +24,7 @@ export const CONFIG_DEFAULTS = Object.freeze({
 	showParseErrors: false,
 	sortEnabled: false,
 	sortMode: 'off' as const,
+	showPositions: false,
 	statusBarEnabled: true,
 	telemetryEnabled: false,
 });
@@ -63,12 +65,22 @@ export function readConfig(): StringLeConfig {
 			'telemetryEnabled',
 			CONFIG_DEFAULTS.telemetryEnabled,
 		),
+		clipboardIncludesPositions: readBoolean(
+			cfg,
+			'clipboardIncludesPositions',
+			CONFIG_DEFAULTS.clipboardIncludesPositions,
+		),
 		copyToClipboardEnabled: readBoolean(
 			cfg,
 			'copyToClipboardEnabled',
 			CONFIG_DEFAULTS.copyToClipboardEnabled,
 		),
 		notificationsLevel: readNotificationLevel(cfg),
+		showPositions: readBoolean(
+			cfg,
+			'showPositions',
+			CONFIG_DEFAULTS.showPositions,
+		),
 		statusBarEnabled: readBoolean(
 			cfg,
 			'statusBar.enabled',
@@ -171,8 +183,12 @@ export type StringLeConfig = Readonly<{
 	openInNewFile: boolean;
 	openResultsSideBySide: boolean;
 	telemetryEnabled: boolean;
+	/** Whether the copy on the clipboard carries positions, whatever the screen shows. */
+	clipboardIncludesPositions: boolean;
 	copyToClipboardEnabled: boolean;
 	notificationsLevel: NotificationLevel;
+	/** Whether the output gives the line and column of each string. */
+	showPositions: boolean;
 	statusBarEnabled: boolean;
 	safetyEnabled: boolean;
 	fileSizeWarnBytes: number;

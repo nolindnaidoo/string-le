@@ -23,5 +23,7 @@
 	"CSV streaming enabled": "已启用 CSV 流式传输",
 	"Dedupe/sort applied": "已应用去重/排序",
 	"Enter valid column indexes separated by commas, or leave empty": "请输入以逗号分隔的有效列索引，或留空",
-	"Run String-LE: Extract": "运行 String-LE：提取"
+	"Run String-LE: Extract": "运行 String-LE：提取",
+	"Each value shows its first position only.": "每个值仅显示其第一个位置。",
+	"Positions are not available for this file type.": "此文件类型无法提供位置。"
 }

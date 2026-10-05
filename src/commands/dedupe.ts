@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { hasPosition, onValues } from '../utils/positions';
 import { dedupe } from '../utils/text';
 import {
 	extractLines,
@@ -27,12 +28,14 @@ async function executeDedupe(): Promise<void> {
 	}
 
 	const lines = extractLines(editor);
-	const dedupedLines = dedupe(lines);
+	// By string: with positions shown every line is different, and a dedupe
+	// over whole lines would remove nothing.
+	const dedupedLines = onValues(lines, dedupe);
 	const processedContent = joinLines(dedupedLines);
 
 	const success = await processAndOutput(editor, processedContent);
 
 	if (success) {
-		showSuccessMessage();
+		showSuccessMessage(lines.some(hasPosition));
 	}
 }

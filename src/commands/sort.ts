@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { onValues } from '../utils/positions';
 import { type SortMode, sortStrings } from '../utils/text';
 import {
 	extractLines,
@@ -62,7 +63,10 @@ async function executeSort(): Promise<void> {
 	}
 
 	const lines = extractLines(editor);
-	const sortedLines = sortStrings(lines, sortMode);
+	// By string, so a position shown on a line travels with it.
+	const sortedLines = onValues(lines, (values) =>
+		sortStrings(values, sortMode),
+	);
 	const processedContent = joinLines(sortedLines);
 
 	const success = await processAndOutput(editor, processedContent);

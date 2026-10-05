@@ -23,5 +23,7 @@
 	"CSV streaming enabled": "CSV 스트리밍 활성화됨",
 	"Dedupe/sort applied": "중복 제거/정렬 적용됨",
 	"Enter valid column indexes separated by commas, or leave empty": "쉼표로 구분하여 유효한 열 인덱스를 입력하거나, 비워 두십시오.",
-	"Run String-LE: Extract": "String-LE 실행: 추출"
+	"Run String-LE: Extract": "String-LE 실행: 추출",
+	"Each value shows its first position only.": "각 값에는 첫 번째 위치만 표시됩니다.",
+	"Positions are not available for this file type.": "이 파일 형식에서는 위치를 사용할 수 없습니다."
 }
