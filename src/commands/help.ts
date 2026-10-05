@@ -36,7 +36,7 @@ function buildHelpContent(): string {
 # String-LE Help & Troubleshooting
 
 ## Commands
-- **Extract Strings** (Ctrl+Alt+E / Cmd+Alt+E): Extract strings from the current document
+- **Extract Strings**: Extract strings from the current document
 - **Deduplicate Strings**: Remove duplicate lines from the current document
 - **Sort Strings**: Sort lines alphabetically or by length
 - **Toggle CSV Streaming**: Enable/disable streaming for large CSV files

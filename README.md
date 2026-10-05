@@ -38,7 +38,7 @@
 
 ## What it does
 
-Open a file, press `Ctrl+Alt+E` (`Cmd+Alt+E` on Mac), and every string value in the document lands in a new editor — deduplicate and sort it from there. Works in VS Code and in VS Code–based editors like Cursor and VSCodium (installable from Open VSX).
+Open a file, run `String-LE: Extract Strings`, and every string value in the document lands in a new editor — deduplicate and sort it from there. Works in VS Code and in VS Code–based editors like Cursor and VSCodium (installable from Open VSX).
 
 - **i18n prep** — flatten locale files (JSON/YAML) into a clean list of translatable values
 - **Config review** — see every string value in a TOML/INI/.env file at a glance
@@ -172,12 +172,14 @@ error.
 
 | Command | Description |
 |---|---|
-| `String-LE: Extract Strings` (`Ctrl+Alt+E` / `Cmd+Alt+E`) | Extract all string values from the active document |
+| `String-LE: Extract Strings` | Extract all string values from the active document |
 | `String-LE: Deduplicate Strings` | Remove duplicate lines from the active document |
 | `String-LE: Sort Strings` | Sort lines alphabetically or by length |
 | `String-LE: Toggle CSV Streaming` | Enable/disable streaming for large CSV files |
 | `String-LE: Open Settings` | Open String-LE settings |
 | `String-LE: Help & Troubleshooting` | Built-in documentation |
+
+No command is bound to a key by default. Give any of them one under **Keyboard Shortcuts** in the editor.
 
 ## Settings
 

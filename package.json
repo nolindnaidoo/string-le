@@ -126,14 +126,6 @@
 				"category": "%manifest.command.category%"
 			}
 		],
-		"keybindings": [
-			{
-				"command": "string-le.extractStrings",
-				"key": "ctrl+alt+e",
-				"mac": "cmd+alt+e",
-				"when": "editorTextFocus"
-			}
-		],
 		"menus": {
 			"editor/context": [
 				{
