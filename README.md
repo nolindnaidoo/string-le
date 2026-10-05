@@ -52,7 +52,6 @@ Open a file, press `Ctrl+Alt+E` (`Cmd+Alt+E` on Mac), and every string value in 
 | **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/nolindnaidoo/string-le) |
 | **A terminal or a CI step** | The same run over a whole tree, with exit codes | `cargo install string-le` · [crates.io](https://crates.io/crates/string-le) |
 | **Any MCP agent, via Node** | `extract_strings` over stdio | `npx string-le-mcp` · [npm](https://www.npmjs.com/package/string-le-mcp) |
-| **Zed** | The MCP server as a context server | [add it by hand](https://zed.dev/docs/ai/mcp) *(no listing yet)* |
 
 ## Use it from an AI agent
 
@@ -61,7 +60,6 @@ The same engine runs as an [MCP](https://modelcontextprotocol.io) server, so an 
 | Editor | How |
 |---|---|
 | **VS Code** 1.101+ | Nothing to install — the extension registers `extract_strings` with agent mode |
-| **Zed** | No listing yet — [add the MCP server by hand](https://zed.dev/docs/ai/mcp) |
 | **Claude Code** | `claude mcp add string-le -- npx -y string-le-mcp` |
 | **Cursor, Windsurf, anything else** | point it at `npx string-le-mcp` |
 
