@@ -134,6 +134,89 @@ That prints the tool list and exits — if you see `extract_strings`, the server
 
 Values are trimmed; empty values are dropped; keys are never extracted — one rule, shared by every extractor above. The fallback scan cannot see unquoted strings, which is why the parsed formats and the source languages get real readers; it reads a quoted run across lines when `string-le.fallback.multiline` is on (the MCP tool's `multiline`). Parse errors are silent unless `string-le.showParseErrors` is on.
 
+## Across a folder or a workspace
+
+Extract reads the document you have open. A scan reads many files from disk and gives one report.
+
+- **The whole workspace**: run `String-LE: Extract Strings from Workspace` from the command palette.
+- **One folder**: right-click it in the Explorer and choose `Extract Strings from Folder`, or run `String-LE: Extract Strings from Folder` and pick one.
+
+A project writes the same string in many places, so the report is the distinct strings, the most widely used first, with how often each is written and where:
+
+```markdown
+# String-LE workspace report
+
+`my-project` · 4 file(s) read · 2 distinct string(s), 6 occurrence(s) in 3 file(s)
+
+| String | Occurrences | Files |
+|---|---|---|
+| `Save changes` | 4 | 3 |
+| `Cancel` | 2 | 2 |
+
+## `Save changes` (4)
+
+- `i18n/en.json` · **2:11**
+- `src/a.ts` · **1:11**, **3:11**
+- `src/b.py` · **1:9**
+
+## `Cancel` (2)
+
+- `i18n/en.json` · **3:13**
+- `src/a.ts` · **2:11**
+
+## Could not be read (1)
+
+- `bad.json`: Invalid JSON: Unexpected end of JSON input
+```
+
+Positions follow `string-le.showPositions`. With it off, each line is the file and how many times the string is in it: `src/a.ts (2)`. The copy on the clipboard follows `string-le.clipboardIncludesPositions`, as it does for Extract.
+
+A file its format reader could not parse is listed with the reason, never passed over. A string longer than 120 characters, or one with a line break, is shown as one cut line. Two strings are still compared whole.
+
+**What a scan reads.** Files come from disk, so an unsaved edit is not seen. A file over the safety size, or one that is not UTF-8 text, is left unread. It stops at 5,000 files or 10,000 listed occurrences. The report ends with a line for each thing it left out, so a short report is never mistaken for a clean project.
+
+**What it skips, and how to change that.** Three switches are on by default, and each can be turned off on its own in Settings:
+
+| Switch | Skips |
+|---|---|
+| `scanUseDefaultExcludes` | Dependency folders, build output, tool caches and lockfiles. The full list is below |
+| `scanRespectGitignore` | Whatever the project's `.gitignore` files skip |
+| `scanSkipBinaryFiles` | Images, fonts, archives and other files that are not text |
+
+Two lists adjust the result without turning a switch off. To skip more, add a pattern to `scanExcludes`. To read something a switch would skip, add it to `scanAlwaysInclude`:
+
+```jsonc
+{
+	// Also skip the test fixtures.
+	"string-le.workspace.scanExcludes": ["**/fixtures/**"],
+	// Read the vendored code, though the built-in list skips it.
+	"string-le.workspace.scanAlwaysInclude": ["**/vendor/**"]
+}
+```
+
+`String-LE: Open Settings` opens all of these in the Settings editor.
+
+<details>
+<summary>The built-in list</summary>
+
+Folders, wherever they appear:
+
+<!-- built-in-folders -->
+`.git`, `.hg`, `.svn`, `node_modules`, `bower_components`, `jspm_packages`, `.pnpm-store`, `.yarn`, `vendor`, `site-packages`, `Pods`, `Carthage`, `dist`, `build`, `out`, `target`, `_build`, `_site`, `dist-newstyle`, `zig-out`, `storybook-static`, `cdk.out`, `DerivedData`, `CMakeFiles`, `.next`, `.nuxt`, `.output`, `.svelte-kit`, `.angular`, `.astro`, `.docusaurus`, `.vuepress`, `.expo`, `.turbo`, `.parcel-cache`, `.cache`, `.sass-cache`, `.jekyll-cache`, `.dart_tool`, `.pub-cache`, `.gradle`, `.kotlin`, `.cxx`, `.externalNativeBuild`, `captures`, `ephemeral`, `.symlinks`, `.swiftpm`, `.build`, `.bundle`, `.stack-work`, `.zig-cache`, `.godot`, `elm-stuff`, `.vercel`, `.netlify`, `.serverless`, `.aws-sam`, `.terraform`, `.venv`, `venv`, `__pycache__`, `.tox`, `.nox`, `.mypy_cache`, `.pytest_cache`, `.ruff_cache`, `.ipynb_checkpoints`, `.eggs`, `coverage`, `htmlcov`, `.nyc_output`, `.vscode-test`, `.idea`, `.vs`, `xcuserdata`, `*.egg-info`
+<!-- /built-in-folders -->
+
+Files, wherever they appear:
+
+<!-- built-in-files -->
+`*.min.js`, `*.min.css`, `*.map`, `*.snap`, `*.lock`, `package-lock.json`, `pnpm-lock.yaml`, `npm-shrinkwrap.json`, `go.sum`, `*.pbxproj`, `*.iml`, `local.properties`, `output-metadata.json`, `.flutter-plugins`, `.flutter-plugins-dependencies`, `.packages`, `Generated.xcconfig`, `flutter_export_environment.sh`, `GeneratedPluginRegistrant.*`, `fastlane/report.xml`, `fastlane/test_output/**`, `doc/api/**`
+<!-- /built-in-files -->
+
+Not on the list, because they are ordinary folders in many projects: `bin`, `obj`, `tmp`, `logs`, `public`, `generated`. A project that generates those ignores them in git, and the scan reads `.gitignore`.
+
+</details>
+
+The settings that shape a scan are under [Settings](#settings).
+
 ## The CLI
 
 The same extraction runs from a terminal or a shell pipeline: a Rust CLI
@@ -173,6 +256,8 @@ error.
 | Command | Description |
 |---|---|
 | `String-LE: Extract Strings` | Extract all string values from the active document |
+| `String-LE: Extract Strings from Workspace` | The distinct strings in every file in the workspace, and where each one is |
+| `String-LE: Extract Strings from Folder` | The same for one folder. Also on a folder in the Explorer |
 | `String-LE: Deduplicate Strings` | Remove duplicate lines from the active document |
 | `String-LE: Sort Strings` | Sort lines alphabetically or by length |
 | `String-LE: Toggle CSV Streaming` | Enable/disable streaming for large CSV files |
@@ -196,6 +281,14 @@ No command is bound to a key by default. Give any of them one under **Keyboard S
 | `string-le.csv.streamingEnabled` | `false` | Stream CSV results into the editor incrementally |
 | `string-le.showParseErrors` | `false` | Show parse errors as notifications |
 | `string-le.notificationsLevel` | `silent` | `all` = every notification, `important` = warnings + errors, `silent` = errors only |
+| `string-le.workspace.scanPatterns` | `["**/*"]` | The files a folder or workspace scan reads |
+| `string-le.workspace.scanUseDefaultExcludes` | `true` | Skip dependency folders, build output, caches and lockfiles |
+| `string-le.workspace.scanRespectGitignore` | `true` | Skip what the project's `.gitignore` files skip |
+| `string-le.workspace.scanSkipBinaryFiles` | `true` | Skip images, fonts, archives and other files that are not text |
+| `string-le.workspace.scanExcludes` | `[]` | More files to skip, as glob patterns |
+| `string-le.workspace.scanAlwaysInclude` | `[]` | Files to read even when one of the three above would skip them |
+| `string-le.workspace.scanMaxFiles` | `5000` | The most files one scan reads |
+| `string-le.workspace.scanMaxResults` | `10000` | The most occurrences one scan lists before it stops reading |
 | `string-le.safety.enabled` | `true` | Guardrails for very large files/outputs |
 | `string-le.safety.fileSizeWarnBytes` | `1000000` | Warn before extracting above this file size |
 | `string-le.safety.largeOutputLinesThreshold` | `50000` | Offer Open/Copy/Cancel above this result count |
@@ -254,12 +347,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 87.61% |
-| Branches | 79.97% |
-| Functions | 96.15% |
-| Lines | 89.30% |
+| Statements | 89.09% |
+| Branches | 81.45% |
+| Functions | 96.72% |
+| Lines | 90.67% |
 
-338 test cases across 28 files, plus an integration suite that runs
+388 test cases across 31 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 

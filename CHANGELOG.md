@@ -9,10 +9,31 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
-## [2.5.0] - 2026-10-05
+## [2.5.0] - 2026-10-06
 
 ### Added
 
+- Extract across a folder or the whole workspace.
+  `String-LE: Extract Strings from Workspace` reads every file in the workspace
+  from disk, and `String-LE: Extract Strings from Folder` does the same for one
+  folder, from the command palette or from a folder in the Explorer. The
+  report lists each distinct string once, the most widely used first, with how
+  often it is written, in how many files, and where. It ends with a line for
+  each thing the scan left unread.
+- A scan skips three things by default, each with its own switch:
+  dependency folders, build output, caches and lockfiles
+  (`string-le.workspace.scanUseDefaultExcludes`), whatever the project's
+  `.gitignore` files skip (`string-le.workspace.scanRespectGitignore`), and
+  images, fonts, archives and other files that are not text
+  (`string-le.workspace.scanSkipBinaryFiles`). `string-le.workspace.scanExcludes`
+  skips more, and `string-le.workspace.scanAlwaysInclude` reads a path whatever
+  the switches say. `string-le.workspace.scanPatterns` chooses the files to
+  read in the first place.
+- `string-le.workspace.scanMaxFiles` caps how many files are read and
+  `string-le.workspace.scanMaxResults` caps how many occurrences are listed.
+- A file its format reader could not parse is listed in the report with the reason.
+- The positions settings apply to a scan as they do to Extract. With
+  positions off, each line is a file and how many times the string is in it.
 - Positions are now a setting. `string-le.showPositions` decides whether the
   output gives the line and column of each string, and
   `string-le.clipboardIncludesPositions` decides the same for the copy on the

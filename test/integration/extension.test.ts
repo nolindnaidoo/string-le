@@ -1,4 +1,7 @@
 import * as assert from 'node:assert';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import * as vscode from 'vscode';
 
 const EXTENSION_ID = 'nolindnaidoo.string-le';
@@ -30,6 +33,8 @@ describe('String-LE integration', function () {
 		const commands = await vscode.commands.getCommands(true);
 		for (const id of [
 			'string-le.extractStrings',
+			'string-le.extractWorkspace',
+			'string-le.extractFolder',
 			'string-le.postProcess.dedupe',
 			'string-le.postProcess.sort',
 			'string-le.csv.toggleStreaming',
@@ -112,5 +117,27 @@ describe('String-LE integration', function () {
 			(doc) => doc.getText() === 'alpha\nbravo\ncharlie',
 		);
 		assert.ok(resultDoc, 'no deduplicated results document found');
+	});
+	it('extracts the distinct strings of a folder from disk, with how often and where', async () => {
+		const root = mkdtempSync(join(tmpdir(), 'string-le-extract-'));
+		for (const dir of ['src', 'node_modules', 'generated']) mkdirSync(join(root, dir));
+		writeFileSync(join(root, '.gitignore'), 'generated/\n');
+		writeFileSync(join(root, 'src', 'a.ts'), 'const a = "Save changes";\nconst b = "Save changes";\n');
+		writeFileSync(join(root, 'src', 'en.json'), '{\n  "save": "Save changes"\n}\n');
+		writeFileSync(join(root, 'node_modules', 'x.js'), 'const s = "from a dependency";\n');
+		writeFileSync(join(root, 'generated', 'g.ts'), 'const g = "from generated";\n');
+		writeFileSync(join(root, 'bad.json'), '{"a": ');
+
+		await vscode.commands.executeCommand('string-le.extractFolder', vscode.Uri.file(root));
+
+		const report = vscode.workspace.textDocuments.find(
+			(doc) => doc.languageId === 'markdown' && doc.getText().includes('string-le-extract-'),
+		);
+		assert.ok(report, 'no workspace report was opened');
+		const text = report.getText();
+		assert.ok(text.includes('| `Save changes` | 3 | 2 |'));
+		assert.ok(!text.includes('from a dependency') && !text.includes('from generated'));
+		assert.match(text, /^- `bad\.json`: Invalid JSON: /m);
+		assert.match(text, /1 file\(s\) ignored by \.gitignore/);
 	});
 });

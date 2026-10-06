@@ -27,6 +27,14 @@ export const CONFIG_DEFAULTS = Object.freeze({
 	showPositions: false,
 	statusBarEnabled: true,
 	telemetryEnabled: false,
+	workspaceScanAlwaysInclude: Object.freeze([]) as readonly string[],
+	workspaceScanExcludes: Object.freeze([]) as readonly string[],
+	workspaceScanMaxFiles: 5000,
+	workspaceScanMaxResults: 10000,
+	workspaceScanPatterns: Object.freeze(['**/*']) as readonly string[],
+	workspaceScanRespectGitignore: true,
+	workspaceScanSkipBinaryFiles: true,
+	workspaceScanUseDefaultExcludes: true,
 });
 
 export function readConfig(): StringLeConfig {
@@ -64,6 +72,48 @@ export function readConfig(): StringLeConfig {
 			cfg,
 			'telemetryEnabled',
 			CONFIG_DEFAULTS.telemetryEnabled,
+		),
+		workspaceScanAlwaysInclude: readStrings(
+			cfg,
+			'workspace.scanAlwaysInclude',
+			CONFIG_DEFAULTS.workspaceScanAlwaysInclude,
+		),
+		workspaceScanExcludes: readStrings(
+			cfg,
+			'workspace.scanExcludes',
+			CONFIG_DEFAULTS.workspaceScanExcludes,
+		),
+		workspaceScanMaxFiles: readNumber(
+			cfg,
+			'workspace.scanMaxFiles',
+			CONFIG_DEFAULTS.workspaceScanMaxFiles,
+			1,
+		),
+		workspaceScanMaxResults: readNumber(
+			cfg,
+			'workspace.scanMaxResults',
+			CONFIG_DEFAULTS.workspaceScanMaxResults,
+			1,
+		),
+		workspaceScanPatterns: readStrings(
+			cfg,
+			'workspace.scanPatterns',
+			CONFIG_DEFAULTS.workspaceScanPatterns,
+		),
+		workspaceScanRespectGitignore: readBoolean(
+			cfg,
+			'workspace.scanRespectGitignore',
+			CONFIG_DEFAULTS.workspaceScanRespectGitignore,
+		),
+		workspaceScanSkipBinaryFiles: readBoolean(
+			cfg,
+			'workspace.scanSkipBinaryFiles',
+			CONFIG_DEFAULTS.workspaceScanSkipBinaryFiles,
+		),
+		workspaceScanUseDefaultExcludes: readBoolean(
+			cfg,
+			'workspace.scanUseDefaultExcludes',
+			CONFIG_DEFAULTS.workspaceScanUseDefaultExcludes,
 		),
 		clipboardIncludesPositions: readBoolean(
 			cfg,
@@ -115,6 +165,19 @@ export function readConfig(): StringLeConfig {
 			CONFIG_DEFAULTS.csvStreamingEnabled,
 		),
 	});
+}
+
+function readStrings(
+	config: vscode.WorkspaceConfiguration,
+	key: string,
+	defaultValue: readonly string[],
+): readonly string[] {
+	const value = config.get<unknown>(key, defaultValue);
+	return Object.freeze(
+		Array.isArray(value)
+			? value.filter((item): item is string => typeof item === 'string')
+			: [...defaultValue],
+	);
 }
 
 function readBoolean(
@@ -183,6 +246,17 @@ export type StringLeConfig = Readonly<{
 	openInNewFile: boolean;
 	openResultsSideBySide: boolean;
 	telemetryEnabled: boolean;
+	/** Globs read whatever the excludes and `.gitignore` say. */
+	workspaceScanAlwaysInclude: readonly string[];
+	/** Globs left out on top of the built-in list. */
+	workspaceScanExcludes: readonly string[];
+	workspaceScanMaxFiles: number;
+	/** The most occurrences one folder scan lists before it stops reading. */
+	workspaceScanMaxResults: number;
+	workspaceScanPatterns: readonly string[];
+	workspaceScanRespectGitignore: boolean;
+	workspaceScanSkipBinaryFiles: boolean;
+	workspaceScanUseDefaultExcludes: boolean;
 	/** Whether the copy on the clipboard carries positions, whatever the screen shows. */
 	clipboardIncludesPositions: boolean;
 	copyToClipboardEnabled: boolean;
