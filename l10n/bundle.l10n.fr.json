@@ -46,5 +46,6 @@
 	"Could not be read ({0})": "Illisible ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} chaîne(s) distincte(s), {1} occurrence(s) dans {2} fichier(s)",
 	"No strings found.": "Aucune chaîne trouvée.",
-	"String": "Chaîne"
+	"String": "Chaîne",
+	"Where": "Où"
 }

@@ -141,17 +141,18 @@ Extract reads the document you have open. A scan reads many files from disk and 
 - **The whole workspace**: run `String-LE: Extract Strings from Workspace` from the command palette.
 - **One folder**: right-click it in the Explorer and choose `Extract Strings from Folder`, or run `String-LE: Extract Strings from Folder` and pick one.
 
-A project writes the same string in many places, so the report is the distinct strings, the most widely used first, with how often each is written and where:
+A project writes the same string in many places, so the report is the distinct strings, the most widely used first, with how often each is written and where. Every string is in the table. Most are written once, and such a one is placed in its row. A repeated one gets a section below that lists each place:
 
 ```markdown
 # String-LE workspace report
 
-`my-project` · 4 file(s) read · 2 distinct string(s), 6 occurrence(s) in 3 file(s)
+`my-project` · 4 file(s) read · 3 distinct string(s), 7 occurrence(s) in 3 file(s)
 
-| String | Occurrences | Files |
-|---|---|---|
-| `Save changes` | 4 | 3 |
-| `Cancel` | 2 | 2 |
+| String | Occurrences | Files | Where |
+|---|---|---|---|
+| `Save changes` | 4 | 3 | |
+| `Cancel` | 2 | 2 | |
+| `Press Enter` | 1 | 1 | `src/b.py` · **2:8** |
 
 ## `Save changes` (4)
 
@@ -347,10 +348,10 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 89.09% |
-| Branches | 81.45% |
-| Functions | 96.72% |
-| Lines | 90.67% |
+| Statements | 89.11% |
+| Branches | 81.55% |
+| Functions | 96.73% |
+| Lines | 90.69% |
 
 388 test cases across 31 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the

@@ -46,5 +46,6 @@
 	"Could not be read ({0})": "Tidak dapat dibaca ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} string berbeda, {1} kemunculan dalam {2} file",
 	"No strings found.": "Tidak ada string yang ditemukan.",
-	"String": "String"
+	"String": "String",
+	"Where": "Lokasi"
 }

@@ -46,5 +46,6 @@
 	"Could not be read ({0})": "Não foi possível ler ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} string(s) distinta(s), {1} ocorrência(s) em {2} arquivo(s)",
 	"No strings found.": "Nenhuma string encontrada.",
-	"String": "String"
+	"String": "String",
+	"Where": "Onde"
 }

@@ -18,7 +18,9 @@ separate product on its own cadence and keeps its own
   from disk, and `String-LE: Extract Strings from Folder` does the same for one
   folder, from the command palette or from a folder in the Explorer. The
   report lists each distinct string once, the most widely used first, with how
-  often it is written, in how many files, and where. It ends with a line for
+  often it is written, in how many files, and where. A string written
+  once is placed in its table row, and a repeated one gets a section that
+  lists each place. It ends with a line for
   each thing the scan left unread.
 - A scan skips three things by default, each with its own switch:
   dependency folders, build output, caches and lockfiles

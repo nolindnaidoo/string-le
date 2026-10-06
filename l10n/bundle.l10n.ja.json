@@ -46,5 +46,6 @@
 	"Could not be read ({0})": "読み取れません ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{2} 個のファイルに {0} 種類の文字列、{1} 件の出現",
 	"No strings found.": "文字列が見つかりません。",
-	"String": "文字列"
+	"String": "文字列",
+	"Where": "場所"
 }

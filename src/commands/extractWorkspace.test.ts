@@ -22,7 +22,7 @@ import { registerExtractWorkspaceCommands } from './extractWorkspace';
 const TREE = {
 	'/w/src/a.ts':
 		'const a = "Save changes";\nconst b = "Cancel";\nconst c = "Save changes";\n',
-	'/w/src/b.py': 'label = "Save changes"\n',
+	'/w/src/b.py': 'label = "Save changes"\nhint = "Press Enter"\n',
 	'/w/i18n/en.json': '{\n  "save": "Save changes",\n  "cancel": "Cancel"\n}\n',
 	'/w/node_modules/x.js': 'const skipped = "from a dependency";\n',
 	'/w/logo.png': '"not text"',
@@ -69,11 +69,17 @@ describe('string-le.extractWorkspace and string-le.extractFolder', () => {
 
 		const text = report();
 		expect(text).toContain(
-			'3 file(s) read · 2 distinct string(s), 6 occurrence(s) in 3 file(s)',
+			'3 file(s) read · 3 distinct string(s), 7 occurrence(s) in 3 file(s)',
 		);
 		expect(text.split('\n').filter((line) => line.startsWith('| `'))).toEqual([
-			'| `Save changes` | 4 | 3 |',
-			'| `Cancel` | 2 | 2 |',
+			'| `Save changes` | 4 | 3 | |',
+			'| `Cancel` | 2 | 2 | |',
+			// Written once, so it is placed here and has no section below.
+			'| `Press Enter` | 1 | 1 | `/w/src/b.py` |',
+		]);
+		expect(text.match(/^## .*$/gm)).toEqual([
+			'## `Save changes` (4)',
+			'## `Cancel` (2)',
 		]);
 		// Left out by the built-in list, and a .png is never opened.
 		expect(text).not.toContain('from a dependency');
@@ -97,6 +103,12 @@ describe('string-le.extractWorkspace and string-le.extractFolder', () => {
 		await runCommand('string-le.extractWorkspace');
 		expect(report()).toContain('- `/w/src/a.ts` (2)');
 		expect(report()).not.toMatch(/\*\*\d+:\d+\*\*/);
+
+		_setConfig('string-le.showPositions', true);
+		await runCommand('string-le.extractWorkspace');
+		expect(report()).toContain(
+			'| `Press Enter` | 1 | 1 | `/w/src/b.py` · **2:8** |',
+		);
 	});
 
 	it('names a file its format reader could not parse, with the reason', async () => {
@@ -134,7 +146,7 @@ describe('string-le.extractWorkspace and string-le.extractFolder', () => {
 		await runCommand('string-le.extractFolder', Uri.file('/w/src'));
 
 		expect(report()).toContain(
-			'`/w/src` · 2 file(s) read · 2 distinct string(s), 4 occurrence(s) in 2 file(s)',
+			'`/w/src` · 2 file(s) read · 3 distinct string(s), 5 occurrence(s) in 2 file(s)',
 		);
 		expect(report()).toMatch(/^- `a\.ts`/m);
 	});
@@ -186,10 +198,10 @@ describe('string-le.extractWorkspace and string-le.extractFolder', () => {
 					line.startsWith('| `') ||
 					line.startsWith('## '),
 			);
-		expect(shown).toHaveLength(11);
+		expect(shown).toHaveLength(12);
 		for (const line of shown) expect(readme).toContain(line);
 		expect(readme).toContain(
-			'4 file(s) read · 2 distinct string(s), 6 occurrence(s) in 3 file(s)',
+			'4 file(s) read · 3 distinct string(s), 7 occurrence(s) in 3 file(s)',
 		);
 	});
 });
