@@ -53,6 +53,15 @@ export class Uri {
 		);
 	}
 
+	static joinPath(base: Uri, ...segments: string[]): Uri {
+		const parts = base.path.split('/').filter(Boolean);
+		for (const segment of segments.flatMap((s) => s.split('/'))) {
+			if (segment === '..') parts.pop();
+			else if (segment && segment !== '.') parts.push(segment);
+		}
+		return base.with({ path: `/${parts.join('/')}` });
+	}
+
 	toString(_skipEncoding?: boolean): string {
 		return `${this.scheme}://${this.authority}${this.path}`;
 	}
@@ -87,7 +96,18 @@ export class Position {
 		public readonly line: number,
 		public readonly character: number,
 	) {}
+	translate(lines: number, characters: number): Position {
+		return new Position(this.line + lines, this.character + characters);
+	}
 }
+
+export class RelativePattern {
+	constructor(
+		public readonly baseUri: Uri,
+		public readonly pattern: string,
+	) {}
+}
+
 
 export class Range {
 	constructor(
@@ -188,13 +208,87 @@ export function _fireConfigChange(section: string): void {
 
 // --------------------------------------------------------- workspace
 
+/**
+ * An in-memory filesystem: absolute path to the file's bytes. While it is
+ * empty the filesystem answers as it always did, with an empty file for any
+ * path, which is what the single-document tests were written against.
+ */
+const workspaceFiles = new Map<string, Uint8Array>();
+
+export function _setWorkspaceFiles(
+	files: Readonly<Record<string, string | Uint8Array>>,
+): void {
+	workspaceFiles.clear();
+	for (const [path, content] of Object.entries(files)) {
+		workspaceFiles.set(
+			path,
+			typeof content === 'string' ? new TextEncoder().encode(content) : content,
+		);
+	}
+}
+
 export const workspace = {
 	workspaceFolders: undefined as WorkspaceFolder[] | undefined,
 	getWorkspaceFolder: (_uri: Uri) => undefined as WorkspaceFolder | undefined,
+	asRelativePath: (target: Uri | string, _includeFolder?: boolean) =>
+		typeof target === 'string' ? target : target.path,
 	fs: {
-		readFile: async (_uri: Uri) => new Uint8Array(),
+		readFile: async (uri: Uri) => {
+			if (workspaceFiles.size === 0) return new Uint8Array();
+			const bytes = workspaceFiles.get(uri.path);
+			if (bytes === undefined) throw new Error(`no such file: ${uri.path}`);
+			return bytes;
+		},
 		writeFile: async (_uri: Uri, _content: Uint8Array) => {},
-		stat: async (_uri: Uri) => ({ type: 1, ctime: 0, mtime: 0, size: 0 }),
+		stat: async (uri: Uri) => {
+			if (workspaceFiles.size === 0)
+				return { type: 1, ctime: 0, mtime: 0, size: 0 };
+			const bytes = workspaceFiles.get(uri.path);
+			if (bytes !== undefined)
+				return { type: 1, ctime: 0, mtime: 0, size: bytes.length };
+			const prefix = `${uri.path}/`;
+			if ([...workspaceFiles.keys()].some((file) => file.startsWith(prefix)))
+				return { type: 2, ctime: 0, mtime: 0, size: 0 };
+			throw new Error(`no such file or directory: ${uri.path}`);
+		},
+	},
+	// Globs are read as the editor reads the ones this code sends: `**/`
+	// for any depth, `/**` for everything beneath, `*` within one segment.
+	findFiles: async (
+		include: string | RelativePattern,
+		exclude?: string | null,
+		maxResults?: number,
+	) => {
+		const toRegExp = (glob: string) =>
+			new RegExp(
+				`^${glob
+					.split(/(\*\*\/|\/\*\*|\*)/)
+					.map((part) =>
+						part === '**/'
+							? '(?:.*/)?'
+							: part === '/**'
+								? '/.*'
+								: part === '*'
+									? '[^/]*'
+									: part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'),
+					)
+					.join('')}$`,
+			);
+		const excluded = (exclude ?? '')
+			.replace(/^\{|\}$/g, '')
+			.split(',')
+			.filter(Boolean)
+			.map(toRegExp);
+		const base = typeof include === 'string' ? '' : `${include.baseUri.path}/`;
+		const wanted = toRegExp(
+			typeof include === 'string' ? include : include.pattern,
+		);
+		return [...workspaceFiles.keys()]
+			.filter((path) => path.startsWith(base))
+			.filter((path) => wanted.test(path.slice(base.length)))
+			.filter((path) => !excluded.some((glob) => glob.test(path.slice(1))))
+			.slice(0, maxResults)
+			.map((path) => Uri.file(path));
 	},
 	getConfiguration: (section?: string) => ({
 		get: <T>(key: string, defaultValue?: T): T | undefined => {
@@ -305,6 +399,14 @@ export function _respondToInputBox(
 
 let inputBoxResponder: (() => string | undefined) | undefined;
 
+let openDialogResponder: (() => Uri[] | undefined) | undefined;
+
+export function _respondToOpenDialog(
+	responder: (() => Uri[] | undefined) | undefined,
+): void {
+	openDialogResponder = responder;
+}
+
 export const StatusBarAlignment = { Left: 1, Right: 2 };
 export const ViewColumn = { Active: -1, Beside: -2, One: 1, Two: 2 };
 export const ProgressLocation = { Notification: 15, Window: 10 };
@@ -392,6 +494,7 @@ export const window = {
 		shownMessages.push({ kind: 'error', message, items });
 		return undefined;
 	},
+	showOpenDialog: async (_options?: unknown) => openDialogResponder?.(),
 	showQuickPick: async (items: unknown[], _options?: unknown) =>
 		quickPickResponder ? quickPickResponder(items) : undefined,
 	showInputBox: async (options?: unknown) => {
@@ -625,6 +728,8 @@ export function _resetMockState(): void {
 	warningResponder = undefined;
 	inputBoxResponder = undefined;
 	clipboard.value = '';
+	workspaceFiles.clear();
+	openDialogResponder = undefined;
 	workspace.workspaceFolders = undefined;
 	openedDocuments.length = 0;
 	editorInsertions.length = 0;

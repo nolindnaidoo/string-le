@@ -44,7 +44,9 @@ describe('command registration', () => {
 
 		expect([..._registeredCommands().keys()].sort()).toEqual([
 			'string-le.csv.toggleStreaming',
+			'string-le.extractFolder',
 			'string-le.extractStrings',
+			'string-le.extractWorkspace',
 			'string-le.help',
 			'string-le.openSettings',
 			'string-le.postProcess.dedupe',

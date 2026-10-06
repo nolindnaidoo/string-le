@@ -4,6 +4,8 @@
 	"manifest.command.csv.toggle-streaming.title": "Toggle CSV Streaming",
 	"manifest.command.dedupe.title": "Deduplicate Strings",
 	"manifest.command.extract.title": "Extract Strings",
+	"manifest.command.extract-workspace.title": "Extract Strings from Workspace",
+	"manifest.command.extract-folder.title": "Extract Strings from Folder",
 	"manifest.command.help.title": "Help & Troubleshooting",
 	"manifest.command.settings.title": "Open Settings",
 	"manifest.command.sort.title": "Sort Strings",
@@ -34,5 +36,13 @@
 	"manifest.settings.statusbar.enabled.desc": "Show String-LE status bar entry for quick access",
 	"manifest.settings.telemetry.desc": "Enable local-only telemetry logs to the Output panel",
 	"manifest.settings.title": "String-LE",
-	"manifest.mcp.label": "String-LE string extraction tools for agent mode"
+	"manifest.mcp.label": "String-LE string extraction tools for agent mode",
+	"manifest.settings.workspace.excludes.desc": "Glob patterns of more files a folder or workspace scan skips, on top of the built-in list. Example: **/fixtures/**",
+	"manifest.settings.workspace.max-files.desc": "The most files one folder or workspace scan reads",
+	"manifest.settings.workspace.max-results.desc": "The most results one folder or workspace scan reports before it stops reading",
+	"manifest.settings.workspace.patterns.desc": "Glob patterns of the files a folder or workspace scan reads",
+	"manifest.settings.workspace.gitignore.desc": "Leave out the files the project's .gitignore files leave out",
+	"manifest.settings.workspace.always-include.desc": "Glob patterns of files a folder or workspace scan reads even when the built-in list or .gitignore would skip them. Example: **/vendor/**",
+	"manifest.settings.workspace.binary.desc": "Skip images, fonts, archives and other files that are not text",
+	"manifest.settings.workspace.default-excludes.desc": "Skip dependency folders, build output, caches and lockfiles, such as node_modules, dist, .next and package-lock.json"
 }

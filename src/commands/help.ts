@@ -37,6 +37,8 @@ function buildHelpContent(): string {
 
 ## Commands
 - **Extract Strings**: Extract strings from the current document
+- **Extract Strings from Workspace**: The distinct strings in every file in the workspace, and where each one is
+- **Extract Strings from Folder**: The same for one folder. Also on a folder in the Explorer
 - **Deduplicate Strings**: Remove duplicate lines from the current document
 - **Sort Strings**: Sort lines alphabetically or by length
 - **Toggle CSV Streaming**: Enable/disable streaming for large CSV files

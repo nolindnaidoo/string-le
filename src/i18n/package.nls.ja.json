@@ -4,6 +4,8 @@
 	"manifest.command.csv.toggle-streaming.title": "CSVストリーミングの切り替え",
 	"manifest.command.dedupe.title": "文字列の重複を削除する",
 	"manifest.command.extract.title": "文字列の抽出",
+	"manifest.command.extract-workspace.title": "ワークスペースから文字列を抽出",
+	"manifest.command.extract-folder.title": "フォルダーから文字列を抽出",
 	"manifest.command.help.title": "ヘルプとトラブルシューティング",
 	"manifest.command.settings.title": "「設定」を開く",
 	"manifest.command.sort.title": "文字列の並べ替え",
@@ -34,5 +36,13 @@
 	"manifest.settings.statusbar.enabled.desc": "「String-LE」ステータスバー項目を表示して、すばやくアクセスできるようにする",
 	"manifest.settings.telemetry.desc": "「出力」パネルへのローカルのみテレメトリログの記録を有効にする",
 	"manifest.settings.title": "String-LE",
-	"manifest.mcp.label": "エージェントモード用のString-LE文字列抽出ツール"
+	"manifest.mcp.label": "エージェントモード用のString-LE文字列抽出ツール",
+	"manifest.settings.workspace.excludes.desc": "フォルダーまたはワークスペースのスキャンで、組み込みリストに加えて除外するファイルの glob パターン。例: **/fixtures/**",
+	"manifest.settings.workspace.max-files.desc": "フォルダーまたはワークスペースの 1 回のスキャンで読み取るファイルの最大数",
+	"manifest.settings.workspace.max-results.desc": "フォルダーまたはワークスペースの 1 回のスキャンが読み取りを止めるまでに報告する結果の最大数",
+	"manifest.settings.workspace.patterns.desc": "フォルダーまたはワークスペースのスキャンで読み取るファイルの glob パターン",
+	"manifest.settings.workspace.gitignore.desc": "プロジェクトの .gitignore で除外されているファイルを除外します",
+	"manifest.settings.workspace.always-include.desc": "組み込みリストや .gitignore で除外される場合でも、フォルダーまたはワークスペースのスキャンで読み取るファイルの glob パターン。例: **/vendor/**",
+	"manifest.settings.workspace.binary.desc": "画像、フォント、アーカイブなど、テキストではないファイルを除外します",
+	"manifest.settings.workspace.default-excludes.desc": "node_modules、dist、.next、package-lock.json など、依存関係フォルダー、ビルド出力、キャッシュ、ロックファイルを除外します"
 }

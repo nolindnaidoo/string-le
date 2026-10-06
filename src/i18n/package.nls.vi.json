@@ -4,6 +4,8 @@
 	"manifest.command.csv.toggle-streaming.title": "Bật/tắt tính năng truyền dữ liệu CSV",
 	"manifest.command.dedupe.title": "Loại bỏ các chuỗi trùng lặp",
 	"manifest.command.extract.title": "Trích xuất chuỗi ký tự",
+	"manifest.command.extract-workspace.title": "Trích xuất chuỗi từ không gian làm việc",
+	"manifest.command.extract-folder.title": "Trích xuất chuỗi từ thư mục",
 	"manifest.command.help.title": "Trợ giúp & Khắc phục sự cố",
 	"manifest.command.settings.title": "Mở Cài đặt",
 	"manifest.command.sort.title": "Sắp xếp chuỗi ký tự",
@@ -34,5 +36,13 @@
 	"manifest.settings.statusbar.enabled.desc": "Hiển thị mục “String-LE” trên thanh trạng thái để truy cập nhanh",
 	"manifest.settings.telemetry.desc": "Bật tính năng ghi nhật ký đo lường chỉ tại địa phương vào bảng Đầu ra",
 	"manifest.settings.title": "String-LE",
-	"manifest.mcp.label": "Các công cụ trích xuất chuỗi String-LE cho chế độ tác nhân"
+	"manifest.mcp.label": "Các công cụ trích xuất chuỗi String-LE cho chế độ tác nhân",
+	"manifest.settings.workspace.excludes.desc": "Mẫu glob của các tệp bổ sung mà lượt quét thư mục hoặc không gian làm việc bỏ qua, ngoài danh sách tích hợp sẵn. Ví dụ: **/fixtures/**",
+	"manifest.settings.workspace.max-files.desc": "Số tệp tối đa mà một lượt quét thư mục hoặc không gian làm việc đọc",
+	"manifest.settings.workspace.max-results.desc": "Số kết quả tối đa mà một lượt quét thư mục hoặc không gian làm việc báo cáo trước khi ngừng đọc",
+	"manifest.settings.workspace.patterns.desc": "Mẫu glob của các tệp mà lượt quét thư mục hoặc không gian làm việc đọc",
+	"manifest.settings.workspace.gitignore.desc": "Bỏ qua các tệp mà các tệp .gitignore của dự án bỏ qua",
+	"manifest.settings.workspace.always-include.desc": "Mẫu glob của các tệp mà lượt quét thư mục hoặc không gian làm việc vẫn đọc ngay cả khi danh sách tích hợp sẵn hoặc .gitignore sẽ bỏ qua chúng. Ví dụ: **/vendor/**",
+	"manifest.settings.workspace.binary.desc": "Bỏ qua hình ảnh, phông chữ, tệp nén và các tệp khác không phải văn bản",
+	"manifest.settings.workspace.default-excludes.desc": "Bỏ qua thư mục phụ thuộc, đầu ra bản dựng, bộ nhớ đệm và lockfile, chẳng hạn node_modules, dist, .next và package-lock.json"
 }
