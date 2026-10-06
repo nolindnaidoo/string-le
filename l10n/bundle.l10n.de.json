@@ -46,5 +46,6 @@
 	"Could not be read ({0})": "Nicht lesbar ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} verschiedene Zeichenfolge(n), {1} Vorkommen in {2} Datei(en)",
 	"No strings found.": "Keine Zeichenfolgen gefunden.",
-	"String": "Zeichenfolge"
+	"String": "Zeichenfolge",
+	"Where": "Wo"
 }

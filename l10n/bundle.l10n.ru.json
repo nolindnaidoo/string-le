@@ -46,5 +46,6 @@
 	"Could not be read ({0})": "Не удалось прочитать ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "Различных строк: {0}, вхождений: {1}, файлов: {2}",
 	"No strings found.": "Строки не найдены.",
-	"String": "Строка"
+	"String": "Строка",
+	"Where": "Где"
 }

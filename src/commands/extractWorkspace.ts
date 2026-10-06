@@ -190,6 +190,22 @@ function headline(strings: readonly DistinctString[]): string {
 	);
 }
 
+/** A file and the places in it, or how many times when positions are off. */
+function placed(
+	file: string,
+	here: readonly Occurrence[],
+	positions: boolean,
+): string {
+	const places = here.flatMap((o) =>
+		o.position === undefined
+			? []
+			: [`**${o.position.line}:${o.position.column}**`],
+	);
+	if (positions && places.length > 0)
+		return `${code(file)} · ${places.join(', ')}`;
+	return here.length > 1 ? `${code(file)} (${here.length})` : code(file);
+}
+
 /** The longest a string is shown in a row or a heading. */
 const SHOWN_LENGTH = 120;
 
@@ -218,8 +234,8 @@ export interface ExtractWorkspaceReportInput {
 
 /**
  * The report for a folder or a workspace: a table of the distinct strings
- * with how often and in how many files each is written, then where each one
- * is, and last whatever the scan left unread.
+ * with how often and in how many files each is written, then where each
+ * repeated one is, and last whatever the scan left unread.
  */
 export function formatExtractWorkspaceReport({
 	where,
@@ -242,35 +258,36 @@ export function formatExtractWorkspaceReport({
 
 	if (strings.length > 0) {
 		lines.push(
-			`| ${vscode.l10n.t('String')} | ${vscode.l10n.t('Occurrences')} | ${vscode.l10n.t('Files')} |`,
-			'|---|---|---|',
+			`| ${vscode.l10n.t('String')} | ${vscode.l10n.t('Occurrences')} | ${vscode.l10n.t('Files')} | ${vscode.l10n.t('Where')} |`,
+			'|---|---|---|---|',
 		);
-		for (const entry of strings)
+		// Most strings in a project are written once. Such a one is placed in
+		// its row, so the sections below are only the repeated ones.
+		for (const entry of strings) {
+			const row = `| ${shown(entry.value).replace(/\|/g, '\\|')} | ${entry.occurrences.length} | ${filesOf(entry.occurrences).length} |`;
+			const only =
+				entry.occurrences.length === 1 ? entry.occurrences[0] : undefined;
 			lines.push(
-				`| ${shown(entry.value).replace(/\|/g, '\\|')} | ${entry.occurrences.length} | ${filesOf(entry.occurrences).length} |`,
+				only === undefined
+					? `${row} |`
+					: `${row} ${placed(only.file, [only], positions)} |`,
 			);
+		}
 		lines.push('');
 	}
 
 	for (const entry of strings) {
+		if (entry.occurrences.length === 1) continue;
 		lines.push(`## ${shown(entry.value)} (${entry.occurrences.length})`, '');
 		// One line per file, with every place in it.
-		for (const file of filesOf(entry.occurrences)) {
-			const here = entry.occurrences.filter((o) => o.file === file);
-			const placed = here.flatMap((o) =>
-				o.position === undefined
-					? []
-					: [`**${o.position.line}:${o.position.column}**`],
+		for (const file of filesOf(entry.occurrences))
+			lines.push(
+				`- ${placed(
+					file,
+					entry.occurrences.filter((o) => o.file === file),
+					positions,
+				)}`,
 			);
-			if (positions && placed.length > 0)
-				lines.push(`- ${code(file)} · ${placed.join(', ')}`);
-			else
-				lines.push(
-					here.length > 1
-						? `- ${code(file)} (${here.length})`
-						: `- ${code(file)}`,
-				);
-		}
 		lines.push('');
 	}
 

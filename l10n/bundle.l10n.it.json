@@ -46,5 +46,6 @@
 	"Could not be read ({0})": "Impossibile leggere ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} stringhe distinte, {1} occorrenze in {2} file",
 	"No strings found.": "Nessuna stringa trovata.",
-	"String": "Stringa"
+	"String": "Stringa",
+	"Where": "Dove"
 }

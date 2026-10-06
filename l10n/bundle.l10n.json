@@ -46,5 +46,6 @@
   "Could not be read ({0})": "Could not be read ({0})",
   "{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} distinct string(s), {1} occurrence(s) in {2} file(s)",
   "No strings found.": "No strings found.",
-  "String": "String"
+  "String": "String",
+  "Where": "Where"
 }
