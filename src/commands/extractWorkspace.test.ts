@@ -45,13 +45,22 @@ function open(files: Record<string, string> = TREE): void {
 	workspace.workspaceFolders = [{ uri: Uri.file('/w'), name: 'w', index: 0 }];
 }
 
+/** How many delivered scans the rating prompt was told about. */
+const successes = { count: 0 };
+
 beforeEach(() => {
 	_resetMockState();
+	successes.count = 0;
 	const context = _createExtensionContext();
 	registerExtractWorkspaceCommands(context as never, {
 		telemetry: createTelemetry(context as never),
 		notifier: createNotifier(),
 		statusBar: createStatusBar(context as never),
+		ratingPrompt: {
+			recordSuccess: async () => {
+				successes.count++;
+			},
+		},
 	});
 });
 
@@ -61,6 +70,15 @@ describe('string-le.extractWorkspace and string-le.extractFolder', () => {
 		await runCommand('string-le.extractWorkspace');
 		expect(_shownMessages()[0]).toMatchObject({ kind: 'warning' });
 		expect(_openedDocuments()).toHaveLength(0);
+	});
+
+	it('counts a delivered scan toward the rating prompt, and nothing else', async () => {
+		await runCommand('string-le.extractWorkspace');
+		expect(successes.count).toBe(0);
+
+		open();
+		await runCommand('string-le.extractWorkspace');
+		expect(successes.count).toBe(1);
 	});
 
 	it('lists each distinct string once, the most widely used first, with how often and where', async () => {
