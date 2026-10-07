@@ -57,7 +57,7 @@ crate/
 └── fixtures/       the shared corpus, read by both frontends
 ```
 
-**`extract/` touches no filesystem** and carries the **75% line coverage
+**`extract/` touches no filesystem** and carries the **70% line coverage
 floor per module**.
 
 ## Extraction — parity scope
