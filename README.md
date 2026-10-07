@@ -315,7 +315,7 @@ setting of its own.
 - **No network access.** The extension never sends data anywhere. The `telemetryEnabled` setting only writes events to a local Output Channel you can inspect (`String-LE`).
 - **The MCP server holds the same line.** It takes content as an argument and returns data: no filesystem access, no network calls, no telemetry. Your agent already has file-read tools, so duplicating them inside the server would add a path-traversal surface for no capability. `check:mcp-bundle` fails the build if the server ever imports something that could reach either.
 - Error notifications redact home directories and credential-shaped fragments.
-- **One rating prompt, at most twice.** After 3 successful uses, on at least the second day you use it, the extension asks once whether you would rate it, and once more on the 25th use if you chose *Later* or dismissed it. *Don't Ask Again* ends it. Setting `notificationsLevel` to `important` or `silent` yourself turns it off. The counts are kept in VS Code's extension storage and nothing is sent anywhere; *Rate* opens the listing you installed from — the VS Code Marketplace or Open VSX — in your browser.
+- **One rating prompt, at most twice.** On the 3rd successful use the extension asks once whether you would rate it, and once more on the 20th if you chose *Later* or dismissed it. *Don't Ask Again* ends it. Setting `notificationsLevel` to `important` or `silent` yourself turns it off. The counts are kept in VS Code's extension storage and nothing is sent anywhere; *Rate* opens the listing you installed from — the VS Code Marketplace or Open VSX — in your browser.
 
 ## Documentation
 
@@ -349,12 +349,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 89.50% |
-| Branches | 82.09% |
-| Functions | 96.89% |
-| Lines | 91.02% |
+| Statements | 89.48% |
+| Branches | 81.99% |
+| Functions | 96.88% |
+| Lines | 91.00% |
 
-426 test cases across 34 files, plus an integration suite that runs
+424 test cases across 34 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 
