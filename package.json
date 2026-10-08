@@ -2,7 +2,7 @@
 	"name": "string-le",
 	"publisher": "nolindnaidoo",
 	"displayName": "Strings-LE",
-	"description": "Extract every string in a codebase, with its position, so a person can read them",
+	"description": "Extract every string in a codebase, so a person can read them",
 	"version": "2.5.0",
 	"license": "MIT",
 	"author": {
