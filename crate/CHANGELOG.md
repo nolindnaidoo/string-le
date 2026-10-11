@@ -26,6 +26,15 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The shared tool refused a `maxResults` written as `1e21`, which the npm
   server reads as an integer and clamps to the ceiling. Any integral number
   past the ceiling is clamped, on both.
+- The MCP server ended with exit 2 on a line that was not UTF-8, and every
+  later request went unanswered. It reads such a line with replacement
+  characters, as the npm server's decoder does, and keeps serving.
+- The MCP server dropped a line that was not JSON, and a request without a
+  method, without a word, answered a request lacking `jsonrpc: "2.0"`, and
+  answered a request whose id is null. Each is handled as the npm server
+  handles it: a parse error for the first three, in the same words, and no
+  reply for the last, which is a notification. The unknown-method and
+  unknown-tool refusals use the npm server's words too.
 
 ## [0.4.2] - 2026-10-11
 

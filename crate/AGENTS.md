@@ -172,6 +172,7 @@ pixelactions and scrape-le:
 - **Refusals speak the caller's vocabulary.** An MCP caller has no
   command line; no message aimed at one mentions `--dedupe` or any other
   flag. A test asserts no MCP output contains `--`.
+- **The stdio loop answers a bad frame; it never exits on one.** `mcp/mod.rs` reads bytes, not `lines()`: an invalid UTF-8 line is decoded with replacement characters as the npm server's decoder decodes it, a line that is not JSON or not a JSON-RPC 2.0 request is answered with a parse error in the npm server's words, and a null id is a notification. Before this one invalid byte ended the process with exit 2 and every later request went unanswered. `serve_streams` is the seam; the unit tests under `mcp/mod.rs` drive it with bytes.
 - **`extract_strings` belongs to both servers.** The npm server
   (`src/mcp/tools.ts`) and this one offer the same tool: same schema,
   same envelope, byte-identical output — **values, never positions**.
