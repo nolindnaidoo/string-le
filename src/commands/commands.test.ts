@@ -317,6 +317,29 @@ describe('post-process commands', () => {
 		expect(_openedDocuments()[0]?.getText()).toBe('charlie\nbravo\nalpha');
 	});
 
+	it('toggleStreaming: two presses at once are two toggles', async () => {
+		// The policy: each press reads the setting as it is when the press
+		// runs and writes its opposite. Under the mock an update is visible
+		// to the next read at once, so two presses toggle twice; whether a
+		// real host's `update` leaves a window where both read the old value
+		// is not shown here.
+		register();
+		_setConfig('string-le.csv.streamingEnabled', false);
+		_setConfig('string-le.notificationsLevel', 'all');
+		await Promise.all([
+			commands.executeCommand('string-le.csv.toggleStreaming'),
+			commands.executeCommand('string-le.csv.toggleStreaming'),
+		]);
+		expect(_getConfigUpdates().map((update) => update.value)).toEqual([
+			true,
+			false,
+		]);
+		expect(_shownMessages().map((m) => m.message)).toEqual([
+			'CSV streaming enabled',
+			'CSV streaming disabled',
+		]);
+	});
+
 	it('toggleStreaming flips the config value', async () => {
 		register();
 		_setConfig('string-le.csv.streamingEnabled', false);
