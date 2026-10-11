@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import { createNotifier } from '../ui/notifier';
+import { guarded } from './guard';
 
 export function registerToggleCsvStreamingCommand(
 	context: vscode.ExtensionContext,
 ): void {
 	const command = vscode.commands.registerCommand(
 		'string-le.csv.toggleStreaming',
-		executeToggleCsvStreaming,
+		guarded(createNotifier(), executeToggleCsvStreaming),
 	);
 
 	context.subscriptions.push(command);

@@ -20,6 +20,7 @@ import {
 	handleCsvMultiColumnExtraction,
 	handleCsvStreamingExtraction,
 } from './extractCsv';
+import { guarded } from './guard';
 
 // Helper to detect multiline strings in results
 function countMultilineStrings(strings: readonly string[]): number {
@@ -68,34 +69,33 @@ async function validateAndPrepareExtraction(
 	// Capture document immediately to avoid TOCTOU issues
 	const document = editor.document;
 
-	// Validate document is still accessible
+	// Only the read can mean the document went away. The type prompt used to
+	// sit inside this catch too, so a rejection from the picker was reported
+	// as "Document is no longer valid".
+	let text: string;
 	try {
-		const text = document.getText();
-		if (text.trim().length === 0) {
-			deps.notifier.info(vscode.l10n.t('File is empty'));
-			return null;
-		}
-
-		// Infer file type from the language id first (works for untitled
-		// documents and matches the menu when-clause), then the filename
-		// (.env variants), then prompt.
-		const languageId =
-			document.languageId === 'dotenv' ? 'env' : document.languageId;
-		let fileType: SupportedFileType | undefined =
-			normalizeFileType(languageId) ??
-			normalizeFileType(detectEnvExtension(document.fileName));
-		if (!fileType) {
-			const chosen = await promptForFileType();
-			if (!chosen) return null;
-			fileType = chosen;
-		}
-
-		return { document, text, fileType };
-	} catch (_error) {
-		// Document became invalid during access
+		text = document.getText();
+	} catch {
 		deps.notifier.error(vscode.l10n.t('Document is no longer valid'));
 		return null;
 	}
+	if (text.trim().length === 0) {
+		deps.notifier.info(vscode.l10n.t('File is empty'));
+		return null;
+	}
+
+	// Infer file type from the language id first (works for untitled
+	// documents and matches the menu when-clause), then the filename
+	// (.env variants), then prompt.
+	const languageId =
+		document.languageId === 'dotenv' ? 'env' : document.languageId;
+	const inferred =
+		normalizeFileType(languageId) ??
+		normalizeFileType(detectEnvExtension(document.fileName));
+	const fileType = inferred ?? (await promptForFileType());
+	if (!fileType) return null;
+
+	return { document, text, fileType };
 }
 
 // Handle CSV multi-column fan-out extraction
@@ -266,7 +266,7 @@ export function registerExtractStringsCommand(
 
 	const disposable = vscode.commands.registerCommand(
 		'string-le.extractStrings',
-		async (): Promise<void> => {
+		guarded(notifier, async (): Promise<void> => {
 			telemetry.event('command', { name: 'extractStrings' });
 
 			// Step 1: Validate and prepare
@@ -323,7 +323,7 @@ export function registerExtractStringsCommand(
 					await handleNormalExtraction(context, token);
 				},
 			);
-		},
+		}),
 	);
 
 	context.subscriptions.push(disposable);

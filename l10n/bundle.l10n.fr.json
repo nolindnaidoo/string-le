@@ -47,6 +47,7 @@
 	"Not read: {0}. The {1} settings change this.": "Non lu : {0}. Les paramètres {1} permettent de changer cela.",
 	"Files": "Fichiers",
 	"Could not copy the report to the clipboard: {0}": "Impossible de copier le rapport dans le presse-papiers : {0}",
+	"String-LE could not finish: {0}": "String-LE n'a pas pu terminer : {0}",
 	"Occurrences": "Occurrences",
 	"Could not be read ({0})": "Illisible ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} chaîne(s) distincte(s), {1} occurrence(s) dans {2} fichier(s)",

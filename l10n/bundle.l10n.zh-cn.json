@@ -47,6 +47,7 @@
 	"Not read: {0}. The {1} settings change this.": "未读取：{0}。可通过 {1} 设置更改。",
 	"Files": "文件",
 	"Could not copy the report to the clipboard: {0}": "无法将报告复制到剪贴板：{0}",
+	"String-LE could not finish: {0}": "String-LE 无法完成：{0}",
 	"Occurrences": "出现次数",
 	"Could not be read ({0})": "无法读取 ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{2} 个文件中有 {0} 个不同的字符串，共出现 {1} 次",

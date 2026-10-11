@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { createNotifier } from '../ui/notifier';
 import { hasPosition, onValues } from '../utils/positions';
 import { dedupe } from '../utils/text';
 import {
@@ -7,12 +8,13 @@ import {
 	showNoEditorWarning,
 	showSuccessMessage,
 } from './editorLines';
+import { guarded } from './guard';
 import { processAndOutput } from './postProcessHelper';
 
 export function registerDedupeCommand(context: vscode.ExtensionContext): void {
 	const command = vscode.commands.registerCommand(
 		'string-le.postProcess.dedupe',
-		executeDedupe,
+		guarded(createNotifier(), executeDedupe),
 	);
 
 	context.subscriptions.push(command);

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import type { Telemetry } from '../telemetry/telemetry';
 import type { Notifier } from '../ui/notifier';
 import type { StatusBar } from '../ui/statusBar';
+import { guarded } from './guard';
 
 export function registerHelpCommand(
 	context: vscode.ExtensionContext,
@@ -11,8 +12,9 @@ export function registerHelpCommand(
 		statusBar: StatusBar;
 	}>,
 ): void {
-	const command = vscode.commands.registerCommand('string-le.help', () =>
-		executeHelp(deps),
+	const command = vscode.commands.registerCommand(
+		'string-le.help',
+		guarded(deps.notifier, () => executeHelp(deps)),
 	);
 
 	context.subscriptions.push(command);

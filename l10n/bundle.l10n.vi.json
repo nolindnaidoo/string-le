@@ -47,6 +47,7 @@
 	"Not read: {0}. The {1} settings change this.": "Không đọc: {0}. Các cài đặt {1} thay đổi điều này.",
 	"Files": "Tệp",
 	"Could not copy the report to the clipboard: {0}": "Không thể sao chép báo cáo vào bảng nhớ tạm: {0}",
+	"String-LE could not finish: {0}": "String-LE không thể hoàn thành: {0}",
 	"Occurrences": "Số lần xuất hiện",
 	"Could not be read ({0})": "Không thể đọc ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} chuỗi khác nhau, {1} lần xuất hiện trong {2} tệp",

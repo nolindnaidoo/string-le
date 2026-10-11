@@ -47,6 +47,7 @@
 	"Not read: {0}. The {1} settings change this.": "Не прочитано: {0}. Это меняют параметры {1}.",
 	"Files": "Файлы",
 	"Could not copy the report to the clipboard: {0}": "Не удалось скопировать отчёт в буфер обмена: {0}",
+	"String-LE could not finish: {0}": "String-LE не удалось завершить: {0}",
 	"Occurrences": "Вхождения",
 	"Could not be read ({0})": "Не удалось прочитать ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "Различных строк: {0}, вхождений: {1}, файлов: {2}",

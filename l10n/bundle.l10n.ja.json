@@ -47,6 +47,7 @@
 	"Not read: {0}. The {1} settings change this.": "読み取られていないもの: {0}。設定 {1} で変更できます。",
 	"Files": "ファイル数",
 	"Could not copy the report to the clipboard: {0}": "レポートをクリップボードにコピーできませんでした: {0}",
+	"String-LE could not finish: {0}": "String-LE を完了できませんでした: {0}",
 	"Occurrences": "出現回数",
 	"Could not be read ({0})": "読み取れません ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{2} 個のファイルに {0} 種類の文字列、{1} 件の出現",

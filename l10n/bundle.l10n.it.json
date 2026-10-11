@@ -47,6 +47,7 @@
 	"Not read: {0}. The {1} settings change this.": "Non letto: {0}. Le impostazioni {1} lo modificano.",
 	"Files": "File",
 	"Could not copy the report to the clipboard: {0}": "Impossibile copiare il report negli appunti: {0}",
+	"String-LE could not finish: {0}": "String-LE non è riuscito a completare: {0}",
 	"Occurrences": "Occorrenze",
 	"Could not be read ({0})": "Impossibile leggere ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} stringhe distinte, {1} occorrenze in {2} file",

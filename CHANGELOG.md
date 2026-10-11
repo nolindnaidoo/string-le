@@ -44,6 +44,12 @@ separate product on its own cadence and keeps its own
 - A folder or workspace scan counted a file deleted or made unreadable after
   it was listed as "not UTF-8 text". It has its own line in the report:
   "N file(s) could not be read."
+- A failure inside a command, such as the editor refusing to open a document
+  or the file-type picker going away, escaped as an unhandled rejection the
+  editor reported in its own words, raw message and home directory included,
+  or was reported as "Document is no longer valid" when the document was
+  fine. Every command reports it as one redacted, localized error
+  notification.
 
 ## [2.5.0] - 2026-10-07
 

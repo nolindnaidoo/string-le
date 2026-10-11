@@ -162,6 +162,25 @@ describe('extract: a result that never reached the user', () => {
 	});
 });
 
+describe('extract: a failure inside the command', () => {
+	it('is reported once, in its own words, and the command resolves', async () => {
+		// The type prompt sat inside a catch that labelled any rejection
+		// "Document is no longer valid", and nothing outside the command
+		// caught what the prompt step itself did not.
+		_setActiveEditor(
+			_createDocument({ content: '"hello"', fileName: '/mock/notes.xyz' }),
+		);
+		_respondToQuickPick(() => {
+			throw new Error('the picker went away');
+		});
+		await expect(runExtract()).resolves.toBeUndefined();
+		const errors = _shownMessages().filter((m) => m.kind === 'error');
+		expect(errors).toHaveLength(1);
+		expect(errors[0]?.message).toContain('the picker went away');
+		expect(errors[0]?.message).not.toContain('Document is no longer valid');
+	});
+});
+
 describe('extract: empty and no-match documents', () => {
 	it('reports an empty document without opening anything', async () => {
 		_setActiveEditor(

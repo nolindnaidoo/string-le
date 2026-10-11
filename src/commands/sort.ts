@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { createNotifier } from '../ui/notifier';
 import { onValues } from '../utils/positions';
 import { type SortMode, sortStrings } from '../utils/text';
 import {
@@ -7,6 +8,7 @@ import {
 	showNoEditorWarning,
 	showSuccessMessage,
 } from './editorLines';
+import { guarded } from './guard';
 import { processAndOutput } from './postProcessHelper';
 
 type SortOption = Readonly<{
@@ -40,7 +42,7 @@ const sortOptions = (): readonly SortOption[] => [
 export function registerSortCommand(context: vscode.ExtensionContext): void {
 	const command = vscode.commands.registerCommand(
 		'string-le.postProcess.sort',
-		executeSort,
+		guarded(createNotifier(), executeSort),
 	);
 
 	context.subscriptions.push(command);

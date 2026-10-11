@@ -9,6 +9,7 @@ import {
 	_resetMockState,
 	_respondToOpenDialog,
 	_setConfig,
+	_setOpenDocumentError,
 	_setWorkspaceFiles,
 	_shownMessages,
 	Uri,
@@ -197,6 +198,21 @@ describe('string-le.extractWorkspace and string-le.extractFolder', () => {
 		expect(report()).toContain(
 			'> The results limit was reached. The rest of the files were not read.',
 		);
+	});
+
+	it('reports a failure inside the command instead of rejecting', async () => {
+		// The report document failing to open escaped the command as an
+		// unhandled rejection the editor reported in its own words, raw
+		// message and home directory included.
+		open();
+		_setOpenDocumentError(new Error('disk full at /Users/someone/out'));
+		await expect(
+			runCommand('string-le.extractWorkspace'),
+		).resolves.toBeUndefined();
+		const errors = _shownMessages().filter((m) => m.kind === 'error');
+		expect(errors).toHaveLength(1);
+		expect(errors[0]?.message).toContain('disk full at /Users/***/out');
+		expect(successes.count).toBe(0);
 	});
 
 	it('says when a folder holds no strings', async () => {

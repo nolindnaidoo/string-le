@@ -11,6 +11,7 @@ import {
 	_respondToQuickPick,
 	_setActiveEditor,
 	_setConfig,
+	_setOpenDocumentError,
 	_shownMessages,
 	commands,
 	executedBuiltins,
@@ -339,6 +340,17 @@ describe('post-process commands', () => {
 		expect(helpText).toContain('Extract Strings');
 		expect(helpText).not.toContain('JavaScript/TypeScript');
 		expect(helpText).not.toContain('HTML');
+	});
+
+	it('help: a failure inside the command is reported instead of rejecting', async () => {
+		register();
+		_setOpenDocumentError(new Error('no window'));
+		await expect(
+			commands.executeCommand('string-le.help'),
+		).resolves.toBeUndefined();
+		const errors = _shownMessages().filter((m) => m.kind === 'error');
+		expect(errors).toHaveLength(1);
+		expect(errors[0]?.message).toContain('no window');
 	});
 
 	it('openSettings executes the builtin settings command', async () => {

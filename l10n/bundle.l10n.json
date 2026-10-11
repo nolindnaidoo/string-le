@@ -47,6 +47,7 @@
   "Not read: {0}. The {1} settings change this.": "Not read: {0}. The {1} settings change this.",
   "Files": "Files",
   "Could not copy the report to the clipboard: {0}": "Could not copy the report to the clipboard: {0}",
+  "String-LE could not finish: {0}": "String-LE could not finish: {0}",
   "Occurrences": "Occurrences",
   "Could not be read ({0})": "Could not be read ({0})",
   "{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} distinct string(s), {1} occurrence(s) in {2} file(s)",

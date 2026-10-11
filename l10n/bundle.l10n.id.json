@@ -47,6 +47,7 @@
 	"Not read: {0}. The {1} settings change this.": "Tidak dibaca: {0}. Pengaturan {1} mengubah hal ini.",
 	"Files": "File",
 	"Could not copy the report to the clipboard: {0}": "Tidak dapat menyalin laporan ke papan klip: {0}",
+	"String-LE could not finish: {0}": "String-LE tidak dapat menyelesaikan: {0}",
 	"Occurrences": "Kemunculan",
 	"Could not be read ({0})": "Tidak dapat dibaca ({0})",
 	"{0} distinct string(s), {1} occurrence(s) in {2} file(s)": "{0} string berbeda, {1} kemunculan dalam {2} file",
