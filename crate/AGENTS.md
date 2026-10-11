@@ -118,7 +118,9 @@ crate/src/
   appears once.
 - **stdout is protocol, stderr is human. There is no `--json` flag.**
 - **Parity scope is extraction only** — `src/extraction/**`. Positions
-  are outside it; the extension has nothing to disagree with.
+  are outside it: the shared tool carries none, and the extension's
+  opt-in positions come from its own scanner, not from this crate's
+  cursor.
 
 ## Control-flow style
 
