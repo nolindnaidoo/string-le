@@ -522,5 +522,47 @@
 				"truncated": false
 			}
 		}
+	},
+	{
+		"name": "a jsonc document that is all comment is empty, not broken",
+		"content": "// only a comment\n",
+		"arguments": {
+			"format": "jsonc"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [],
+				"fileType": "jsonc"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 0,
+				"truncated": false
+			}
+		}
+	},
+	{
+		"name": "a cap past the ceiling is clamped, however large it is written",
+		"content": "x = \"a\"",
+		"arguments": {
+			"maxResults": 1e+21
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"a"
+				],
+				"fileType": "fallback"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 1,
+				"truncated": false
+			}
+		}
 	}
 ]

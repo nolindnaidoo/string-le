@@ -16,6 +16,16 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and an unquoted value in it was missed. A filename is resolved by its last
   segment, whichever separator wrote the path, as the walk's file names
   always were.
+- A dotenv line holding a lone quote, `A="`, yielded the quote character
+  as a value; the extension reads it as an unterminated value and yields
+  nothing, and so does this now.
+- A repeated INI key yielded every value here and only the last one from the
+  extension, whose `ini` package reads a section into an object. It keeps
+  the last value in the place the key first appeared, on both, and SPEC.md
+  says so.
+- The shared tool refused a `maxResults` written as `1e21`, which the npm
+  server reads as an integer and clamps to the ceiling. Any integral number
+  past the ceiling is clamped, on both.
 
 ## [0.4.2] - 2026-10-11
 
