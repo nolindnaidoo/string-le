@@ -58,6 +58,10 @@ separate product on its own cadence and keeps its own
   JSONC, TSV, the ten source languages, positions or the folder scan. It
   describes what the extension reads, and the test that pinned the old page
   now holds every claim on it to the code.
+- The MCP server's stdio buffer had no ceiling: input with no newline grew
+  the process without bound, and 64 MiB of it held the server at 980 MB. A
+  frame over 16 MiB is refused with a JSON-RPC parse error and the server
+  keeps serving.
 
 ## [2.5.0] - 2026-10-07
 

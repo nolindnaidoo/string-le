@@ -35,6 +35,10 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   handles it: a parse error for the first three, in the same words, and no
   reply for the last, which is a notification. The unknown-method and
   unknown-tool refusals use the npm server's words too.
+- The MCP server held a frame whole until its newline, so input with no
+  newline grew the process by its own size. A frame over 16 MiB is refused
+  with a JSON-RPC parse error, in the npm server's words, and the server
+  keeps serving.
 
 ## [0.4.2] - 2026-10-11
 

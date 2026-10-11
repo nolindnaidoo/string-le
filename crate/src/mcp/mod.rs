@@ -27,6 +27,13 @@ use crate::walk::{self, WalkOptions};
 
 const PROTOCOL_VERSION: &str = "2025-06-18";
 
+/// The most bytes one frame may hold before it is refused.
+///
+/// Input with no newline was held whole: 64 MiB of it grew the process by
+/// 64 MB and answered nothing. The same figure and message as the npm
+/// server's, so a caller diffing the two finds nothing.
+pub(crate) const MAX_FRAME_BYTES: usize = 16 * 1024 * 1024;
+
 /// JSON-RPC error codes, from the spec.
 const PARSE_ERROR: i64 = -32700;
 const INVALID_PARAMS: i64 = -32602;
@@ -49,6 +56,9 @@ pub(crate) fn serve() -> ExitCode {
 /// dropped, so a client that sent one learns what happened.
 pub(crate) fn serve_streams(mut input: impl BufRead, mut output: impl Write) -> ExitCode {
     let mut frame: Vec<u8> = Vec::new();
+    // Set once a frame has passed the limit: the rest of that line is
+    // dropped as it arrives, so the oversized message is never held.
+    let mut discarding = false;
     loop {
         let (consumed, complete) = {
             let Ok(chunk) = input.fill_buf() else {
@@ -58,18 +68,40 @@ pub(crate) fn serve_streams(mut input: impl BufRead, mut output: impl Write) -> 
                 break;
             }
             let newline = chunk.iter().position(|&byte| byte == b'\n');
-            frame.extend_from_slice(&chunk[..newline.unwrap_or(chunk.len())]);
+            if !discarding {
+                frame.extend_from_slice(&chunk[..newline.unwrap_or(chunk.len())]);
+            }
             (newline.map_or(chunk.len(), |at| at + 1), newline.is_some())
         };
         input.consume(consumed);
+        if discarding {
+            discarding = !complete;
+            continue;
+        }
         if !complete {
+            if frame.len() > MAX_FRAME_BYTES {
+                frame = Vec::new();
+                discarding = true;
+                if emit(&mut output, &frame_refusal()).is_err() {
+                    return ExitCode::from(2);
+                }
+            }
             continue;
         }
         let line = std::mem::take(&mut frame);
+        if line.len() > MAX_FRAME_BYTES {
+            // The newline arrived in the chunk that took the frame over the
+            // limit, so the check above never saw it. The limit is on the
+            // line, not on when its end happened to arrive.
+            if emit(&mut output, &frame_refusal()).is_err() {
+                return ExitCode::from(2);
+            }
+            continue;
+        }
         let Some(response) = respond_to_line(&line) else {
             continue;
         };
-        if writeln!(output, "{response}").is_err() || output.flush().is_err() {
+        if emit(&mut output, &response).is_err() {
             return ExitCode::from(2);
         }
     }
@@ -93,6 +125,17 @@ fn respond_to_line(line: &[u8]) -> Option<Value> {
         return Some(parse_error("Not a JSON-RPC 2.0 request"));
     }
     handle(&request)
+}
+
+fn emit(output: &mut impl Write, message: &Value) -> std::io::Result<()> {
+    writeln!(output, "{message}")?;
+    output.flush()
+}
+
+fn frame_refusal() -> Value {
+    parse_error(&format!(
+        "Message exceeds the {MAX_FRAME_BYTES} byte frame limit"
+    ))
 }
 
 fn is_request(value: &Value) -> bool {
@@ -416,10 +459,12 @@ mod tests {
         assert!(handle(&null_id).is_none(), "a null id is a notification");
     }
 
-    /// The loop, driven with bytes, with what it wrote and how it ended.
+    /// The loop, driven with bytes in the 8 KiB chunks stdin arrives in,
+    /// with what it wrote and how it ended.
     fn drive(input: &[u8]) -> (String, Vec<Value>) {
         let mut written = Vec::new();
-        let code = serve_streams(std::io::Cursor::new(input.to_vec()), &mut written);
+        let reader = std::io::BufReader::with_capacity(8192, std::io::Cursor::new(input.to_vec()));
+        let code = serve_streams(reader, &mut written);
         let replies = String::from_utf8(written)
             .expect("replies are UTF-8")
             .lines()
@@ -484,6 +529,41 @@ mod tests {
                 "{line:?}"
             );
         }
+    }
+
+    /// Input with no newline was held whole. Past the limit the frame is
+    /// refused in the npm server's words, the rest of the line is dropped
+    /// as it arrives, and the next line is served.
+    #[test]
+    fn a_frame_over_the_limit_is_refused_and_the_next_line_served() {
+        // One byte over, with the newline in the chunk that takes the frame
+        // over the limit; and far over, with the newline many chunks later.
+        for over in [1, 100_000] {
+            let mut input = vec![b'x'; MAX_FRAME_BYTES + over];
+            input.extend_from_slice(b"\n");
+            input.extend_from_slice(PING);
+            let (code, replies) = drive(&input);
+            assert_eq!(code, format!("{:?}", ExitCode::SUCCESS));
+            assert_eq!(replies[0], frame_refusal(), "{over} over");
+            assert_eq!(replies[1]["id"], 1, "{over} over");
+            assert_eq!(replies.len(), 2, "{over} over");
+        }
+    }
+
+    /// Exactly at the limit is served; the limit is a ceiling, not a size.
+    #[test]
+    fn a_frame_at_the_limit_is_served() {
+        let mut input = br#"{"jsonrpc":"2.0","id":1,"method":"ping","params":{"pad":""#.to_vec();
+        let padding = MAX_FRAME_BYTES - input.len() - 3;
+        input.extend(std::iter::repeat_n(b'x', padding));
+        input.extend_from_slice(b"\"}}\n");
+        assert_eq!(
+            input.len(),
+            MAX_FRAME_BYTES + 1,
+            "the line plus its newline"
+        );
+        let (_, replies) = drive(&input);
+        assert_eq!(replies[0]["id"], 1);
     }
 
     #[test]
