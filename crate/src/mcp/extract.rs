@@ -135,12 +135,27 @@ fn parse_diagnostics(content: &str, format: &str) -> Vec<Value> {
 }
 
 /// Clamp quietly, reject loudly — the npm server's asymmetry.
+/// `1e21` is an integer to the npm server, which clamps it; here it
+/// arrives as a float `as_u64` has no answer for. An integral float within
+/// u64 parses back to one, and one past it is past the ceiling by any
+/// measure. A fraction, or anything under one, is nothing.
+fn as_integer(raw: &Value) -> Option<u64> {
+    if let Some(value) = raw.as_u64() {
+        return Some(value);
+    }
+    let float = raw.as_f64()?;
+    if float < 1.0 || float.fract() != 0.0 {
+        return None;
+    }
+    Some(float.to_string().parse::<u64>().unwrap_or(u64::MAX))
+}
+
 fn read_max_results(arguments: &Value) -> Result<usize, String> {
     let Some(raw) = arguments.get("maxResults") else {
         return Ok(DEFAULT_MAX_RESULTS);
     };
     let invalid = "maxResults must be a positive integer".to_string();
-    let value = raw.as_u64().ok_or(invalid.clone())?;
+    let value = as_integer(raw).ok_or(invalid.clone())?;
     if value < 1 {
         return Err(invalid);
     }
@@ -288,6 +303,16 @@ mod tests {
                 .len(),
             0
         );
+    }
+
+    /// The npm server clamps any integer above the ceiling, 1e21 included;
+    /// this refused it, because `as_u64` has no answer for a number that
+    /// size. Clamp quietly, reject loudly, on both.
+    #[test]
+    fn a_cap_too_large_for_an_integer_is_clamped() {
+        let result = run(&json!({ "content": "x", "maxResults": 1e21 })).expect("clamped");
+        assert_eq!(result["ok"], true);
+        assert_eq!(result["meta"]["truncated"], false);
     }
 
     #[test]
