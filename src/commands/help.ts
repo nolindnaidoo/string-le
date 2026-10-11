@@ -33,35 +33,51 @@ async function executeHelp(
 	await displayHelpDocument(helpContent);
 }
 
+/**
+ * Every claim here is backed by the code: the formats are the extractor
+ * table's, the languages are the source scanner's, and the settings are the
+ * manifest's. The page once said YAML, TOML and INI were read by the
+ * quoted-run scan, long after each had its own reader.
+ */
 function buildHelpContent(): string {
 	return `
 # String-LE Help & Troubleshooting
 
 ## Commands
-- **Extract Strings**: Extract strings from the current document
-- **Extract Strings from Workspace**: The distinct strings in every file in the workspace, and where each one is
-- **Extract Strings from Folder**: The same for one folder. Also on a folder in the Explorer
-- **Deduplicate Strings**: Remove duplicate lines from the current document
-- **Sort Strings**: Sort lines alphabetically or by length
-- **Toggle CSV Streaming**: Enable/disable streaming for large CSV files
-- **Open Settings**: Configure String-LE settings
-- **Help**: Open this help documentation
+- **Extract Strings**: the string values in the active document, in a new editor
+- **Extract Strings from Workspace**: the distinct strings in every file in the workspace, and where each one is
+- **Extract Strings from Folder**: the same for one folder. Also on a folder in the Explorer
+- **Deduplicate Strings**: remove duplicate lines from the active document
+- **Sort Strings**: sort lines alphabetically or by length
+- **Toggle CSV Streaming**: enable or disable streaming for large CSV files
+- **Open Settings**: open String-LE's settings
+- **Help & Troubleshooting**: this page
 
-## Supported File Types
-- **JSON** - parsed; extracts string values (not keys, numbers, or booleans)
-- **CSV** - parsed; extracts cells, with optional header handling and column selection
-- **.env** - line-based; extracts values (handles export prefixes, quotes, inline comments)
-- **Everything else** (YAML, TOML, INI, unknown types) - fallback scan for
-  quoted strings only: "double", 'single', or \`backtick\` quoted values on a
-  single line. Unquoted values are not extracted.
+## What is read
+
+Parsed formats return values only, never keys:
+- **JSON** and **JSONC**: string values. Numbers, booleans and keys are not strings
+- **YAML**: string values, quoted or not
+- **TOML**: string values
+- **INI**: every value, quoted or not
+- **.env**: values, with export prefixes, quotes and inline comments handled. \`.env.local\` and the other spellings are read the same way
+- **CSV** and **TSV**: cells, with header handling and column selection. CSV can stream
+
+Source code is scanned by a reader that knows the language's string literals:
+- **JavaScript**, **TypeScript** (and JSX, TSX), **Python**, **Rust**, **Go**, **Shell**, **PHP**, **Ruby**, **Perl**, **C#**
+
+Everything else, Markdown included, gets the quoted-string scan: "double", 'single' and \`backtick\` runs on one line. \`string-le.fallback.multiline\` lets a run span lines. Unquoted text is not read.
+
+## Positions
+\`string-le.showPositions\` adds the line and column of each string to the output, and \`string-le.clipboardIncludesPositions\` adds them to the clipboard copy. Positions are exact for JSON, the source languages and the quoted-string scan. For the other parsed formats a warning says they are not available.
 
 ## Post-Processing
 
 ### Deduplicate
-Removes duplicate lines, keeping only unique values.
+Removes repeated lines, keeping the first of each. \`string-le.dedupeEnabled\` applies it to every extraction.
 
 ### Sort
-Sorts lines alphabetically (A-Z / Z-A) or by length (short-long / long-short).
+Orders lines A-Z, Z-A, or by length short-long or long-short, the same on every machine. \`string-le.sortEnabled\` and \`string-le.sortMode\` apply it to every extraction.
 
 ## CSV Features
 For large CSV files, enable streaming mode:
@@ -69,16 +85,19 @@ For large CSV files, enable streaming mode:
 - Setting: \`string-le.csv.streamingEnabled\`
 - Column selection prompts let you target one, several, or all columns
 
+## Folder and Workspace Scans
+The \`string-le.workspace.*\` settings say which files a scan reads: the glob patterns, the excludes, the globs read regardless, whether \`.gitignore\` and binary files are skipped, and the limits on files and results. The report ends with what was not read and why.
+
 ## Troubleshooting
 
 ### No strings found
-- JSON: only string values are extracted; a file of numbers yields nothing
-- YAML/TOML/INI: only quoted values are found (fallback scan)
-- Enable parse error notifications via \`string-le.showParseErrors\`
+- JSON, YAML, TOML: only string values are read. A file of numbers yields nothing
+- A format with no reader of its own gets the quoted-string scan, which does not read unquoted text
+- A document that does not parse yields nothing. \`string-le.showParseErrors\` shows the reason
 
 ### Incorrect extraction
-- Verify file syntax is valid
-- Check for proper string delimiters (quotes)
+- Check that the file parses in its own tool
+- Check the string delimiters
 
 ## Settings
 Access settings via Command Palette: "String-LE: Open Settings"

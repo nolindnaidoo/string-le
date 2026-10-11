@@ -331,15 +331,30 @@ describe('post-process commands', () => {
 		);
 	});
 
-	it('help opens a markdown document describing real commands only', async () => {
+	it('help opens a markdown document describing what the extension does', async () => {
 		register();
 
 		await commands.executeCommand('string-le.help');
 
 		const helpText = _openedDocuments()[0]?.getText() ?? '';
 		expect(helpText).toContain('Extract Strings');
-		expect(helpText).not.toContain('JavaScript/TypeScript');
+		// Every parsed format is named as parsed. The page said YAML, TOML and
+		// INI were read by the quoted-run scan, which has not been true since
+		// each got its own reader, and said nothing of the nine source
+		// languages, the positions setting or the folder scan.
+		for (const format of ['JSONC', 'YAML', 'TOML', 'INI', 'TSV']) {
+			expect(helpText, format).toContain(format);
+		}
+		expect(helpText).not.toMatch(/YAML\/TOML\/INI: only quoted/);
+		expect(helpText).not.toMatch(/Everything else\*\* \(YAML, TOML, INI/);
+		for (const language of ['TypeScript', 'Python', 'Rust', 'Go', 'C#']) {
+			expect(helpText, language).toContain(language);
+		}
+		expect(helpText).toContain('string-le.showPositions');
+		expect(helpText).toContain('Extract Strings from Folder');
+		// Nothing the extension does not do.
 		expect(helpText).not.toContain('HTML');
+		expect(helpText).not.toContain('XML');
 	});
 
 	it('help: a failure inside the command is reported instead of rejecting', async () => {

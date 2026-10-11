@@ -53,6 +53,11 @@ separate product on its own cadence and keeps its own
 - The large-file warning named the threshold, "Large file detected (1000000
   bytes)", whatever the file's size was, and was never translated. It names
   the file's size, in every locale.
+- The help page said YAML, TOML and INI were read by the quoted-string scan,
+  which has not been true since each got its own reader, and said nothing of
+  JSONC, TSV, the ten source languages, positions or the folder scan. It
+  describes what the extension reads, and the test that pinned the old page
+  now holds every claim on it to the code.
 
 ## [2.5.0] - 2026-10-07
 
