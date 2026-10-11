@@ -5,12 +5,14 @@ import { extractStrings } from './extract';
 
 /**
  * Characterization tests: pin the CURRENT extraction output per format,
- * including known bugs (YAML/TOML/INI route to the quoted-string fallback
- * so unquoted values are missed entirely; multiline quoted strings are
- * missed by the fallback regex; CSV keeps numeric cells and includes the
- * header row unless csvHasHeader is set; JSON drops keys and non-string
- * primitives and trims values). Behavior changes must update these
- * snapshots in the same commit, so every output diff is explicit.
+ * including the edges a reader might not expect (a multiline quoted string
+ * is missed by the fallback regex unless `multiline` is on; CSV keeps
+ * numeric cells and includes the header row unless csvHasHeader is set;
+ * JSON drops keys and non-string primitives and trims values). YAML, TOML
+ * and INI each have their own parser; this header once said they fell to
+ * the quoted-string scan, long after they stopped. Behavior changes must
+ * update these snapshots in the same commit, so every output diff is
+ * explicit.
  */
 
 const FIXTURES: ReadonlyArray<{ fixture: string; fileType: string }> = [
