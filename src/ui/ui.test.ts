@@ -8,6 +8,7 @@ import {
 	_respondToWarning,
 	_setConfig,
 	_shownMessages,
+	_statusBarItems,
 } from '../__mocks__/vscode';
 import { chooseLargeOutputAction, confirmManyDocuments } from './largeOutput';
 import { createNotifier } from './notifier';
@@ -66,28 +67,85 @@ describe('status bar', () => {
 		vi.useRealTimers();
 	});
 
-	it('shows by default and flashes text', () => {
+	const IDLE = '$(quote) String-LE';
+
+	it('shows by default, flashes text, and restores it after two seconds', () => {
+		// The old test advanced the clock and then asserted only that
+		// something had been subscribed, which a bar that never showed or
+		// never flashed would also pass.
 		vi.useFakeTimers();
-		const context = _createExtensionContext();
-		const statusBar = createStatusBar(context as never);
+		try {
+			const statusBar = createStatusBar(_createExtensionContext() as never);
+			const item = _statusBarItems()[0];
+			expect(item?.visible).toBe(true);
+			expect(item?.text).toBe(IDLE);
 
-		statusBar.flash('Extracted 3');
-		vi.advanceTimersByTime(1000);
-
-		// The flash is visible before the restore timer fires
-		vi.advanceTimersByTime(2000);
-		vi.useRealTimers();
-		expect(context.subscriptions.length).toBeGreaterThan(0);
+			statusBar.flash('Extracted 3');
+			expect(item?.text).toBe('$(quote) Extracted 3');
+			vi.advanceTimersByTime(1999);
+			expect(item?.text).toBe('$(quote) Extracted 3');
+			vi.advanceTimersByTime(1);
+			expect(item?.text).toBe(IDLE);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 
-	it('reacts to statusBar.enabled changes at runtime', () => {
-		const context = _createExtensionContext();
-		createStatusBar(context as never);
+	it('a second flash replaces the first and restarts the clock', () => {
+		vi.useFakeTimers();
+		try {
+			const statusBar = createStatusBar(_createExtensionContext() as never);
+			const item = _statusBarItems()[0];
+			statusBar.flash('Extracted 3');
+			vi.advanceTimersByTime(1500);
+			statusBar.flash('Copied to clipboard');
+			vi.advanceTimersByTime(1500);
+			expect(item?.text).toBe('$(quote) Copied to clipboard');
+			vi.advanceTimersByTime(500);
+			expect(item?.text).toBe(IDLE);
+			expect(vi.getTimerCount()).toBe(0);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
 
+	it('hides when statusBar.enabled turns off, and flashes nothing while hidden', () => {
+		vi.useFakeTimers();
+		try {
+			const statusBar = createStatusBar(_createExtensionContext() as never);
+			const item = _statusBarItems()[0];
+			_setConfig('string-le.statusBar.enabled', false);
+			_fireConfigChange('string-le.statusBar.enabled');
+			expect(item?.visible).toBe(false);
+			statusBar.flash('Extracted 3');
+			expect(item?.text).toBe(IDLE);
+			expect(vi.getTimerCount()).toBe(0);
+
+			_setConfig('string-le.statusBar.enabled', true);
+			_fireConfigChange('string-le.statusBar.enabled');
+			expect(item?.visible).toBe(true);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it('names CSV streaming in the idle text while it is on', () => {
+		createStatusBar(_createExtensionContext() as never);
+		const item = _statusBarItems()[0];
+		_setConfig('string-le.csv.streamingEnabled', true);
+		_fireConfigChange('string-le.csv.streamingEnabled');
+		expect(item?.text).toBe('$(quote) String-LE (CSV Streaming)');
+		_setConfig('string-le.csv.streamingEnabled', false);
+		_fireConfigChange('string-le.csv.streamingEnabled');
+		expect(item?.text).toBe(IDLE);
+	});
+
+	it('ignores a configuration change that is not its own', () => {
+		createStatusBar(_createExtensionContext() as never);
+		const item = _statusBarItems()[0];
 		_setConfig('string-le.statusBar.enabled', false);
-		_fireConfigChange('string-le.statusBar.enabled');
-		// No throw and listener registered: the item re-read config
-		expect(context.subscriptions.length).toBeGreaterThan(0);
+		_fireConfigChange('editor.fontSize');
+		expect(item?.visible).toBe(true);
 	});
 });
 
