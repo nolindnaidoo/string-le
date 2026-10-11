@@ -332,3 +332,4 @@ sits at 2.x is intended.
 - INI and .env are untyped formats: numeric-looking values are extracted as strings. Typed formats (JSON/YAML/TOML) drop numbers, booleans, and dates.
 - Streaming CSV mode disables deduplication (results never accumulate in memory) and never auto-copies to the clipboard.
 - Extraction order is parser traversal order (document order for all current formats); dedupe/sort operate on the flat result lines, not source positions.
+- The display name is **Strings-LE** and every identifier is **string-le**: the extension ID, the repo, the npm package, the MCP registry name, the crate and the letools.dev slug. The ID was minted singular and cannot change. The crate and the other identifiers were added later and matched it. The display name was changed to the plural on purpose. The family lists in the sibling READMEs, the crate's docs and the site say String-LE. Leave both spellings where they are; neither is a mistake to correct.

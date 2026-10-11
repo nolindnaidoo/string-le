@@ -121,6 +121,11 @@ crate/src/
   are outside it: the shared tool carries none, and the extension's
   opt-in positions come from its own scanner, not from this crate's
   cursor.
+- **This crate is `string-le` and its docs say String-LE.** The
+  extension's display name is Strings-LE. Every identifier was minted
+  singular and cannot change; this crate matched them when it was
+  added, and the plural display name was chosen on purpose. Neither
+  side is corrected to the other.
 
 ## Control-flow style
 
