@@ -56,9 +56,23 @@ pub(crate) fn extract(text: &str) -> Vec<String> {
     };
     let mut values = Vec::new();
     for (_, properties) in &parsed {
-        for (_, value) in properties {
-            values.push(Value::Str(value.to_string()));
+        // A repeated key keeps its last value, in the place the key first
+        // appeared: the npm `ini` package reads a section into an object,
+        // so a second `k = …` overwrites the first in its slot, where
+        // rust-ini keeps every value. The shared tool answered two ways
+        // for a config with a repeated line until this read it that way.
+        let mut slots: Vec<(&str, &str)> = Vec::new();
+        for (key, value) in properties {
+            match slots.iter_mut().find(|(seen, _)| *seen == key) {
+                Some(slot) => slot.1 = value,
+                None => slots.push((key, value)),
+            }
         }
+        values.extend(
+            slots
+                .into_iter()
+                .map(|(_, value)| Value::Str(value.to_string())),
+        );
     }
     collect(&Value::Seq(values))
 }
@@ -141,6 +155,17 @@ path = C:\Users\test"
             ["one", "kept"]
         );
         assert_eq!(extract("[a]\n  indented = v"), ["v"]);
+    }
+
+    /// The npm `ini` package keeps the last value of a repeated key, in the
+    /// place the key first appeared; rust-ini keeps every value. The shared
+    /// tool answered `["1","2"]` here and `["2"]` there.
+    #[test]
+    fn a_repeated_key_keeps_its_last_value_where_it_first_appeared() {
+        assert_eq!(
+            extract("[a]\nk = first\nm = mid\nk = last"),
+            ["last", "mid"]
+        );
     }
 
     #[test]

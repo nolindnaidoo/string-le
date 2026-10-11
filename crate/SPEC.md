@@ -96,6 +96,10 @@ literals to the same rule** rather than answering it a second time:
   number, and a TOML date is a date
 - **untyped line formats are the exception**: INI and `.env` parse every
   value as text, so a numeric-looking value *is* a string there
+- **a repeated INI key keeps its last value, where the key first appeared.**
+  The `ini` package reads a section into an object, so a second `k = …`
+  overwrites the first in its slot; this crate reads it the same way, and
+  `fixtures/documents/strings.ini` pins it
 - values are trimmed; empty and whitespace-only values are dropped
 - recursion stops at depth 1000
 
