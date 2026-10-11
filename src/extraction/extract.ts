@@ -68,11 +68,11 @@ function canonicaliseFileTypeKey(fileType: string): string {
 }
 
 function findExtractor(fileType: string): Extractor {
-	const extractor = EXTRACTORS[fileType];
-
-	if (!extractor) {
+	// Own keys only: `EXTRACTORS.constructor` is `Object`, and a caller naming
+	// that type had the document handed back as a String object.
+	if (!Object.hasOwn(EXTRACTORS, fileType)) {
 		return extractFallback;
 	}
 
-	return extractor;
+	return EXTRACTORS[fileType] as Extractor;
 }

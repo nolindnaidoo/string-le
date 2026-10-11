@@ -14,52 +14,57 @@
  * extension, because one frontend dispatches on the id it is handed and the
  * other on the name of a file it walked. Held byte-for-byte equal to
  * crate/src/extract/format.rs.
+ *
+ * A `Map`, not a plain object: on an object, `constructor`, `__proto__` and
+ * every other `Object.prototype` name is a hit, and a caller sending one as a
+ * format got a function back for its file type while the crate's server
+ * answered `fallback`.
  */
-const ALIASES: Readonly<Record<string, string>> = Object.freeze({
-	json: 'json',
-	jsonc: 'jsonc',
-	yaml: 'yaml',
-	yml: 'yaml',
-	csv: 'csv',
-	tsv: 'tsv',
-	toml: 'toml',
-	ini: 'ini',
-	env: 'env',
-	dotenv: 'env',
-	python: 'python',
-	py: 'python',
-	rust: 'rust',
-	rs: 'rust',
-	go: 'go',
-	shellscript: 'shellscript',
-	sh: 'shellscript',
-	bash: 'shellscript',
-	zsh: 'shellscript',
-	php: 'php',
-	ruby: 'ruby',
-	rb: 'ruby',
-	perl: 'perl',
-	pl: 'perl',
-	pm: 'perl',
-	csharp: 'csharp',
-	cs: 'csharp',
-	javascript: 'javascript',
-	javascriptreact: 'javascript',
-	js: 'javascript',
-	jsx: 'javascript',
-	mjs: 'javascript',
-	cjs: 'javascript',
-	typescript: 'typescript',
-	typescriptreact: 'typescript',
-	ts: 'typescript',
-	tsx: 'typescript',
-	mts: 'typescript',
-	cts: 'typescript',
+const ALIASES: ReadonlyMap<string, string> = new Map([
+	['json', 'json'],
+	['jsonc', 'jsonc'],
+	['yaml', 'yaml'],
+	['yml', 'yaml'],
+	['csv', 'csv'],
+	['tsv', 'tsv'],
+	['toml', 'toml'],
+	['ini', 'ini'],
+	['env', 'env'],
+	['dotenv', 'env'],
+	['python', 'python'],
+	['py', 'python'],
+	['rust', 'rust'],
+	['rs', 'rust'],
+	['go', 'go'],
+	['shellscript', 'shellscript'],
+	['sh', 'shellscript'],
+	['bash', 'shellscript'],
+	['zsh', 'shellscript'],
+	['php', 'php'],
+	['ruby', 'ruby'],
+	['rb', 'ruby'],
+	['perl', 'perl'],
+	['pl', 'perl'],
+	['pm', 'perl'],
+	['csharp', 'csharp'],
+	['cs', 'csharp'],
+	['javascript', 'javascript'],
+	['javascriptreact', 'javascript'],
+	['js', 'javascript'],
+	['jsx', 'javascript'],
+	['mjs', 'javascript'],
+	['cjs', 'javascript'],
+	['typescript', 'typescript'],
+	['typescriptreact', 'typescript'],
+	['ts', 'typescript'],
+	['tsx', 'typescript'],
+	['mts', 'typescript'],
+	['cts', 'typescript'],
 	// Prose has no literals; naming it asks for the quoted runs a fenced
 	// code block and a backtick span leave behind.
-	markdown: 'fallback',
-	md: 'fallback',
-});
+	['markdown', 'fallback'],
+	['md', 'fallback'],
+]);
 
 /**
  * The formats a caller can name, for the tool schema's enum.
@@ -108,7 +113,7 @@ export function resolveFormat(
 	filename: string | undefined,
 ): string {
 	if (format) {
-		const direct = ALIASES[normalise(format)];
+		const direct = ALIASES.get(normalise(format));
 		if (direct) return direct;
 	}
 
@@ -116,13 +121,13 @@ export function resolveFormat(
 		// A dotfile like `.env` has no extension to split on; its whole name is
 		// the type.
 		const bare = normalise(filename);
-		const whole = ALIASES[bare.startsWith('.') ? bare.slice(1) : bare];
+		const whole = ALIASES.get(bare.startsWith('.') ? bare.slice(1) : bare);
 		if (whole) return whole;
 
 		const extension = filename.includes('.')
 			? filename.slice(filename.lastIndexOf('.') + 1)
 			: '';
-		const inferred = ALIASES[normalise(extension)];
+		const inferred = ALIASES.get(normalise(extension));
 		if (inferred) return inferred;
 	}
 

@@ -99,6 +99,22 @@ describe('fileType: tolerant resolution', () => {
 		}
 	});
 
+	it('does not read a prototype key as a format', () => {
+		// On a plain object `constructor` and `__proto__` are hits, and the
+		// crate's server answers `fallback` for both; this one answered with a
+		// function for the file type and then failed inside the engine.
+		for (const name of [
+			'constructor',
+			'__proto__',
+			'hasOwnProperty',
+			'valueOf',
+		]) {
+			expect(resolveFormat(name, undefined), name).toBe(FALLBACK_FORMAT);
+			expect(resolveFormat(undefined, name), name).toBe(FALLBACK_FORMAT);
+			expect(resolveFormat(undefined, `a.${name}`), name).toBe(FALLBACK_FORMAT);
+		}
+	});
+
 	it('reads a source language by its id and by its extension', () => {
 		expect(resolveFormat('python', undefined)).toBe('python');
 		expect(resolveFormat(undefined, 'main.rs')).toBe('rust');
@@ -189,6 +205,14 @@ describe('extract_strings', () => {
 	it('surfaces a parse failure instead of returning a silent empty result', async () => {
 		const result = await call({ content: '{"broken": ', format: 'json' });
 		expect(result.ok).toBe(false);
+	});
+
+	it('answers a prototype-named format the way the crate does', async () => {
+		const result = await call({ content: 'x = "a"', format: 'constructor' });
+		expect(result.ok).toBe(true);
+		expect(result.data).toEqual({ strings: ['a'], fileType: FALLBACK_FORMAT });
+		const byName = await call({ content: 'x = "a"', filename: '__proto__' });
+		expect(byName.data.fileType).toBe(FALLBACK_FORMAT);
 	});
 
 	it('requires content', async () => {

@@ -9,6 +9,16 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
+## [Unreleased]
+
+### Fixed
+
+- The MCP server answered a `format` or `filename` that is an
+  `Object.prototype` name, such as `constructor` or `__proto__`, with an
+  error from inside the engine, where the Rust server answered `fallback`;
+  the same name reaching the engine as a file type handed the whole document
+  back as one value. Both lookups answer `fallback`, as the crate always did.
+
 ## [2.5.0] - 2026-10-07
 
 ### Added

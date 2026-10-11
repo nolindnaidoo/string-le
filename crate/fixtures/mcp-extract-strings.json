@@ -455,5 +455,28 @@
 			},
 			"ok": true
 		}
+	},
+	{
+		"name": "a prototype name is a format nothing knows, on both servers",
+		"content": "x = \"a\"",
+		"arguments": {
+			"format": "constructor",
+			"filename": "__proto__"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"a"
+				],
+				"fileType": "fallback"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 1,
+				"truncated": false
+			}
+		}
 	}
 ]

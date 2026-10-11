@@ -11,6 +11,14 @@ describe('extractStrings', () => {
 		expect(out).toEqual(['bar']);
 	});
 
+	it('reads a prototype name as an unknown type, not as an extractor', () => {
+		// `EXTRACTORS.constructor` is `Object` on a plain lookup, and calling it
+		// as an extractor hands the document back as a String object.
+		for (const name of ['constructor', '__proto__', 'toString']) {
+			expect(extractStrings('foo "bar" baz', name), name).toEqual(['bar']);
+		}
+	});
+
 	it('should trims and normalizes fileType key before routing', () => {
 		const out = extractStrings('{"a":"x"}', '  JSON  ');
 		expect(out).toEqual(['x']);
