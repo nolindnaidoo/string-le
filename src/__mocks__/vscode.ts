@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 /**
  * Mock VS Code API for unit tests (aliased via vitest.config.ts).
  * Stateful pieces (config store, message log, command registry) expose
@@ -552,28 +554,123 @@ export const window = {
 			},
 			progressToken,
 		),
-	createOutputChannel: (_name: string) => {
+	createOutputChannel: (name: string) => {
 		const linesOut: string[] = [];
-		return {
+		const channel = {
+			name,
+			disposed: false,
 			appendLine: (line: string) => linesOut.push(line),
-			dispose: () => {},
+			dispose: () => {
+				channel.disposed = true;
+			},
 			_lines: linesOut,
 		};
+		outputChannels.push(channel);
+		return channel;
 	},
-	createStatusBarItem: (_alignment?: unknown, _priority?: number) => ({
-		text: '',
-		tooltip: '',
-		command: undefined as unknown,
-		visible: false,
-		show(): void {
-			(this as { visible: boolean }).visible = true;
-		},
-		hide(): void {
-			(this as { visible: boolean }).visible = false;
-		},
-		dispose: () => {},
-	}),
+	createStatusBarItem: (_alignment?: unknown, _priority?: number) => {
+		const item = {
+			text: '',
+			tooltip: '',
+			command: undefined as unknown,
+			visible: false,
+			disposed: false,
+			show(): void {
+				item.visible = true;
+			},
+			hide(): void {
+				item.visible = false;
+			},
+			dispose(): void {
+				item.disposed = true;
+			},
+		};
+		statusBarItems.push(item);
+		return item;
+	},
 };
+
+const outputChannels: Array<{
+	name: string;
+	disposed: boolean;
+	_lines: string[];
+}> = [];
+const statusBarItems: Array<{
+	text: string;
+	visible: boolean;
+	disposed: boolean;
+}> = [];
+
+/** Every output channel created, disposed or not, in creation order. */
+export function _outputChannels(): readonly {
+	name: string;
+	disposed: boolean;
+	_lines: string[];
+}[] {
+	return outputChannels;
+}
+
+/** Every status bar item created, disposed or not, in creation order. */
+export function _statusBarItems(): readonly {
+	text: string;
+	visible: boolean;
+	disposed: boolean;
+}[] {
+	return statusBarItems;
+}
+
+// ---------------------------------------------------------------- lm
+
+export class McpStdioServerDefinition {
+	constructor(
+		public readonly label: string,
+		public readonly command: string,
+		public readonly args: readonly string[] = [],
+		public readonly env: Record<string, string | number | null> = {},
+		public readonly version?: string,
+	) {}
+}
+
+type McpProvider = { provideMcpServerDefinitions: () => unknown };
+const mcpProviders: Array<{ id: string; provider: McpProvider }> = [];
+
+/** Every MCP server definition provider registered and not yet disposed. */
+export function _mcpProviders(): ReadonlyArray<{
+	id: string;
+	provider: McpProvider;
+}> {
+	return mcpProviders;
+}
+
+/**
+ * `vscode.lm` as a host without the MCP API presents it: present, and empty.
+ * The extension feature-detects `registerMcpServerDefinitionProvider`
+ * because a fork can report a recent version and lack it; the default here
+ * is that fork, and `_setLmApi(true)` gives the host VS Code 1.101's.
+ */
+export const lm: {
+	registerMcpServerDefinitionProvider?: (
+		id: string,
+		provider: McpProvider,
+	) => { dispose(): void };
+} = {};
+
+export function _setLmApi(present: boolean): void {
+	if (!present) {
+		delete lm.registerMcpServerDefinitionProvider;
+		return;
+	}
+	lm.registerMcpServerDefinitionProvider = (id, provider) => {
+		const entry = { id, provider };
+		mcpProviders.push(entry);
+		return {
+			dispose: () => {
+				const index = mcpProviders.indexOf(entry);
+				if (index >= 0) mcpProviders.splice(index, 1);
+			},
+		};
+	};
+}
 
 // ---------------------------------------------------------- languages
 
@@ -666,10 +763,18 @@ export function _clipboardText(): string {
 
 // ------------------------------------------------- extension context
 
+/** The version the manifest declares, read rather than typed so it cannot go stale. */
+const PACKAGE_VERSION: string = (
+	JSON.parse(
+		readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8'),
+	) as { version: string }
+).version;
+
 export function _createExtensionContext() {
 	const globalStateStore = new Map<string, unknown>();
 	return {
 		subscriptions: [] as Array<{ dispose(): void }>,
+		asAbsolutePath: (relative: string) => join('/ext', relative),
 		globalState: {
 			get: <T>(key: string, defaultValue?: T): T | undefined =>
 				globalStateStore.has(key)
@@ -682,7 +787,7 @@ export function _createExtensionContext() {
 		},
 		extension: {
 			id: 'nolindnaidoo.string-le',
-			packageJSON: { displayName: 'Strings-LE' },
+			packageJSON: { displayName: 'Strings-LE', version: PACKAGE_VERSION },
 		},
 	};
 }
@@ -740,6 +845,33 @@ export function _resetMockState(): void {
 	editorInsertions.length = 0;
 	replacedRanges.length = 0;
 	codeActionProviders.length = 0;
+	statusBarItems.length = 0;
+	outputChannels.length = 0;
+	mcpProviders.length = 0;
+	_setLmApi(false);
+}
+
+/**
+ * What is still alive: created and not disposed, registered and not removed.
+ * A deactivation that leaves any of these behind is a leak.
+ */
+export function _live(): {
+	statusBarItems: number;
+	outputChannels: number;
+	configListeners: number;
+	commands: number;
+	codeActionProviders: number;
+	mcpProviders: number;
+} {
+	return {
+		statusBarItems: statusBarItems.filter((item) => !item.disposed).length,
+		outputChannels: outputChannels.filter((channel) => !channel.disposed)
+			.length,
+		configListeners: configListeners.length,
+		commands: registeredCommands.size,
+		codeActionProviders: codeActionProviders.length,
+		mcpProviders: mcpProviders.length,
+	};
 }
 
 export const l10n = {

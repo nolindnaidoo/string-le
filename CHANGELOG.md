@@ -62,6 +62,9 @@ separate product on its own cadence and keeps its own
   the process without bound, and 64 MiB of it held the server at 980 MB. A
   frame over 16 MiB is refused with a JSON-RPC parse error and the server
   keeps serving.
+- A status bar flash after the extension was deactivated, from a command
+  that finished late, wrote to the disposed item and set a restore timer
+  that outlived the extension. It does nothing.
 
 ## [2.5.0] - 2026-10-07
 

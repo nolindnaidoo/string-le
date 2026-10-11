@@ -132,6 +132,13 @@ function flashStatusBar(
 	text: string,
 	state: StatusBarState,
 ): void {
+	// After dispose there is nothing to flash on, and a restore timer set now
+	// would outlive the extension: a command finishing after deactivation
+	// reaches here.
+	if (state.disposed) {
+		return;
+	}
+
 	const config = readStatusBarConfig();
 
 	// Guard: Status bar disabled
