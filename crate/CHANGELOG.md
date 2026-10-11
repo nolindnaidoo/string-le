@@ -7,6 +7,26 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2026-10-11
+
+### Fixed
+
+- **The README's Open VSX link led nowhere.** It pointed at a namespace the
+  extension's listing has left, and points at `nolindnaidoo` now. The Zed
+  row is gone with the Zed extension, which was never listed.
+- The family list's String-LE line no longer promises a position for every
+  string.
+- The crate's description no longer promises a position for every string.
+  Positions are an opt-in setting in the extension, absent from the shared
+  `extract_strings` tool, and unavailable for six formats.
+
+### Changed
+
+- SPEC.md no longer says the extension has no positions. It has had them as
+  an opt-in setting since extension 2.5.0, placed by its own scanner for the
+  source languages, JSON and plain text. The shared tool still carries none,
+  and nothing holds the two surfaces' placements equal.
+
 ## [0.4.1] - 2026-10-03
 
 ### Fixed
@@ -273,6 +293,7 @@ auditor saw it. A contract test asserts no flag asks for a judgment.
   vanish from the report entirely, which reads to whoever ran it as
   "that file was clean".
 
+[0.4.2]: https://crates.io/crates/string-le/0.4.2
 [0.4.1]: https://crates.io/crates/string-le/0.4.1
 [0.4.0]: https://crates.io/crates/string-le/0.4.0
 [0.3.1]: https://crates.io/crates/string-le/0.3.1
