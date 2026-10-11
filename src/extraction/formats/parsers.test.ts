@@ -30,17 +30,23 @@ describe('extractIni', () => {
 		expect(extractIni('  \n\t\n', {})).toHaveLength(0);
 	});
 
-	it('reports a parse failure through onParseError rather than throwing', () => {
-		// The callback is options.onParseError; a value that collides with an
-		// already-created section is what the parser rejects.
+	it('refuses nothing: the documents other parsers reject are read, and onParseError is never called', () => {
+		// The `ini` package reads an unclosed header as a key and a dotted key
+		// beside its section as a value, so no document reaches the catch in
+		// `parseIni`. The test this replaces claimed to exercise a parse
+		// failure and asserted only that an array came back. The crate's
+		// reader is stricter here, and SPEC.md records the difference.
 		const errors: string[] = [];
-		const result = extractIni('a.b = 1\na = 2\na.c = 3\n', {
-			onParseError: (message: string) => errors.push(message),
-		} as never);
-		expect(Array.isArray(result)).toBe(true);
-	});
-
-	it('does not throw when no error handler is supplied', () => {
+		const onParseError = (message: string): void => {
+			errors.push(message);
+		};
+		expect(
+			extractIni('a.b = 1\na = 2\na.c = 3\n', { onParseError } as never),
+		).toEqual(['1', '2', '3']);
+		expect(
+			extractIni('[unclosed\nname = x\n', { onParseError } as never),
+		).toEqual(['x']);
+		expect(errors).toEqual([]);
 		expect(() => extractIni('a.b = 1\na = 2\na.c = 3\n', {})).not.toThrow();
 	});
 
