@@ -54,7 +54,11 @@ export async function handleCsvMultiColumnExtraction(
 	const handleMultiColumn = streamingEnabled
 		? handleStreamingMultiColumn
 		: handleNonStreamingMultiColumn;
-	await handleMultiColumn(context, targetIndexes, token);
+	const opened = await handleMultiColumn(context, targetIndexes, token);
+
+	// Every column that failed to open has been reported; a run that opened
+	// nothing delivered nothing and is not announced as opened.
+	if (opened === 0) return true;
 
 	deps.telemetry.event('extracted', { count: 'multi', type: 'csv' });
 	deps.statusBar.flash('CSV opened (no auto‑copy)');
@@ -65,7 +69,8 @@ export async function handleCsvMultiColumnExtraction(
 // Streaming multi-column helper
 
 /**
- * Stream one CSV column into its own results document.
+ * Stream one CSV column into its own results document. True when the
+ * document was opened and the stream ran to its end or to a cancel.
  *
  * Extracted from the per-column loop: inline, the batching decision sat five
  * levels deep inside function -> try -> for -> try -> for.
@@ -75,7 +80,7 @@ async function streamColumnToDocument(
 	context: ExtractionContext,
 	token: vscode.CancellationToken,
 	activeStreams: AsyncGenerator<string, void, unknown>[],
-): Promise<void> {
+): Promise<boolean> {
 	const { text, csvOptions, config, deps } = context;
 	try {
 		const doc = await vscode.workspace.openTextDocument({
@@ -145,26 +150,31 @@ async function streamColumnToDocument(
 		if (!token.isCancellationRequested) {
 			await flush();
 		}
+		return true;
 	} catch (error: unknown) {
-		if (error instanceof Error) {
-			deps.notifier.error(`Column ${idx} streaming failed: ${error.message}`);
-		}
+		const message = error instanceof Error ? error.message : String(error);
+		deps.notifier.error(`Column ${idx} streaming failed: ${message}`);
 		// Continue with next column
+		return false;
 	}
 }
 
+/** How many column documents were opened. */
 async function handleStreamingMultiColumn(
 	context: ExtractionContext,
 	targetIndexes: readonly number[],
 	token: vscode.CancellationToken,
-): Promise<void> {
+): Promise<number> {
 	const activeStreams: AsyncGenerator<string, void, unknown>[] = [];
+	let opened = 0;
 
 	try {
 		for (const idx of targetIndexes) {
 			if (token.isCancellationRequested) break;
 
-			await streamColumnToDocument(idx, context, token, activeStreams);
+			if (await streamColumnToDocument(idx, context, token, activeStreams)) {
+				opened++;
+			}
 		}
 	} finally {
 		// Clean up all active streams
@@ -176,21 +186,23 @@ async function handleStreamingMultiColumn(
 			}
 		}
 	}
+	return opened;
 }
 
-// Non-streaming multi-column helper
+/** Non-streaming multi-column helper: how many column documents were opened. */
 async function handleNonStreamingMultiColumn(
 	context: ExtractionContext,
 	targetIndexes: readonly number[],
 	token: vscode.CancellationToken,
-): Promise<void> {
+): Promise<number> {
 	const { text, csvOptions, config, deps } = context;
 	const shouldDedupe = config.dedupeEnabled;
 	const sortEnabled = config.sortEnabled;
 	const sortMode = config.sortMode;
+	let opened = 0;
 
 	for (const idx of targetIndexes) {
-		if (token.isCancellationRequested) return;
+		if (token.isCancellationRequested) return opened;
 
 		const perColumnOptions = {
 			onParseError: (message: string): void => {
@@ -222,12 +234,12 @@ async function handleNonStreamingMultiColumn(
 					preserveFocus: true,
 				}),
 			);
-		} catch (error: unknown) {
-			if (error instanceof Error) {
-				deps.notifier.error(vscode.l10n.t('Could not open results'));
-			}
+			opened++;
+		} catch {
+			deps.notifier.error(vscode.l10n.t('Could not open results'));
 		}
 	}
+	return opened;
 }
 
 // Handle CSV single streaming extraction

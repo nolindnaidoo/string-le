@@ -34,6 +34,13 @@ separate product on its own cadence and keeps its own
 - `Sort Strings` by length broke a tie between two strings of one length by
   the machine's locale, so one list sorted two ways on two machines. Ties
   follow the same fixed collator as the alphabetical modes, then code unit.
+- When the results document could not be opened, Extract reported the
+  failure and then counted the run as delivered anyway: "Extracted N" in the
+  status bar, a telemetry event, and a use toward the rating prompt. A run
+  whose results reached neither an editor nor the clipboard is not counted.
+- A CSV extraction over several columns announced "CSV opened" after every
+  column document had failed to open. It announces what was opened, and a run
+  that opened nothing announces nothing beyond the failures already shown.
 
 ## [2.5.0] - 2026-10-07
 
