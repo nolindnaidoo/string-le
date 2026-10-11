@@ -51,6 +51,38 @@ if (/\brequire\(\s*["']vscode["']\s*\)/.test(source)) {
 	fail('the MCP bundle references `vscode`', 'it must run outside the editor');
 }
 
+// --- 1b. it reaches nothing outside its stdio ------------------------
+// The README promises no filesystem access and no network calls, and says
+// this gate fails the build on an import that could reach either. Until
+// this block, the gate refused only a non-builtin: a `require("node:fs")`
+// passed it. A builtin is allowed in general, because the server is Node;
+// these are the ones that reach the disk, the network or another process.
+const REACHES_OUTSIDE = new Set([
+	'fs',
+	'fs/promises',
+	'net',
+	'http',
+	'https',
+	'http2',
+	'dns',
+	'tls',
+	'dgram',
+	'child_process',
+	'worker_threads',
+	'cluster',
+]);
+const reaching = new Set();
+for (const match of source.matchAll(/\brequire\(\s*["']([^"']+)["']\s*\)/g)) {
+	const specifier = match[1].replace(/^node:/, '');
+	if (REACHES_OUTSIDE.has(specifier)) reaching.add(match[1]);
+}
+if (reaching.size > 0) {
+	fail(
+		'the MCP bundle can reach the filesystem, the network or another process',
+		`requires: ${[...reaching].join(', ')}`,
+	);
+}
+
 // --- 2. size ---------------------------------------------------------
 const size = fs.statSync(bundlePath).size;
 if (size > SIZE_CEILING_BYTES) {
