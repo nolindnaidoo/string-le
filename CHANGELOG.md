@@ -65,6 +65,9 @@ separate product on its own cadence and keeps its own
 - A status bar flash after the extension was deactivated, from a command
   that finished late, wrote to the disposed item and set a restore timer
   that outlived the extension. It does nothing.
+- `Sort Strings` on a document ending in a newline sorted that newline as an
+  empty line, so the sorted document began with a blank line and lost its
+  terminator. The trailing newline stays where it was.
 
 ## [2.5.0] - 2026-10-07
 

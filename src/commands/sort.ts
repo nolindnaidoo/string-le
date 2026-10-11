@@ -64,12 +64,12 @@ async function executeSort(): Promise<void> {
 		return;
 	}
 
-	const lines = extractLines(editor);
+	const document = extractLines(editor);
 	// By string, so a position shown on a line travels with it.
-	const sortedLines = onValues(lines, (values) =>
+	const sortedLines = onValues(document.lines, (values) =>
 		sortStrings(values, sortMode),
 	);
-	const processedContent = joinLines(sortedLines);
+	const processedContent = joinLines(document, sortedLines);
 
 	const success = await processAndOutput(editor, processedContent);
 

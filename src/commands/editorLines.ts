@@ -13,14 +13,28 @@ import { createNotifier } from '../ui/notifier';
  * around it, so a user who had chosen `silent` was still notified by them.
  */
 
-export function extractLines(editor: vscode.TextEditor): readonly string[] {
+/** A document's lines, and whether a newline ended the last of them. */
+export type DocumentLines = Readonly<{
+	lines: readonly string[];
+	terminated: boolean;
+}>;
+
+export function extractLines(editor: vscode.TextEditor): DocumentLines {
+	const text = editor.document.getText();
+	// A trailing newline ends the last line; it is not an empty line after
+	// it. Split as one more line, it sorted to the top of the document.
+	const terminated = /\r?\n$/.test(text);
+	const body = terminated ? text.replace(/\r?\n$/, '') : text;
 	// Split on CRLF as well as LF: the document may have either, and joining
 	// with '\n' afterwards is what normalises the result.
-	return editor.document.getText().split(/\r?\n/);
+	return { lines: body.split(/\r?\n/), terminated };
 }
 
-export function joinLines(lines: readonly string[]): string {
-	return lines.join('\n');
+export function joinLines(
+	document: DocumentLines,
+	lines: readonly string[],
+): string {
+	return lines.join('\n') + (document.terminated ? '\n' : '');
 }
 
 export function showNoEditorWarning(): void {

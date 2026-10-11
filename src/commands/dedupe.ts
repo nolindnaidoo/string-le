@@ -29,15 +29,15 @@ async function executeDedupe(): Promise<void> {
 		return;
 	}
 
-	const lines = extractLines(editor);
+	const document = extractLines(editor);
 	// By string: with positions shown every line is different, and a dedupe
 	// over whole lines would remove nothing.
-	const dedupedLines = onValues(lines, dedupe);
-	const processedContent = joinLines(dedupedLines);
+	const dedupedLines = onValues(document.lines, dedupe);
+	const processedContent = joinLines(document, dedupedLines);
 
 	const success = await processAndOutput(editor, processedContent);
 
 	if (success) {
-		showSuccessMessage(lines.some(hasPosition));
+		showSuccessMessage(document.lines.some(hasPosition));
 	}
 }
