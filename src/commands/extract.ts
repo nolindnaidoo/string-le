@@ -199,6 +199,9 @@ async function processAndOutputResults(
 
 	if (token.isCancellationRequested) return;
 
+	// What actually reached the user, as distinct from what was attempted: an
+	// open that failed was reported and then counted as delivered anyway.
+	let opened = false;
 	if (openDoc) {
 		try {
 			const resultDocument = await vscode.workspace.openTextDocument({
@@ -209,10 +212,9 @@ async function processAndOutputResults(
 				resultDocument,
 				getShowDocumentOptions(config),
 			);
-		} catch (error: unknown) {
-			if (error instanceof Error) {
-				deps.notifier.error(vscode.l10n.t('Could not open results'));
-			}
+			opened = true;
+		} catch {
+			deps.notifier.error(vscode.l10n.t('Could not open results'));
 		}
 	}
 
@@ -231,8 +233,8 @@ async function processAndOutputResults(
 	}
 
 	// Nothing opened and nothing copied means the results never reached the
-	// user; a clipboard failure has already been reported as a warning.
-	if (!openDoc && !clipboardSuccess) {
+	// user; each failure has already been reported.
+	if (!opened && !clipboardSuccess) {
 		return;
 	}
 

@@ -13,6 +13,7 @@ import {
 	_respondToWarning,
 	_setActiveEditor,
 	_setConfig,
+	_setOpenDocumentError,
 	_shownDocumentOptions,
 	_shownMessages,
 } from '../__mocks__/vscode';
@@ -47,6 +48,36 @@ async function runExtract(): Promise<void> {
 	const handler = _registeredCommands().get('string-le.extractStrings');
 	if (!handler) throw new Error('extract command not registered');
 	await handler();
+}
+
+/** Runs the command with deps that record what the user would be told. */
+async function runExtractRecording(): Promise<{
+	readonly events: string[];
+	readonly successes: number;
+}> {
+	const events: string[] = [];
+	const counted = { successes: 0 };
+	registerAllCommands(_createExtensionContext() as never, {
+		telemetry: { event: (name: string) => events.push(`tel:${name}`) },
+		notifier: {
+			info: (m: string) => events.push(`info:${m}`),
+			warn: (m: string) => events.push(`warn:${m}`),
+			error: (m: string) => events.push(`error:${m}`),
+			showMultilineRisk: () => events.push('info:multiline'),
+			showCsvNoCopy: () => events.push('info:csv-no-copy'),
+			showPostProcessInfo: () => events.push('info:post-process'),
+		},
+		statusBar: { flash: (m: string) => events.push(`flash:${m}`) },
+		ratingPrompt: {
+			recordSuccess: async () => {
+				counted.successes++;
+			},
+		},
+	});
+	const handler = _registeredCommands().get('string-le.extractStrings');
+	if (!handler) throw new Error('extract command not registered');
+	await handler();
+	return { events, successes: counted.successes };
 }
 
 const lastOpened = (): string | undefined => {
@@ -94,6 +125,40 @@ describe('extract: result placement', () => {
 		await runExtract();
 		expect(_clipboardText()).toBe('x\ny');
 		expect(lastOpened()).toBe('x\ny');
+	});
+});
+
+describe('extract: a result that never reached the user', () => {
+	it('does not announce a count when the results document could not be opened', async () => {
+		// The open failed, an error was shown, and the command went on to
+		// count the run as delivered: "Extracted 2" in the status bar, an
+		// `extracted` telemetry event and a use toward the rating prompt.
+		_setOpenDocumentError(new Error('no window'));
+		_setActiveEditor(
+			_createDocument({ content: '["a","b"]', fileName: '/mock/a.json' }),
+		);
+		const { events, successes } = await runExtractRecording();
+		expect(events).toContain('error:Could not open results');
+		expect(events.filter((e) => e.startsWith('flash:Extracted'))).toEqual([]);
+		expect(events).not.toContain('tel:extracted');
+		expect(successes).toBe(0);
+	});
+
+	it('does not announce "CSV opened" when no column document could be opened', async () => {
+		_setOpenDocumentError(new Error('no window'));
+		_setActiveEditor(
+			_createDocument({
+				content: '1,2,3\nfoo,bar,baz\n',
+				fileName: '/mock/d.csv',
+			}),
+		);
+		_respondToInputBox(() => '0,1,2');
+		const { events, successes } = await runExtractRecording();
+		expect(events.filter((e) => e.startsWith('error:'))).not.toEqual([]);
+		expect(events.filter((e) => e.startsWith('flash:CSV opened'))).toEqual([]);
+		expect(events).not.toContain('info:csv-no-copy');
+		expect(events).not.toContain('tel:extracted');
+		expect(successes).toBe(0);
 	});
 });
 
