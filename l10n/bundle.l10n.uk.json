@@ -40,6 +40,7 @@
 	"The results limit was reached. The rest of the files were not read.": "Досягнуто ліміту результатів. Решту файлів не було прочитано.",
 	"{0} file(s) larger than the safety limit were not read.": "Файлів, більших за безпечний ліміт, які не було прочитано: {0}.",
 	"{0} file(s) that are not UTF-8 text were not read.": "Файлів, що не є текстом UTF-8, які не було прочитано: {0}.",
+	"{0} file(s) could not be read.": "Не вдалося прочитати файлів: {0}.",
 	"dependency folders, build output, caches and lockfiles": "папки залежностей, результати збирання, кеші та lock-файли",
 	"images, fonts, archives and other binary files": "зображення, шрифти, архіви та інші двійкові файли",
 	"{0} file(s) ignored by .gitignore": "файлів, які ігнорує .gitignore: {0}",

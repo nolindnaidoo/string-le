@@ -40,6 +40,7 @@
 	"The results limit was reached. The rest of the files were not read.": "Đã đạt giới hạn kết quả. Các tệp còn lại không được đọc.",
 	"{0} file(s) larger than the safety limit were not read.": "{0} tệp lớn hơn giới hạn an toàn không được đọc.",
 	"{0} file(s) that are not UTF-8 text were not read.": "{0} tệp không phải văn bản UTF-8 không được đọc.",
+	"{0} file(s) could not be read.": "Không thể đọc {0} tệp.",
 	"dependency folders, build output, caches and lockfiles": "thư mục phụ thuộc, đầu ra bản dựng, bộ nhớ đệm và lockfile",
 	"images, fonts, archives and other binary files": "hình ảnh, phông chữ, tệp nén và các tệp nhị phân khác",
 	"{0} file(s) ignored by .gitignore": "{0} tệp bị .gitignore bỏ qua",

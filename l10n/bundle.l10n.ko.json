@@ -40,6 +40,7 @@
 	"The results limit was reached. The rest of the files were not read.": "결과 제한에 도달했습니다. 나머지 파일은 읽지 않았습니다.",
 	"{0} file(s) larger than the safety limit were not read.": "안전 제한보다 큰 파일 {0}개는 읽지 않았습니다.",
 	"{0} file(s) that are not UTF-8 text were not read.": "UTF-8 텍스트가 아닌 파일 {0}개는 읽지 않았습니다.",
+	"{0} file(s) could not be read.": "파일 {0}개를 읽을 수 없습니다.",
 	"dependency folders, build output, caches and lockfiles": "종속성 폴더, 빌드 출력, 캐시, 잠금 파일",
 	"images, fonts, archives and other binary files": "이미지, 글꼴, 압축 파일 및 기타 이진 파일",
 	"{0} file(s) ignored by .gitignore": ".gitignore가 무시한 파일 {0}개",

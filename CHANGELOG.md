@@ -41,6 +41,9 @@ separate product on its own cadence and keeps its own
 - A CSV extraction over several columns announced "CSV opened" after every
   column document had failed to open. It announces what was opened, and a run
   that opened nothing announces nothing beyond the failures already shown.
+- A folder or workspace scan counted a file deleted or made unreadable after
+  it was listed as "not UTF-8 text". It has its own line in the report:
+  "N file(s) could not be read."
 
 ## [2.5.0] - 2026-10-07
 

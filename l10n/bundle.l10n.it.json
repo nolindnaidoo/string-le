@@ -40,6 +40,7 @@
 	"The results limit was reached. The rest of the files were not read.": "È stato raggiunto il limite dei risultati. Gli altri file non sono stati letti.",
 	"{0} file(s) larger than the safety limit were not read.": "{0} file più grandi del limite di sicurezza non sono stati letti.",
 	"{0} file(s) that are not UTF-8 text were not read.": "{0} file che non sono testo UTF-8 non sono stati letti.",
+	"{0} file(s) could not be read.": "Impossibile leggere {0} file.",
 	"dependency folders, build output, caches and lockfiles": "cartelle delle dipendenze, output di build, cache e lockfile",
 	"images, fonts, archives and other binary files": "immagini, font, archivi e altri file binari",
 	"{0} file(s) ignored by .gitignore": "{0} file ignorati da .gitignore",
