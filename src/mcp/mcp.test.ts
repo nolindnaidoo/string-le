@@ -77,6 +77,39 @@ describe('fileType: tolerant resolution', () => {
 		expect(resolveFormat(undefined, '.env')).toBe('env');
 	});
 
+	it('reads every dotenv spelling as dotenv, and only those', () => {
+		// `.env.local` split on its last dot asks `local` for a format and fell
+		// to the quoted-run scan, which finds nothing in `NAME=plain`. The
+		// crate resolves these to `env`; the shared tool must agree.
+		for (const name of [
+			'.env.local',
+			'.env.production',
+			'.env.test.local',
+			'app.env',
+			'env',
+		]) {
+			expect(resolveFormat(undefined, name), name).toBe('env');
+		}
+		for (const name of [
+			'.envrc',
+			'environment.json',
+			'env.ts',
+			'sender.env.rs',
+		]) {
+			expect(resolveFormat(undefined, name), name).not.toBe('env');
+		}
+	});
+
+	it('resolves a path by its last segment, whichever separator wrote it', () => {
+		// A folder scan hands over `src/.env.local`; the directory must not
+		// hide the dotfile's whole name, and `a.env/` must not make a text
+		// file dotenv.
+		expect(resolveFormat(undefined, 'src/.env.local')).toBe('env');
+		expect(resolveFormat(undefined, 'src\\config\\.env')).toBe('env');
+		expect(resolveFormat(undefined, 'config/app.toml')).toBe('toml');
+		expect(resolveFormat(undefined, 'a.env/notes.txt')).toBe(FALLBACK_FORMAT);
+	});
+
 	it('infers from a filename when no format is given', () => {
 		expect(resolveFormat(undefined, 'config.toml')).toBe('toml');
 	});

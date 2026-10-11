@@ -18,6 +18,12 @@ separate product on its own cadence and keeps its own
   error from inside the engine, where the Rust server answered `fallback`;
   the same name reaching the engine as a file type handed the whole document
   back as one value. Both lookups answer `fallback`, as the crate always did.
+- A `.env.local`, `.env.production` or `app.env` file was read by the
+  quoted-run scan rather than as dotenv, in a folder scan and through the
+  MCP server's `filename`, so an unquoted `NAME=value` in it was missed while
+  the `.env` beside it read every value. Every dotenv spelling resolves to the
+  dotenv reader, as it does in the Rust CLI, and a filename that arrives as a
+  path is resolved by its last segment.
 
 ## [2.5.0] - 2026-10-07
 

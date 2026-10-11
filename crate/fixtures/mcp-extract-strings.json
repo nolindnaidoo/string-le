@@ -478,5 +478,49 @@
 				"truncated": false
 			}
 		}
+	},
+	{
+		"name": "a .env.local filename is dotenv, so an unquoted value is read",
+		"content": "NAME=plain value\n",
+		"arguments": {
+			"filename": ".env.local"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"plain value"
+				],
+				"fileType": "env"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 1,
+				"truncated": false
+			}
+		}
+	},
+	{
+		"name": "a path-shaped filename resolves by its last segment",
+		"content": "NAME=plain value\n",
+		"arguments": {
+			"filename": "config/.env.local"
+		},
+		"expected": {
+			"ok": true,
+			"data": {
+				"strings": [
+					"plain value"
+				],
+				"fileType": "env"
+			},
+			"diagnostics": [],
+			"meta": {
+				"tool": "extract_strings",
+				"count": 1,
+				"truncated": false
+			}
+		}
 	}
 ]

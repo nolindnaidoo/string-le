@@ -129,6 +129,12 @@ pub(crate) fn resolve_format(format: Option<&str>, filename: Option<&str>) -> &'
         return FALLBACK_FORMAT;
     };
 
+    // The name alone, whichever separator wrote the path. The walk hands
+    // over a bare file name, but an MCP caller may send `src/.env.local`,
+    // and the directory says nothing about the format while hiding a
+    // dotfile's whole name.
+    let filename = filename.rsplit(['/', '\\']).next().unwrap_or(filename);
+
     // A dotfile like `.env` has no extension to split on; its whole name
     // is the type.
     let whole = canonical(&normalise(filename));
@@ -190,6 +196,16 @@ mod dotenv_tests {
         ] {
             assert_eq!(resolve_format(None, Some(name)), "env", "{name}");
         }
+    }
+
+    /// An MCP caller may send a path where the walk sends a name; the
+    /// directory must not hide the dotfile.
+    #[test]
+    fn a_path_resolves_by_its_last_segment() {
+        assert_eq!(resolve_format(None, Some("src/.env.local")), "env");
+        assert_eq!(resolve_format(None, Some("src\\config\\.env")), "env");
+        assert_eq!(resolve_format(None, Some("config/app.toml")), "toml");
+        assert_eq!(resolve_format(None, Some("a.env/notes.txt")), "fallback");
     }
 
     /// The exclusions matter more than the inclusions: reading a source

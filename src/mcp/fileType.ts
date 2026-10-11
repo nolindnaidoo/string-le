@@ -118,18 +118,52 @@ export function resolveFormat(
 	}
 
 	if (filename) {
+		// The name alone. A folder scan hands over `src/.env.local`, and an
+		// agent may send a path too; the directory says nothing about the
+		// format and hides a dotfile's whole name.
+		const name = basename(filename);
+
 		// A dotfile like `.env` has no extension to split on; its whole name is
 		// the type.
-		const bare = normalise(filename);
+		const bare = normalise(name);
 		const whole = ALIASES.get(bare.startsWith('.') ? bare.slice(1) : bare);
 		if (whole) return whole;
 
-		const extension = filename.includes('.')
-			? filename.slice(filename.lastIndexOf('.') + 1)
+		// A dotenv file is `.env` and everything after it. Splitting on the
+		// last dot asked `local` for a format, so `.env.local` fell to the
+		// quoted-run scan and an unquoted `NAME=plain` vanished while the
+		// `.env` beside it read both values. The crate resolves these to
+		// `env`, and the shared tool answers the same whichever server it
+		// reaches.
+		if (isDotenv(name.trim().toLowerCase())) return 'env';
+
+		const extension = name.includes('.')
+			? name.slice(name.lastIndexOf('.') + 1)
 			: '';
 		const inferred = ALIASES.get(normalise(extension));
 		if (inferred) return inferred;
 	}
 
 	return FALLBACK_FORMAT;
+}
+
+/** The last path segment, whichever separator wrote the path. */
+function basename(filename: string): string {
+	return filename.slice(
+		Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\')) + 1,
+	);
+}
+
+/**
+ * Whether a filename names a dotenv file: `.env` and any suffix of it, plus
+ * the `<name>.env` spelling.
+ *
+ * The leading dot is the signal, so this reads the name before `normalise`
+ * strips it. Without it `env.ts`, an ordinary TypeScript file, would read as
+ * dotenv, which silences a source file rather than adding noise to a config.
+ * `.envrc` is direnv's shell script and is likewise not a dotenv file.
+ */
+function isDotenv(name: string): boolean {
+	if (name === '.env' || name.startsWith('.env.')) return true;
+	return name.endsWith('.env') && name.length > '.env'.length;
 }

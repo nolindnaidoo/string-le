@@ -7,6 +7,16 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- The shared `extract_strings` tool read a `filename` sent as a path by the
+  text after its last dot, so `config/.env.local` was the quoted-run scan
+  and an unquoted value in it was missed. A filename is resolved by its last
+  segment, whichever separator wrote the path, as the walk's file names
+  always were.
+
 ## [0.4.2] - 2026-10-11
 
 ### Fixed

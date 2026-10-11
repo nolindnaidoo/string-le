@@ -137,6 +137,12 @@ describe('string-le.extractWorkspace and string-le.extractFolder', () => {
 		expect(report()).toMatch(/^- `\/w\/bad\.json`: Invalid JSON: /m);
 	});
 
+	it('reads a .env.local file as dotenv, so its unquoted values are found', async () => {
+		open({ '/w/.env.local': 'GREETING=plain value\n' });
+		await runCommand('string-le.extractWorkspace');
+		expect(report()).toContain('| `plain value` | 1 | 1 |');
+	});
+
 	it('shows a long or many-line string as one cut line, and still compares it whole', async () => {
 		const long = 'x'.repeat(200);
 		open({
