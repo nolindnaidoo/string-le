@@ -23,6 +23,24 @@ describe('readConfig', () => {
 		);
 	});
 
+	it('falls back to the default when the stored value is not a number', () => {
+		// `Number('')` and `Number(null)` are 0, which the floor then raised to
+		// 1000: clearing the setting in the editor turned the size guard into
+		// a thousand bytes.
+		_setConfig('string-le.safety.fileSizeWarnBytes', '');
+		expect(readConfig().fileSizeWarnBytes).toBe(
+			CONFIG_DEFAULTS.fileSizeWarnBytes,
+		);
+		_setConfig('string-le.safety.fileSizeWarnBytes', null);
+		expect(readConfig().fileSizeWarnBytes).toBe(
+			CONFIG_DEFAULTS.fileSizeWarnBytes,
+		);
+		_setConfig('string-le.workspace.scanMaxFiles', true);
+		expect(readConfig().workspaceScanMaxFiles).toBe(
+			CONFIG_DEFAULTS.workspaceScanMaxFiles,
+		);
+	});
+
 	it('clamps numbers below the declared minimum', () => {
 		_setConfig('string-le.safety.fileSizeWarnBytes', 1);
 		expect(readConfig().fileSizeWarnBytes).toBe(1000);

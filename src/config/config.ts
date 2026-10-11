@@ -195,8 +195,11 @@ function readNumber(
 	defaultValue: number,
 	minValue: number,
 ): number {
-	const value = Number(config.get(key, defaultValue));
-	if (!Number.isFinite(value)) {
+	// Read as the type it is, not coerced: `Number('')` and `Number(null)` are
+	// 0, which the floor then raised to its minimum, so a setting cleared in
+	// the editor turned the size guard into a thousand bytes.
+	const value = config.get<unknown>(key, defaultValue);
+	if (typeof value !== 'number' || !Number.isFinite(value)) {
 		return defaultValue;
 	}
 	return Math.max(minValue, value);
