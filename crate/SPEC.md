@@ -198,14 +198,17 @@ of those matters is the reader's call.
 
 ## Positions — the addition
 
-The extension returns values and no positions, and `extract_strings`
-keeps it that way on both servers. Its callers have the buffer open.
+The shared `extract_strings` tool returns values and no positions, on
+both servers. Its callers have the buffer open. The extension shows
+positions only when `string-le.showPositions` is on, placed by its own
+scanner for the source languages, JSON and plain text, and never for a
+parsed format.
 
-A reviewer reading a 40,000-line extract does not, so **the CLI and this
-crate's own tool report where each value came from**: always the file,
-and a 1-based line and column when the value can be located in the
-source. This is outside parity scope — the extension has nothing to
-disagree with.
+A reviewer reading a 40,000-line extract has no buffer, so **the CLI and
+this crate's own tool report where each value came from**: always the
+file, and a 1-based line and column when the value can be located in the
+source. This is outside parity scope: the shared tool carries no
+positions, and nothing holds the two surfaces' placements equal.
 
 **JSON is placed by its parser; everything else by a forward cursor.** The
 jsonc AST carries a range for every literal, so JSON needs no search and
@@ -298,7 +301,7 @@ person this was built for.
 
 ## Where this deliberately differs
 
-Three places, each opt-in or reported, never silent.
+Each is opt-in or reported, never silent.
 
 **`--multiline`.** JavaScript's `.` does not match a newline without the
 `s` flag, so the quoted-run pattern cannot span lines. It belongs to the
@@ -316,8 +319,13 @@ document deeper than that comes back here as a **reported parse failure**
 and there as a silently half-read document. Both yield nothing useful;
 only one of them says so.
 
-**Positions**, which the extension does not have at all, so there is
-nothing to differ with.
+**Positions.** The shared tool carries none on either server. Each
+surface places values for its own reader. The extension, when
+`string-le.showPositions` is on, places them from its scanner for the
+source languages, JSON and plain text, and not at all for a parsed
+format. This crate places them from JSON spans and a forward cursor for
+every other format, with no position where a value cannot be located.
+Neither guesses, and nothing holds the two equal.
 
 **The words a parser uses to refuse.** Both servers report a broken
 document the same way — `ok: false`, one diagnostic, severity `error`,

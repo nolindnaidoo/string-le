@@ -12,9 +12,10 @@
  * This checks only the extension's side. `cargo test` runs the crate's
  * implementation over the same files.
  *
- * Positions are deliberately absent from the corpus. The extension does
- * not produce them and has nothing to disagree with; see crate/SPEC.md,
- * "Positions — the addition".
+ * Positions are deliberately absent from the corpus. The shared tool
+ * carries none, and the extension's opt-in positions come from its own
+ * scanner, so there is nothing here to hold them against; see
+ * crate/SPEC.md, "Positions — the addition".
  *
  * Run: bun scripts/check-extraction-parity.ts
  */
