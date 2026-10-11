@@ -1,20 +1,21 @@
 import * as vscode from 'vscode';
 import type { SupportedFileType } from '../config/fileTypes';
 import { readCsvHeader } from '../extraction/formats/csv';
+import { createNotifier } from './notifier';
 
 // Helper to handle CSV header-based column selection
 async function handleCsvHeaderBasedSelection(
 	headerCells: readonly string[],
 ): Promise<CsvPromptOptions> {
-	const allLabel = 'All columns';
+	const allLabel = vscode.l10n.t('All columns');
 	const picks: Array<vscode.QuickPickItem> = [
 		{
 			label: allLabel,
 			description: vscode.l10n.t('Extract from all columns'),
 		},
 		...headerCells.map((name, index) => ({
-			label: name || `(Column ${index})`,
-			description: `Index ${index}`,
+			label: name || unnamedColumn(index),
+			description: vscode.l10n.t('Index {0}', index),
 		})),
 	];
 
@@ -55,12 +56,17 @@ function findColumnIndex(
 
 	// Fallback to default label match (Column {i})
 	for (let i = 0; i < headerCells.length; i++) {
-		if (`(Column ${i})` === label) {
+		if (unnamedColumn(i) === label) {
 			return i;
 		}
 	}
 
 	return -1; // Not found
+}
+
+/** The label of a header cell that is empty, built and matched the same way. */
+function unnamedColumn(index: number): string {
+	return vscode.l10n.t('(Column {0})', index);
 }
 
 // Helper to handle CSV no-header index-based selection
@@ -102,8 +108,12 @@ async function handleCsvIndexBasedSelection(
 	const inRange = indices.filter((idx) => idx >= 0 && idx < headerCells.length);
 
 	if (inRange.length === 0) {
-		vscode.window.showWarningMessage(
-			`Column index out of range (${indices.join(',')}). Using all columns instead`,
+		// Through the notifier, so `notificationsLevel` governs it.
+		createNotifier().warn(
+			vscode.l10n.t(
+				'Column index out of range ({0}). Using all columns instead',
+				indices.join(','),
+			),
 		);
 		return Object.freeze({ csvHasHeader: false, selectAllColumns: true });
 	}

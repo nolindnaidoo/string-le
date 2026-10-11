@@ -50,7 +50,7 @@ describe('notifier levels', () => {
 		notifier.showPostProcessInfo();
 
 		expect(_shownMessages()).toHaveLength(4);
-		expect(_shownMessages()[1]?.message).toContain('2 multi‑line strings');
+		expect(_shownMessages()[1]?.message).toContain('2 multi-line string(s)');
 	});
 
 	it('sanitizes error messages before display', () => {
@@ -190,11 +190,20 @@ describe('prompts', () => {
 	});
 
 	it('warns and selects all columns for out-of-range indexes', async () => {
+		// The warning goes through the notifier now, so the level governs it.
+		_setConfig('string-le.notificationsLevel', 'important');
 		_respondToInputBox(() => '9');
 
 		const options = await promptCsvOptionsIfNeeded('csv', '1,2\n3,4\n');
 		expect(options).toEqual({ csvHasHeader: false, selectAllColumns: true });
-		expect(_shownMessages()[0]?.message).toContain('out of range');
+		expect(_shownMessages()[0]?.message).toContain('out of range (9)');
+	});
+
+	it('keeps the out-of-range warning quiet under the silent level', async () => {
+		_setConfig('string-le.notificationsLevel', 'silent');
+		_respondToInputBox(() => '9');
+		await promptCsvOptionsIfNeeded('csv', '1,2\n3,4\n');
+		expect(_shownMessages()).toEqual([]);
 	});
 });
 

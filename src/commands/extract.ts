@@ -156,7 +156,7 @@ async function handleNormalExtraction(
 	// Show post-processing info if dedupe or sort was applied
 	if (shouldDedupe || sortEnabled) {
 		deps.notifier.showPostProcessInfo();
-		deps.statusBar.flash('Dedupe/Sort applied');
+		deps.statusBar.flash(vscode.l10n.t('Dedupe/sort applied'));
 	}
 
 	await processAndOutputResults(finalStrings, context, token);
@@ -248,8 +248,8 @@ async function processAndOutputResults(
 
 	deps.statusBar.flash(
 		clipboardSuccess
-			? 'Copied to clipboard'
-			: `Extracted ${finalStrings.length}`,
+			? vscode.l10n.t('Copied to clipboard')
+			: vscode.l10n.t('Extracted {0}', finalStrings.length),
 	);
 }
 

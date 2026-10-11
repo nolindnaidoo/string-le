@@ -34,21 +34,28 @@ export function createNotifier(): Notifier {
 		showMultilineRisk(count: number): void {
 			if (readConfig().notificationsLevel === 'all') {
 				vscode.window.showInformationMessage(
-					`Detected ${count} multi‑line string${count === 1 ? '' : 's'}. Rendering and joining may vary by format. Prefer quoted, single‑line strings for stable results.`,
+					vscode.l10n.t(
+						'Detected {0} multi-line string(s). Rendering and joining may vary by format. Prefer quoted, single-line strings for stable results.',
+						count,
+					),
 				);
 			}
 		},
 		showCsvNoCopy(): void {
 			if (readConfig().notificationsLevel === 'all') {
 				vscode.window.showInformationMessage(
-					"CSV results aren't auto‑copied when streaming or extracting all columns. Use the editor output or Copy manually.",
+					vscode.l10n.t(
+						"CSV results aren't auto-copied when streaming or extracting all columns. Use the editor output or Copy manually.",
+					),
 				);
 			}
 		},
 		showPostProcessInfo(): void {
 			if (readConfig().notificationsLevel === 'all') {
 				vscode.window.showInformationMessage(
-					"Sorting and deduping operate on final strings, not structured positions. Structural order/indices aren't preserved.",
+					vscode.l10n.t(
+						"Sorting and deduping operate on final strings, not structured positions. Structural order/indices aren't preserved.",
+					),
 				);
 			}
 		},

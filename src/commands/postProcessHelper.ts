@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { readConfig } from '../config/config';
-import { sanitizeErrorMessage } from '../utils/errors';
+import { createNotifier } from '../ui/notifier';
 
 /**
  * Shared helper for post-processing commands (dedupe, sort).
@@ -85,22 +85,30 @@ function buildFullDocumentRange(editor: vscode.TextEditor): vscode.Range {
 	return new vscode.Range(startPosition, endPosition);
 }
 
+// Through the notifier, which redacts; these called vscode.window directly
+// and in English whatever the display language.
 function showOpenDocumentError(error: unknown): void {
-	const message = error instanceof Error ? error.message : 'Unknown error';
-	vscode.window.showErrorMessage(
-		`Failed to open new document: ${sanitizeErrorMessage(message)}`,
+	createNotifier().error(
+		vscode.l10n.t('Failed to open new document: {0}', describe(error)),
 	);
 }
 
 function showEditRejectedError(): void {
-	vscode.window.showErrorMessage(
-		'Failed to edit document: edit was rejected. The document may be read-only or no longer valid.',
+	createNotifier().error(
+		vscode.l10n.t(
+			'Failed to edit document: edit was rejected. The document may be read-only or no longer valid.',
+		),
 	);
 }
 
 function showEditError(error: unknown): void {
-	const message = error instanceof Error ? error.message : 'Unknown error';
-	vscode.window.showErrorMessage(
-		`Failed to edit document: ${sanitizeErrorMessage(message)}`,
+	createNotifier().error(
+		vscode.l10n.t('Failed to edit document: {0}', describe(error)),
 	);
+}
+
+function describe(error: unknown): string {
+	return error instanceof Error
+		? error.message
+		: vscode.l10n.t('Unknown error');
 }

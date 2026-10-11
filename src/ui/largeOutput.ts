@@ -6,29 +6,38 @@ export async function chooseLargeOutputAction(
 	count: number,
 	hasContextualNotes = false,
 ): Promise<LargeOutputAction> {
-	// Enhanced warning with contextual notes
-	const baseMessage = `Detected ${count} strings. Opening large results may freeze the editor. What would you like to do?`;
+	const baseMessage = vscode.l10n.t(
+		'Detected {0} strings. Opening large results may freeze the editor. What would you like to do?',
+		count,
+	);
 	const notes = hasContextualNotes
 		? [
 				'',
-				'Notes:',
-				'• Multi‑line strings may render differently across formats',
-				'• CSV streaming/editor-first (no auto‑copy)',
-				'• Dedupe/Sort apply to final strings only',
+				vscode.l10n.t('Notes:'),
+				vscode.l10n.t(
+					'• Multi-line strings may render differently across formats',
+				),
+				vscode.l10n.t('• CSV streaming/editor-first (no auto-copy)'),
+				vscode.l10n.t('• Dedupe/Sort apply to final strings only'),
 			].join('\n')
 		: '';
 
 	const fullMessage = notes ? `${baseMessage}\n${notes}` : baseMessage;
 
+	// The buttons come back as the text they showed, so each is compared
+	// against the same translated value it was built from.
+	const open = vscode.l10n.t('Open results');
+	const copy = vscode.l10n.t('Copy only');
+	const cancel = vscode.l10n.t('Cancel');
 	const choice = await vscode.window.showWarningMessage(
 		fullMessage,
 		{ modal: true },
-		'Open results',
-		'Copy only',
-		'Cancel',
+		open,
+		copy,
+		cancel,
 	);
-	if (!choice || choice === 'Cancel') return 'cancel';
-	if (choice === 'Copy only') return 'copy';
+	if (!choice || choice === cancel) return 'cancel';
+	if (choice === copy) return 'copy';
 	return 'open';
 }
 
@@ -36,11 +45,16 @@ export async function confirmManyDocuments(
 	countDocs: number,
 	totalLines: number,
 ): Promise<boolean> {
+	const open = vscode.l10n.t('Open results');
 	const choice = await vscode.window.showWarningMessage(
-		`Many results — opening ${countDocs} documents (~${totalLines} total lines). Proceed?`,
+		vscode.l10n.t(
+			'Many results: opening {0} documents (~{1} total lines). Proceed?',
+			countDocs,
+			totalLines,
+		),
 		{ modal: true },
-		'Open results',
-		'Cancel',
+		open,
+		vscode.l10n.t('Cancel'),
 	);
-	return choice === 'Open results';
+	return choice === open;
 }

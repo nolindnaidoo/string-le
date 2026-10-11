@@ -102,6 +102,26 @@ describe('runtime strings and the bundle agree', () => {
 		expect(offenders).toEqual([]);
 	});
 
+	it('hands no literal to the notifier, the status bar, a prompt or a dialog', () => {
+		// A string the user sees goes through `l10n.t()`. A literal or a
+		// template handed straight to a notification, a flash, a quick pick,
+		// an input box or a modal button is English in every locale, and
+		// sixteen were when this was written. The value a call passes on,
+		// such as a parse error, is a variable and is not what this reads.
+		const DIRECT =
+			/(?:\.(?:info|warn|error|flash)|show(?:Information|Warning|Error)Message|showQuickPick|showInputBox)\(\s*(['"`])/g;
+		const BUTTON = /\{\s*modal:\s*true\s*\}\s*,\s*(['"`])/g;
+		const offenders = sourceFiles(join(root, 'src')).flatMap((file) => {
+			const text = readFileSync(file, 'utf8');
+			return [DIRECT, BUTTON].flatMap((pattern) =>
+				[...text.matchAll(pattern)].map(
+					(match) => `${file}:${text.slice(0, match.index).split('\n').length}`,
+				),
+			);
+		});
+		expect(offenders).toEqual([]);
+	});
+
 	it('every locale carries exactly the English keys', () => {
 		const locales = readdirSync(join(root, 'l10n')).filter(
 			(file) => file !== 'bundle.l10n.json',

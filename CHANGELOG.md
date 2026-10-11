@@ -68,6 +68,16 @@ separate product on its own cadence and keeps its own
 - `Sort Strings` on a document ending in a newline sorted that newline as an
   empty line, so the sorted document began with a blank line and lost its
   terminator. The trailing newline stays where it was.
+- Twenty-six runtime strings never went through the localization layer and
+  showed in English in every locale: the status bar flashes, the three
+  advisory notices, the CSV column picker's labels and its out-of-range
+  warning, the large-output dialog and its buttons, the many-documents
+  dialog, the three post-process errors, the streaming warnings and the CSV
+  streaming suffix on the status bar. All are translated into all twelve
+  locales, the post-process errors and the out-of-range warning now go
+  through the notifier so `notificationsLevel` governs them and paths are
+  redacted, and a unit test refuses a literal handed to a notification, a
+  flash, a prompt or a dialog button.
 
 ## [2.5.0] - 2026-10-07
 

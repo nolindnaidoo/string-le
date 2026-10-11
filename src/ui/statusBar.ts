@@ -121,7 +121,7 @@ function readStatusBarConfig(): StatusBarConfig {
 
 function buildStatusBarText(csvStreaming: boolean): string {
 	if (csvStreaming) {
-		return '$(quote) String-LE (CSV Streaming)';
+		return `$(quote) String-LE ${vscode.l10n.t('(CSV Streaming)')}`;
 	}
 
 	return '$(quote) String-LE';

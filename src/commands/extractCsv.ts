@@ -61,7 +61,7 @@ export async function handleCsvMultiColumnExtraction(
 	if (opened === 0) return true;
 
 	deps.telemetry.event('extracted', { count: 'multi', type: 'csv' });
-	deps.statusBar.flash('CSV opened (no auto‑copy)');
+	deps.statusBar.flash(vscode.l10n.t('CSV opened (no auto-copy)'));
 	deps.notifier.showCsvNoCopy();
 	return true; // Handled
 }
@@ -98,7 +98,9 @@ async function streamColumnToDocument(
 		// Warn user that deduplication is disabled for streaming to prevent memory issues
 		if (config.dedupeEnabled) {
 			deps.notifier.warn(
-				'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
+				vscode.l10n.t(
+					'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
+				),
 			);
 		}
 
@@ -153,7 +155,9 @@ async function streamColumnToDocument(
 		return true;
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
-		deps.notifier.error(`Column ${idx} streaming failed: ${message}`);
+		deps.notifier.error(
+			vscode.l10n.t('Column {0} streaming failed: {1}', idx, message),
+		);
 		// Continue with next column
 		return false;
 	}
@@ -270,7 +274,9 @@ export async function handleCsvStreamingExtraction(
 		// Warn user that deduplication is disabled for streaming to prevent memory issues
 		if (config.dedupeEnabled) {
 			deps.notifier.warn(
-				'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
+				vscode.l10n.t(
+					'Deduplication disabled for streaming CSV to prevent memory issues. Disable streaming mode for full deduplication.',
+				),
 			);
 		}
 
@@ -325,7 +331,7 @@ export async function handleCsvStreamingExtraction(
 		}
 
 		deps.telemetry.event('extracted', { count: 'stream', type: 'csv' });
-		deps.statusBar.flash('CSV opened (no auto‑copy)');
+		deps.statusBar.flash(vscode.l10n.t('CSV opened (no auto-copy)'));
 		deps.notifier.showCsvNoCopy();
 		return true; // Handled
 	} catch (error: unknown) {
