@@ -40,10 +40,13 @@ fn strip_inline_comment(value: &str) -> &str {
     }
 }
 
+/// A lone quote starts and ends with a quote and holds nothing: it is an
+/// unterminated quoted value, which the extension reads as empty, not the
+/// quote character as a value.
 fn unquote(value: &str) -> &str {
     for quote in ['"', '\''] {
-        if value.len() > 1 && value.starts_with(quote) && value.ends_with(quote) {
-            return &value[1..value.len() - 1];
+        if value.starts_with(quote) && value.ends_with(quote) {
+            return value.get(1..value.len() - 1).unwrap_or("");
         }
     }
     value
@@ -108,6 +111,15 @@ mod tests {
     #[test]
     fn a_value_may_contain_an_equals_sign() {
         assert_eq!(extract("TOKEN=a=b=c"), ["a=b=c"]);
+    }
+
+    /// A lone quote is an unterminated quoted value, not the quote
+    /// character as a value. The extension drops it, and the shared tool
+    /// answered two ways until this did too.
+    #[test]
+    fn a_lone_quote_is_not_a_value() {
+        assert!(extract("A=\"\nB='").is_empty());
+        assert_eq!(extract("A=\"x\nB=kept"), ["\"x", "kept"]);
     }
 
     #[test]
