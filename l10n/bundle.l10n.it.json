@@ -22,6 +22,7 @@
 	"No strings found": "Nessuna stringa trovata",
 	"Could not copy to clipboard": "Impossibile copiare negli appunti",
 	"Extracting...": "Estrazione in corso...",
+	"Large file ({0} bytes). Extraction may take longer.": "File di grandi dimensioni ({0} byte). L'estrazione potrebbe richiedere più tempo.",
 	"Extract strings": "Estrai stringhe",
 	"CSV streaming disabled": "Streaming CSV disabilitato",
 	"CSV streaming enabled": "Streaming CSV abilitato",

@@ -22,6 +22,7 @@
 	"No strings found": "該当する文字列が見つかりませんでした",
 	"Could not copy to clipboard": "クリップボードにコピーできませんでした",
 	"Extracting...": "抽出中...",
+	"Large file ({0} bytes). Extraction may take longer.": "大きなファイルです（{0} バイト）。抽出に時間がかかることがあります。",
 	"Extract strings": "文字列を抽出する",
 	"CSV streaming disabled": "CSVストリーミングが無効になっています",
 	"CSV streaming enabled": "CSVストリーミングが有効になっています",

@@ -14,6 +14,7 @@ import {
 	_setActiveEditor,
 	_setConfig,
 	_setOpenDocumentError,
+	_setWorkspaceFiles,
 	_shownDocumentOptions,
 	_shownMessages,
 } from '../__mocks__/vscode';
@@ -178,6 +179,35 @@ describe('extract: a failure inside the command', () => {
 		expect(errors).toHaveLength(1);
 		expect(errors[0]?.message).toContain('the picker went away');
 		expect(errors[0]?.message).not.toContain('Document is no longer valid');
+	});
+});
+
+describe('extract: the large-file warning', () => {
+	it('names the size of the file, not the threshold', async () => {
+		// The warning read "Large file detected (1000000 bytes)" whatever the
+		// file's size was: it printed the setting, through a template literal
+		// no locale could translate.
+		_setConfig('string-le.safety.enabled', true);
+		_setConfig('string-le.safety.fileSizeWarnBytes', 1000);
+		_setWorkspaceFiles({ '/mock/a.json': 'x'.repeat(2500) });
+		_setActiveEditor(
+			_createDocument({ content: '["a","b"]', fileName: '/mock/a.json' }),
+		);
+		await runExtract();
+		const warnings = _shownMessages().filter((m) => m.kind === 'warning');
+		expect(warnings).toHaveLength(1);
+		expect(warnings[0]?.message).toContain('2500');
+		expect(warnings[0]?.message).not.toContain('1000 ');
+	});
+
+	it('is not shown for a file under the threshold', async () => {
+		_setConfig('string-le.safety.fileSizeWarnBytes', 1000);
+		_setWorkspaceFiles({ '/mock/a.json': 'x'.repeat(500) });
+		_setActiveEditor(
+			_createDocument({ content: '["a","b"]', fileName: '/mock/a.json' }),
+		);
+		await runExtract();
+		expect(_shownMessages().filter((m) => m.kind === 'warning')).toEqual([]);
 	});
 });
 

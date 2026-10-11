@@ -27,6 +27,7 @@
   "No strings found": "No strings found",
   "Could not copy to clipboard": "Could not copy to clipboard",
   "Extracting...": "Extracting...",
+  "Large file ({0} bytes). Extraction may take longer.": "Large file ({0} bytes). Extraction may take longer.",
   "Dedupe/sort applied": "Dedupe/sort applied",
   "Each value shows its first position only.": "Each value shows its first position only.",
   "Positions are not available for this file type.": "Positions are not available for this file type.",

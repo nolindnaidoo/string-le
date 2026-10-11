@@ -22,6 +22,7 @@
 	"No strings found": "No se han encontrado cadenas",
 	"Could not copy to clipboard": "No se ha podido copiar en el portapapeles",
 	"Extracting...": "Extrayendo...",
+	"Large file ({0} bytes). Extraction may take longer.": "Archivo grande ({0} bytes). La extracción puede tardar más.",
 	"Extract strings": "Extraer cadenas de texto",
 	"CSV streaming disabled": "Transmisión CSV desactivada",
 	"CSV streaming enabled": "Transmisión CSV activada",

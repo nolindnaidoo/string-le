@@ -22,6 +22,7 @@
 	"No strings found": "Nenhuma sequência encontrada",
 	"Could not copy to clipboard": "Não foi possível copiar para a área de transferência",
 	"Extracting...": "Extraindo...",
+	"Large file ({0} bytes). Extraction may take longer.": "Arquivo grande ({0} bytes). A extração pode demorar mais.",
 	"Extract strings": "Extrair strings",
 	"CSV streaming disabled": "Transmissão CSV desativada",
 	"CSV streaming enabled": "Transmissão CSV ativada",

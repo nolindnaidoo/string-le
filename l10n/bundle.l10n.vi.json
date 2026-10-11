@@ -22,6 +22,7 @@
 	"No strings found": "Không tìm thấy chuỗi nào",
 	"Could not copy to clipboard": "Không thể sao chép vào khay nhớ tạm",
 	"Extracting...": "Đang trích xuất...",
+	"Large file ({0} bytes). Extraction may take longer.": "Tệp lớn ({0} byte). Việc trích xuất có thể mất nhiều thời gian hơn.",
 	"Extract strings": "Trích xuất chuỗi ký tự",
 	"CSV streaming disabled": "Chức năng truyền dữ liệu CSV theo luồng đã bị tắt",
 	"CSV streaming enabled": "Đã bật tính năng truyền dữ liệu CSV",

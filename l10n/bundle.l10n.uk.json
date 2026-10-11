@@ -22,6 +22,7 @@
 	"No strings found": "Строк не знайдено",
 	"Could not copy to clipboard": "Не вдалося скопіювати в буфер обміну",
 	"Extracting...": "Витягування...",
+	"Large file ({0} bytes). Extraction may take longer.": "Великий файл ({0} байт). Витягнення може зайняти більше часу.",
 	"Extract strings": "Витягнути рядки",
 	"CSV streaming disabled": "Потокове передавання у форматі CSV вимкнено",
 	"CSV streaming enabled": "Увімкнено потокову передачу даних у форматі CSV",

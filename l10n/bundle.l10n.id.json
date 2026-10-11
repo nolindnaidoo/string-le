@@ -22,6 +22,7 @@
 	"No strings found": "Tidak ditemukan string",
 	"Could not copy to clipboard": "Tidak dapat menyalin ke papan klip",
 	"Extracting...": "Sedang mengekstrak...",
+	"Large file ({0} bytes). Extraction may take longer.": "File besar ({0} byte). Ekstraksi mungkin memakan waktu lebih lama.",
 	"Extract strings": "Mengekstrak string",
 	"CSV streaming disabled": "Streaming CSV dinonaktifkan",
 	"CSV streaming enabled": "Fitur streaming CSV diaktifkan",

@@ -22,6 +22,7 @@
 	"No strings found": "해당 조건에 맞는 결과가 없습니다.",
 	"Could not copy to clipboard": "클립보드에 복사할 수 없습니다.",
 	"Extracting...": "추출 중...",
+	"Large file ({0} bytes). Extraction may take longer.": "큰 파일입니다({0}바이트). 추출에 시간이 더 걸릴 수 있습니다.",
 	"Extract strings": "문자열 추출",
 	"CSV streaming disabled": "CSV 스트리밍이 비활성화되었습니다.",
 	"CSV streaming enabled": "CSV 스트리밍 활성화됨",

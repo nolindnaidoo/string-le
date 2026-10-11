@@ -50,6 +50,9 @@ separate product on its own cadence and keeps its own
   or was reported as "Document is no longer valid" when the document was
   fine. Every command reports it as one redacted, localized error
   notification.
+- The large-file warning named the threshold, "Large file detected (1000000
+  bytes)", whatever the file's size was, and was never translated. It names
+  the file's size, in every locale.
 
 ## [2.5.0] - 2026-10-07
 

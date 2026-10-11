@@ -293,16 +293,21 @@ export function registerExtractStringsCommand(
 					// Read config once for consistency
 					const config = readConfig();
 
-					// Warn for large files
+					// Warn for large files. The size shown is the file's, not the
+					// threshold's, which is what this printed before.
 					try {
 						const stat = await vscode.workspace.fs.stat(document.uri);
 						if (config.safetyEnabled && stat.size > config.fileSizeWarnBytes) {
 							notifier.warn(
-								`Large file detected (${config.fileSizeWarnBytes} bytes). Extraction may take longer.`,
+								vscode.l10n.t(
+									'Large file ({0} bytes). Extraction may take longer.',
+									stat.size,
+								),
 							);
 						}
 					} catch {
-						// ignore
+						// An untitled document has no file to stat; there is no size
+						// to warn about, and the extraction goes ahead.
 					}
 
 					if (token.isCancellationRequested) return;

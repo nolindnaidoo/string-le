@@ -22,6 +22,7 @@
 	"No strings found": "未找到字符串",
 	"Could not copy to clipboard": "无法复制到剪贴板",
 	"Extracting...": "正在提取...",
+	"Large file ({0} bytes). Extraction may take longer.": "文件较大（{0} 字节）。提取可能需要更长时间。",
 	"Extract strings": "提取字符串",
 	"CSV streaming disabled": "CSV 流式传输已禁用",
 	"CSV streaming enabled": "已启用 CSV 流式传输",

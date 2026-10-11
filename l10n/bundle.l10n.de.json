@@ -22,6 +22,7 @@
 	"No strings found": "Es wurden keine Zeichenfolgen gefunden",
 	"Could not copy to clipboard": "Konnte nicht in die Zwischenablage kopiert werden",
 	"Extracting...": "Wird extrahiert...",
+	"Large file ({0} bytes). Extraction may take longer.": "Große Datei ({0} Bytes). Die Extraktion kann länger dauern.",
 	"Extract strings": "Zeichenfolgen extrahieren",
 	"CSV streaming disabled": "CSV-Streaming deaktiviert",
 	"CSV streaming enabled": "CSV-Streaming aktiviert",

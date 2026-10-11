@@ -22,6 +22,7 @@
 	"No strings found": "Aucune chaîne trouvée",
 	"Could not copy to clipboard": "Impossible de copier dans le presse-papiers",
 	"Extracting...": "Extraction en cours...",
+	"Large file ({0} bytes). Extraction may take longer.": "Fichier volumineux ({0} octets). L'extraction peut prendre plus de temps.",
 	"Extract strings": "Extraire des chaînes de caractères",
 	"CSV streaming disabled": "Le streaming CSV est désactivé",
 	"CSV streaming enabled": "Diffusion CSV activée",
