@@ -9,9 +9,23 @@ import { SOURCE_EXTRACTORS } from './formats/source';
 import { extractToml } from './formats/toml';
 import { extractYaml } from './formats/yaml';
 
+/**
+ * JSONC: the comments and trailing commas blanked, then the strict reader.
+ *
+ * A document that is all comment strips to whitespace, which `JSON.parse`
+ * refuses; it is an empty document, not a broken one, and the crate reads
+ * it as empty. Checked here because `extractStrings` trims before the
+ * comments are blanked, so its own empty-document guard never sees it.
+ */
+const extractJsonc: Extractor = (text, options) => {
+	const stripped = stripJsonc(text);
+	if (stripped.trim().length === 0) return EMPTY_RESULT;
+	return extractJson(stripped, options);
+};
+
 const EXTRACTORS: Readonly<Record<string, Extractor>> = Object.freeze({
 	json: extractJson,
-	jsonc: (text, options) => extractJson(stripJsonc(text), options),
+	jsonc: extractJsonc,
 	yaml: extractYaml,
 	yml: extractYaml,
 	csv: extractCsv,

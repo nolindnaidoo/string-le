@@ -24,6 +24,10 @@ separate product on its own cadence and keeps its own
   the `.env` beside it read every value. Every dotenv spelling resolves to the
   dotenv reader, as it does in the Rust CLI, and a filename that arrives as a
   path is resolved by its last segment.
+- A JSONC document holding only comments was refused as broken, because
+  blanking the comments leaves whitespace and the strict reader refuses
+  that; the Rust server read the same document as empty. It is empty, not
+  broken, on both.
 
 ## [2.5.0] - 2026-10-07
 

@@ -24,6 +24,23 @@ describe('extractStrings', () => {
 		expect(out).toEqual(['x']);
 	});
 
+	it('reads a jsonc document holding only comments as empty, not broken', () => {
+		// Blanking the comments leaves whitespace, and `JSON.parse('  ')`
+		// throws, so a file that is all comment was refused here and read as
+		// empty by the crate.
+		const errors: string[] = [];
+		const onParseError = (message: string): void => {
+			errors.push(message);
+		};
+		expect(
+			extractStrings('// only a comment', 'jsonc', { onParseError }),
+		).toEqual([]);
+		expect(
+			extractStrings('/* a */\n// b\n', 'jsonc', { onParseError }),
+		).toEqual([]);
+		expect(errors).toEqual([]);
+	});
+
 	// JSON extraction tests
 	it('should JSON with nested objects', () => {
 		const json = JSON.stringify({
