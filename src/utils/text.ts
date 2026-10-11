@@ -67,10 +67,20 @@ function sortAlphabeticallyDescending(strings: string[]): string[] {
 	return strings.sort((a, b) => COLLATOR.compare(b, a));
 }
 
+/**
+ * The order within one length. A bare `localeCompare` follows the host's
+ * locale, so one list sorted two ways on two machines; this follows the
+ * same fixed collator as the alphabetical modes, then code unit for what
+ * the collator calls equal, so every machine answers the same.
+ */
+function compareTie(a: string, b: string): number {
+	return COLLATOR.compare(a, b) || (a < b ? -1 : Number(a > b));
+}
+
 function sortByLengthAscending(strings: string[]): string[] {
-	return strings.sort((a, b) => a.length - b.length || a.localeCompare(b));
+	return strings.sort((a, b) => a.length - b.length || compareTie(a, b));
 }
 
 function sortByLengthDescending(strings: string[]): string[] {
-	return strings.sort((a, b) => b.length - a.length || a.localeCompare(b));
+	return strings.sort((a, b) => b.length - a.length || compareTie(a, b));
 }

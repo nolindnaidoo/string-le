@@ -28,6 +28,12 @@ separate product on its own cadence and keeps its own
   blanking the comments leaves whitespace and the strict reader refuses
   that; the Rust server read the same document as empty. It is empty, not
   broken, on both.
+- A number setting cleared to an empty string or null read as 0 and was
+  clamped to its floor, so the size guard became 1,000 bytes. It falls back
+  to the default.
+- `Sort Strings` by length broke a tie between two strings of one length by
+  the machine's locale, so one list sorted two ways on two machines. Ties
+  follow the same fixed collator as the alphabetical modes, then code unit.
 
 ## [2.5.0] - 2026-10-07
 
