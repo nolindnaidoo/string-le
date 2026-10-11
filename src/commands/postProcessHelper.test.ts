@@ -4,7 +4,9 @@ import {
 	_createExtensionContext,
 	_openedDocuments,
 	_registeredCommands,
+	_replacedRanges,
 	_resetMockState,
+	_respondToQuickPick,
 	_setActiveEditor,
 	_setConfig,
 	_setEditError,
@@ -58,19 +60,64 @@ describe('post-process output routing', () => {
 	it('replaces the current document when configured', async () => {
 		// The in-place arm builds a full-document range and applies an edit;
 		// neither ran while only the new-document route was tested.
+		// The old assertion here, `shownMessages.length + 1 > 0`, was true of
+		// any outcome at all.
 		registerDedupeCommand(makeContext());
 		_setConfig('string-le.postProcess.openInNewFile', false);
 		_setActiveEditor(_createDocument({ content: LINES }));
 		await runCommand('string-le.postProcess.dedupe');
-		expect(_shownMessages().length + 1).toBeGreaterThan(0);
+		expect(_openedDocuments()).toHaveLength(0);
+		expect(_replacedRanges().map((edit) => edit.text)).toEqual([
+			'"beta"\n"alpha"\n',
+		]);
+		expect(_shownMessages().filter((m) => m.kind === 'error')).toEqual([]);
 	});
 
 	it('sorts in place when configured', async () => {
 		registerSortCommand(makeContext());
 		_setConfig('string-le.postProcess.openInNewFile', false);
+		_respondToQuickPick((items) => items[0]);
 		_setActiveEditor(_createDocument({ content: LINES }));
 		await runCommand('string-le.postProcess.sort');
-		expect(_shownMessages().length + 1).toBeGreaterThan(0);
+		expect(_openedDocuments()).toHaveLength(0);
+		expect(_replacedRanges().map((edit) => edit.text)).toEqual([
+			'"alpha"\n"beta"\n"beta"\n',
+		]);
+		expect(_shownMessages().filter((m) => m.kind === 'error')).toEqual([]);
+	});
+
+	it('reports an edit the editor rejected, and changes nothing', async () => {
+		registerDedupeCommand(makeContext());
+		_setConfig('string-le.postProcess.openInNewFile', false);
+		_setEditResult(false);
+		_setActiveEditor(_createDocument({ content: LINES }));
+		await runCommand('string-le.postProcess.dedupe');
+		const errors = _shownMessages().filter((m) => m.kind === 'error');
+		expect(errors).toHaveLength(1);
+		expect(errors[0]?.message).toContain('rejected');
+	});
+
+	it('reports an edit that threw, with the path redacted', async () => {
+		registerDedupeCommand(makeContext());
+		_setConfig('string-le.postProcess.openInNewFile', false);
+		_setEditError(new Error('locked by /Users/someone/.lock'));
+		_setActiveEditor(_createDocument({ content: LINES }));
+		await runCommand('string-le.postProcess.dedupe');
+		const errors = _shownMessages().filter((m) => m.kind === 'error');
+		expect(errors).toHaveLength(1);
+		expect(errors[0]?.message).toContain('/Users/***/.lock');
+		expect(errors[0]?.message).not.toContain('someone');
+	});
+
+	it('reports a results document that could not be opened', async () => {
+		registerDedupeCommand(makeContext());
+		_setConfig('string-le.postProcess.openInNewFile', true);
+		_setOpenDocumentError(new Error('no window'));
+		_setActiveEditor(_createDocument({ content: LINES }));
+		await runCommand('string-le.postProcess.dedupe');
+		const errors = _shownMessages().filter((m) => m.kind === 'error');
+		expect(errors).toHaveLength(1);
+		expect(errors[0]?.message).toContain('no window');
 	});
 
 	it('opens results in the active column when side-by-side is off', async () => {
