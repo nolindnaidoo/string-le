@@ -9,7 +9,12 @@ This file covers the **VS Code extension**. The Rust CLI in `crate/` is a
 separate product on its own cadence and keeps its own
 [CHANGELOG](crate/CHANGELOG.md).
 
-## [Unreleased]
+## [2.5.1] - 2026-10-13
+
+A bug fix and hardening pass over the extension, the bundled MCP server and
+the shared extraction engine, made by driving every command, every setting,
+every failure path and every locale rather than by reading. One release
+carries all of it; nothing here adds a feature.
 
 ### Fixed
 
