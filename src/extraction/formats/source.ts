@@ -20,8 +20,9 @@ import { quotedRuns, quotedRunsSpanned } from './fallback';
  * with the fallback pattern), and nothing here asks whether a string
  * looks user-facing.
  *
- * This file is the reference implementation for crate/src/extract/source.rs;
- * crate/fixtures/ is the contract between them.
+ * crate/src/extract/source.rs reads the same languages for the Rust CLI,
+ * and crate/fixtures/ is the contract between them: the shared tool must
+ * return these values from either server.
  */
 
 export type SourceLanguage =

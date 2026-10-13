@@ -182,8 +182,8 @@ jobs:
         working-directory: .
         run: |
           hits=$(grep -rniE \
-            'difference is a regression|reproduces its output exactly|is the reference implementation for' \
-            --include='*.md' . 2>/dev/null | grep -vE '/target/|CHANGELOG\.md' || true)
+            'difference is a regression|reproduces its output exactly|is the reference implementation' \
+            --include='*.md' --include='*.rs' --include='*.ts' . 2>/dev/null | grep -vE '/target/|/node_modules/|CHANGELOG\.md' || true)
           if [ -n "$hits" ]; then
             echo "$hits"
             echo

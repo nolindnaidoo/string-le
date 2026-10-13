@@ -5,10 +5,11 @@
 //! document text and returns values, which is what lets the whole layer
 //! be tested from the corpus with no temp directories and no flake.
 //!
-//! The extension is the reference implementation. These extractors
-//! reproduce its values, in its order, for every document in
-//! `fixtures/`; a difference is a regression until SPEC.md says
-//! otherwise.
+//! What these extractors are held to is the shared corpus: the values
+//! the extension returns, in its order, for every document in
+//! `fixtures/`, because the `extract_strings` tool must answer the same
+//! from either server. SPEC.md's "Where this deliberately differs" is
+//! the whole list of what is not held equal.
 
 pub(crate) mod collect;
 pub(crate) mod corpus;
