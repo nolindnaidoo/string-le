@@ -748,6 +748,8 @@ export const executedBuiltins: Array<{ id: string; args: unknown[] }> = [];
 const clipboard = { value: '' };
 
 export const env = {
+	/** What `vscode.env.appName` reports; `_setAppName` makes it another host. */
+	appName: 'Visual Studio Code',
 	clipboard: {
 		writeText: async (text: string) => {
 			clipboard.value = text;
@@ -759,6 +761,10 @@ export const env = {
 
 export function _clipboardText(): string {
 	return clipboard.value;
+}
+
+export function _setAppName(name: string): void {
+	env.appName = name;
 }
 
 // ------------------------------------------------- extension context
@@ -845,6 +851,7 @@ export function _resetMockState(): void {
 	editorInsertions.length = 0;
 	replacedRanges.length = 0;
 	codeActionProviders.length = 0;
+	env.appName = 'Visual Studio Code';
 	statusBarItems.length = 0;
 	outputChannels.length = 0;
 	mcpProviders.length = 0;

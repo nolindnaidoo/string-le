@@ -78,6 +78,11 @@ separate product on its own cadence and keeps its own
   through the notifier so `notificationsLevel` governs them and paths are
   redacted, and a unit test refuses a literal handed to a notification, a
   flash, a prompt or a dialog button.
+- The rating prompt's Rate button opened the Marketplace review page for
+  every install, including one from Open VSX in VSCodium, Cursor or
+  Windsurf, because it told the registries apart by a publisher name the
+  Open VSX listing does not carry. It reads the editor's name instead, and
+  an Open VSX install rates on Open VSX.
 - Eight locales rendered "Extraction" in the untrusted-workspace note as a
   product name; Korean said "no active editor" with the word for a human
   editor, and Chinese with "no user editing"; Japanese and Russian said a
