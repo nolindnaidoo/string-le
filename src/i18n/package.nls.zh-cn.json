@@ -1,5 +1,5 @@
 {
-	"manifest.capability.untrusted-workspaces.desc": "Extraction 在本地运行，绝不会调用任何外部工具。",
+	"manifest.capability.untrusted-workspaces.desc": "提取在本地运行，绝不会调用任何外部工具。",
 	"manifest.command.category": "String-LE",
 	"manifest.command.csv.toggle-streaming.title": "切换 CSV 流式传输",
 	"manifest.command.dedupe.title": "去除字符串重复项",

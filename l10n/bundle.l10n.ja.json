@@ -15,7 +15,7 @@
 	"Choose sort mode": "並べ替えモードを選択してください",
 	"No active editor": "アクティブなエディタがありません",
 	"File is empty": "ファイルは空です",
-	"Document is no longer valid": "この文書は有効期限が切れています",
+	"Document is no longer valid": "ドキュメントは無効になりました",
 	"Could not open results": "結果を開くことができませんでした",
 	"CSV streaming failed: {0}": "CSVのストリーミングに失敗しました：{0}",
 	"CSV streaming failed with unknown error": "不明なエラーにより、CSVのストリーミングに失敗しました",

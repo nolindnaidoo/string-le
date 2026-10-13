@@ -1,5 +1,5 @@
 {
-	"manifest.capability.untrusted-workspaces.desc": "Extractionはローカルで実行され、外部ツールを一切実行することはありません。",
+	"manifest.capability.untrusted-workspaces.desc": "抽出はローカルで実行され、外部ツールを一切実行することはありません。",
 	"manifest.command.category": "String-LE",
 	"manifest.command.csv.toggle-streaming.title": "CSVストリーミングの切り替え",
 	"manifest.command.dedupe.title": "文字列の重複を削除する",

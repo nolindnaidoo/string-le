@@ -50,7 +50,7 @@
 	"(CSV Streaming)": "(Truyền dữ liệu CSV)",
 	"Large file ({0} bytes). Extraction may take longer.": "Tệp lớn ({0} byte). Việc trích xuất có thể mất nhiều thời gian hơn.",
 	"Extract strings": "Trích xuất chuỗi ký tự",
-	"CSV streaming disabled": "Chức năng truyền dữ liệu CSV theo luồng đã bị tắt",
+	"CSV streaming disabled": "Đã tắt tính năng truyền dữ liệu CSV",
 	"CSV streaming enabled": "Đã bật tính năng truyền dữ liệu CSV",
 	"Dedupe/sort applied": "Đã áp dụng tính năng loại bỏ trùng lặp/sắp xếp",
 	"Enter valid column indexes separated by commas, or leave empty": "Nhập các chỉ mục cột hợp lệ, cách nhau bằng dấu phẩy, hoặc để trống",

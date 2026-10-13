@@ -78,6 +78,15 @@ separate product on its own cadence and keeps its own
   through the notifier so `notificationsLevel` governs them and paths are
   redacted, and a unit test refuses a literal handed to a notification, a
   flash, a prompt or a dialog button.
+- Eight locales rendered "Extraction" in the untrusted-workspace note as a
+  product name; Korean said "no active editor" with the word for a human
+  editor, and Chinese with "no user editing"; Japanese and Russian said a
+  document had "expired" or "lost legal force"; Russian described telemetry
+  as "local network only"; Ukrainian said "no strings found" in Russian;
+  Portuguese used three words for string; Indonesian, Russian and Ukrainian
+  mixed verb forms across the command titles; the Z-to-A sort option was
+  worded unlike A-to-Z in Italian, Korean, Portuguese and Russian; French
+  and Vietnamese named CSV streaming two ways. Each value is corrected.
 
 ## [2.5.0] - 2026-10-07
 

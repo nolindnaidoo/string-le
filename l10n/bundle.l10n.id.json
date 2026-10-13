@@ -49,7 +49,7 @@
 	"Unknown error": "Kesalahan tidak diketahui",
 	"(CSV Streaming)": "(Streaming CSV)",
 	"Large file ({0} bytes). Extraction may take longer.": "File besar ({0} byte). Ekstraksi mungkin memakan waktu lebih lama.",
-	"Extract strings": "Mengekstrak string",
+	"Extract strings": "Ekstrak string",
 	"CSV streaming disabled": "Streaming CSV dinonaktifkan",
 	"CSV streaming enabled": "Fitur streaming CSV diaktifkan",
 	"Dedupe/sort applied": "Proses deduplikasi/pengurutan telah diterapkan",

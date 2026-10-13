@@ -1,5 +1,5 @@
 {
-	"manifest.capability.untrusted-workspaces.desc": "Extraction viene eseguito localmente e non avvia mai strumenti esterni.",
+	"manifest.capability.untrusted-workspaces.desc": "L'estrazione viene eseguita localmente e non avvia mai strumenti esterni.",
 	"manifest.command.category": "String-LE",
 	"manifest.command.csv.toggle-streaming.title": "Attiva/disattiva lo streaming CSV",
 	"manifest.command.dedupe.title": "Rimuovere i duplicati dalle stringhe",
@@ -28,7 +28,7 @@
 	"manifest.settings.sort.enabled.desc": "Ordina automaticamente le stringhe estratte.",
 	"manifest.settings.sort.mode.desc": "Seleziona il metodo di ordinamento per le stringhe estratte.",
 	"manifest.settings.sort.mode.option.alpha-asc": "In ordine alfabetico (A → Z)",
-	"manifest.settings.sort.mode.option.alpha-desc": "In ordine alfabetico (da Z ad A)",
+	"manifest.settings.sort.mode.option.alpha-desc": "In ordine alfabetico (Z → A)",
 	"manifest.settings.sort.mode.option.length-asc": "Per lunghezza (da breve a lunga)",
 	"manifest.settings.sort.mode.option.length-desc": "Per lunghezza (da lungo a corto)",
 	"manifest.settings.sort.mode.option.off": "Spento",

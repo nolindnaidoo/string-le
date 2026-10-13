@@ -1,5 +1,5 @@
 {
-	"manifest.capability.untrusted-workspaces.desc": "Extraction s'exécute localement et ne fait jamais appel à des outils externes.",
+	"manifest.capability.untrusted-workspaces.desc": "L'extraction s'exécute localement et ne fait jamais appel à des outils externes.",
 	"manifest.command.category": "String-LE",
 	"manifest.command.csv.toggle-streaming.title": "Activer/désactiver la diffusion en continu CSV",
 	"manifest.command.dedupe.title": "Dédupliquer des chaînes de caractères",

@@ -1,5 +1,5 @@
 {
-	"manifest.capability.untrusted-workspaces.desc": "„Extraction“ läuft lokal und führt niemals externe Tools aus.",
+	"manifest.capability.untrusted-workspaces.desc": "Die Extraktion läuft lokal und führt niemals externe Tools aus.",
 	"manifest.command.category": "String-LE",
 	"manifest.command.csv.toggle-streaming.title": "CSV-Streaming aktivieren/deaktivieren",
 	"manifest.command.dedupe.title": "Duplikate in Zeichenketten entfernen",

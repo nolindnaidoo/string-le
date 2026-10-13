@@ -1,5 +1,5 @@
 {
-	"manifest.capability.untrusted-workspaces.desc": "Extraction은 로컬에서 실행되며, 외부 도구를 절대 실행하지 않습니다.",
+	"manifest.capability.untrusted-workspaces.desc": "추출은 로컬에서 실행되며, 외부 도구를 절대 실행하지 않습니다.",
 	"manifest.command.category": "String-LE",
 	"manifest.command.csv.toggle-streaming.title": "CSV 스트리밍 켜기/끄기",
 	"manifest.command.dedupe.title": "문자열 중복 제거",
@@ -28,7 +28,7 @@
 	"manifest.settings.sort.enabled.desc": "추출된 문자열을 자동으로 정렬합니다.",
 	"manifest.settings.sort.mode.desc": "추출된 문자열에 적용할 정렬 방법을 선택하십시오.",
 	"manifest.settings.sort.mode.option.alpha-asc": "알파벳순 (A → Z)",
-	"manifest.settings.sort.mode.option.alpha-desc": "알파벳 순서 (Z → A)",
+	"manifest.settings.sort.mode.option.alpha-desc": "알파벳순 (Z → A)",
 	"manifest.settings.sort.mode.option.length-asc": "길이별 (짧은 것 → 긴 것)",
 	"manifest.settings.sort.mode.option.length-desc": "길이별 (긴 것 → 짧은 것)",
 	"manifest.settings.sort.mode.option.off": "끄기",
