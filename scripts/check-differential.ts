@@ -432,6 +432,39 @@ const STRICTER: Readonly<Record<string, 'crate' | 'extension'>> = Object.freeze(
 	ini: 'crate',
 });
 
+/**
+ * Documents one parser refuses and the other reads, within a format where
+ * both parsers refuse the ordinary broken document above. Each was found
+ * by hand against both built servers, is recorded in crate/SPEC.md under
+ * "How strict a parser is", and is pinned in the direction it goes, so
+ * the day either parser changes its mind the build says so.
+ */
+const DIVERGENT: ReadonlyArray<{
+	readonly what: string;
+	readonly format: string;
+	readonly content: string;
+	readonly stricter: 'crate' | 'extension';
+}> = Object.freeze([
+	{
+		what: 'a duplicated YAML mapping key',
+		format: 'yaml',
+		content: 'a: 1\na: "two"\n',
+		stricter: 'extension',
+	},
+	{
+		what: 'a TOML array mixing types',
+		format: 'toml',
+		content: 'a = ["x", 1]\n',
+		stricter: 'extension',
+	},
+	{
+		what: 'a JSON string holding a lone surrogate escape',
+		format: 'json',
+		content: '{"a": "\\ud800"}',
+		stricter: 'crate',
+	},
+]);
+
 async function checkRefusalsAgree(): Promise<void> {
 	const formats = PARSED_FORMATS.filter((format) => BROKEN[format]);
 	const replies = await askTheCrate(
@@ -471,6 +504,31 @@ async function checkRefusalsAgree(): Promise<void> {
 	}
 }
 
+/** The hand-found documents, each still refused by the side SPEC.md names. */
+async function checkDivergencesHold(): Promise<void> {
+	const replies = await askTheCrate(
+		DIVERGENT.map((pinned, index) => ({
+			id: index + 1,
+			arguments: { content: pinned.content, format: pinned.format },
+		})),
+	);
+	for (const [index, pinned] of DIVERGENT.entries()) {
+		const fromExtension = (await tool.handler({
+			content: pinned.content,
+			format: pinned.format,
+		})) as Envelope;
+		const fromCrate = replies.get(index + 1) as Envelope;
+		const refused = pinned.stricter === 'crate' ? fromCrate : fromExtension;
+		const accepted = pinned.stricter === 'crate' ? fromExtension : fromCrate;
+		if (!refused.ok && accepted.ok) continue;
+		failures.push(
+			`${pinned.what} — SPEC.md records the ${pinned.stricter}'s parser as the one that refuses it, and that no longer holds:\n` +
+				`  extension: ${canonical(fromExtension)}\n` +
+				`  crate:     ${canonical(fromCrate)}`,
+		);
+	}
+}
+
 interface Envelope {
 	readonly ok: boolean;
 	readonly diagnostics: readonly {
@@ -501,6 +559,7 @@ function disagreement(
 console.log(`differential: seed ${SEED}, ${CASES} generated documents`);
 await checkGeneratedDocuments();
 await checkRefusalsAgree();
+await checkDivergencesHold();
 
 if (failures.length > 0) {
 	console.error(

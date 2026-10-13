@@ -342,10 +342,13 @@ shared.
 **How strict a parser is.** `rust-ini` refuses a section header that
 never closes; the `ini` package accepts it and reads the line. Two
 parsers, two tolerances, and no way to have the stricter one be lenient
-without writing a third. This is the one format where the two servers
-disagree about whether a document is broken at all; the differential
-check pins the direction, so the day either parser changes its mind the
-build says so.
+without writing a third. Three more documents divide the parsers the
+same way, inside formats where both refuse the ordinary broken document:
+js-yaml refuses a duplicated mapping key and saphyr reads the last value;
+`@iarna/toml` refuses an array that mixes types and the crate's parser
+reads it; `JSON.parse` reads a string holding a lone surrogate escape and
+serde refuses it. The differential check pins each in the direction it
+goes, so the day either parser changes its mind the build says so.
 
 Everything else is parity, and the corpus is what proves it.
 
