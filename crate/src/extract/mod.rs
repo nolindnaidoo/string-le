@@ -22,6 +22,7 @@ mod fuzz;
 pub(crate) mod ini;
 pub(crate) mod json;
 pub(crate) mod locate;
+pub(crate) mod nesting;
 pub(crate) mod position;
 pub(crate) mod source;
 pub(crate) mod text;

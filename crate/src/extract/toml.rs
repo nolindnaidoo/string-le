@@ -8,8 +8,12 @@
 use toml::Value as Toml;
 
 use super::collect::{Value, collect};
+use super::nesting;
 
 pub(crate) fn extract(text: &str) -> Vec<String> {
+    if nesting::depth(text) > nesting::MAX_NESTING_TOML {
+        return Vec::new();
+    }
     let Ok(parsed) = text.parse::<toml::Table>() else {
         return Vec::new();
     };
@@ -29,6 +33,9 @@ fn convert(value: &Toml) -> Value {
 }
 
 pub(crate) fn parse_error(text: &str) -> Option<String> {
+    if nesting::depth(text) > nesting::MAX_NESTING_TOML {
+        return Some(nesting::too_deep("TOML", nesting::MAX_NESTING_TOML));
+    }
     text.parse::<toml::Table>()
         .err()
         .map(|error| format!("Invalid TOML: {error}"))
@@ -37,6 +44,20 @@ pub(crate) fn parse_error(text: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// This crate's parser gives up past 80 levels of inline tables; the
+    /// extension's reads thousands. The bound is the weakest side.
+    #[test]
+    fn a_document_nested_deeper_than_the_bound_is_refused() {
+        let deep = |n: usize| format!("a = {}\"x\"{}", "{ b = ".repeat(n), " }".repeat(n));
+        assert_eq!(extract(&deep(80)), ["x"]);
+        assert!(parse_error(&deep(80)).is_none());
+        assert!(extract(&deep(81)).is_empty());
+        assert_eq!(
+            parse_error(&deep(81)),
+            Some("Invalid TOML: nested deeper than 80 levels".to_string())
+        );
+    }
 
     #[test]
     fn basic_and_literal_strings_are_both_values() {

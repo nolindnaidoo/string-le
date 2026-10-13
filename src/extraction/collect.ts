@@ -13,7 +13,10 @@ const MAX_RECURSION_DEPTH = 1000;
  * - other non-string leaves (e.g. TOML dates) are dropped
  * - values are trimmed; empty/whitespace-only values are dropped
  *
- * Silently stops at MAX_RECURSION_DEPTH to prevent stack overflow.
+ * Stops at MAX_RECURSION_DEPTH to prevent stack overflow. No parsed format
+ * reaches it: the JSON, TOML and YAML readers refuse a document deeper than
+ * their bound (`formats/nesting.ts`, at most 512) before parsing it, so the
+ * stop is a backstop rather than a path a document takes.
  */
 export function collectStrings(
 	value: unknown,

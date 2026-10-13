@@ -1,6 +1,7 @@
 import { loadAll } from 'js-yaml';
 import type { Extractor } from '../../types';
 import { collectStrings } from '../collect';
+import { nestsTooDeep, tooDeep } from './nesting';
 
 const EMPTY_RESULT: readonly string[] = Object.freeze([]);
 
@@ -11,6 +12,10 @@ const EMPTY_RESULT: readonly string[] = Object.freeze([]);
  * options.onParseError if provided.
  */
 export const extractYaml: Extractor = (text, options): readonly string[] => {
+	if (nestsTooDeep(text, 'YAML')) {
+		options?.onParseError?.(tooDeep('YAML'));
+		return EMPTY_RESULT;
+	}
 	const documents = parseYaml(text, options?.onParseError);
 
 	if (documents === null) {

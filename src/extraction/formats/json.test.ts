@@ -80,6 +80,22 @@ describe('extractJson', () => {
 		expect(result).toEqual([]); // No strings, only empty/null/boolean/number
 	});
 
+	it('refuses a document nested deeper than the bound, and reads one at the bound', () => {
+		// The crate's parser gives up past 512 levels; `JSON.parse` reads on
+		// and the collector then stopped at depth 1,000 without a word, so a
+		// deep document answered `ok` with nothing from one server and a
+		// refusal from the other.
+		const errors: string[] = [];
+		const onParseError = (message: string): void => {
+			errors.push(message);
+		};
+		const deep = (n: number): string => `${'['.repeat(n)}"x"${']'.repeat(n)}`;
+		expect(extractJson(deep(512), { onParseError } as never)).toEqual(['x']);
+		expect(errors).toEqual([]);
+		expect(extractJson(deep(513), { onParseError } as never)).toEqual([]);
+		expect(errors).toEqual(['Invalid JSON: nested deeper than 512 levels']);
+	});
+
 	it('should handle malformed JSON', () => {
 		const malformed = '{"name": "test", "invalid": }';
 		const result = extractJson(malformed);

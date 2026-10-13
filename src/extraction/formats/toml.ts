@@ -1,6 +1,7 @@
 import { parse } from '@iarna/toml';
 import type { Extractor } from '../../types';
 import { collectStrings } from '../collect';
+import { nestsTooDeep, tooDeep } from './nesting';
 
 const EMPTY_RESULT: readonly string[] = Object.freeze([]);
 
@@ -11,6 +12,10 @@ const EMPTY_RESULT: readonly string[] = Object.freeze([]);
  * Reports parse errors via options.onParseError if provided.
  */
 export const extractToml: Extractor = (text, options): readonly string[] => {
+	if (nestsTooDeep(text, 'TOML')) {
+		options?.onParseError?.(tooDeep('TOML'));
+		return EMPTY_RESULT;
+	}
 	const parsed = parseToml(text, options?.onParseError);
 
 	if (parsed === null) {

@@ -317,11 +317,18 @@ consent notice is exactly the copy an audit least wants to miss. The
 extension has the same switch, `string-le.fallback.multiline`, and the
 shared `extract_strings` tool takes it as `multiline` on both servers.
 
-**Nesting limits.** Each parser here guards its own depth — jsonc-parser
-at 512, saphyr at 256 — below the 1000 the extension's walk stops at. A
-document deeper than that comes back here as a **reported parse failure**
-and there as a silently half-read document. Both yield nothing useful;
-only one of them says so.
+**Nesting limits, held equal.** Each parser guards its own depth, and the
+two sides' limits differed: jsonc-parser gives up past 512 levels and the
+`toml` crate past 80, where `JSON.parse` and `@iarna/toml` read thousands
+and the extension's collector then stopped at depth 1,000 without a word;
+js-yaml refuses past 98 levels of flow nesting where saphyr reads 255. A
+deep document was a reported parse failure on one side and a silently
+half-read document on the other. Both now count brackets and braces
+outside quoted strings before parsing (`nesting.rs`, `nesting.ts`) and
+refuse past the weakest parser's bound with one message, `Invalid JSON:
+nested deeper than 512 levels` and its TOML and YAML twins at 80 and 98;
+a document at the bound reads on both. YAML nested by indentation alone
+has no bracket to count and keeps each parser's own limit.
 
 **Positions.** The shared tool carries none on either server. Each
 surface places values for its own reader. The extension, when

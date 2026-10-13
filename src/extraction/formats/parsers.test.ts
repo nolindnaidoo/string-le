@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { extractStrings } from '../extract';
 import { readCsvHeader } from './csv';
 import { extractIni } from './ini';
 
@@ -52,6 +53,44 @@ describe('extractIni', () => {
 
 	it('handles a file with sections but no values', () => {
 		expect(extractIni('[empty]\n', {})).toHaveLength(0);
+	});
+});
+
+describe('nesting bounds on the parsed formats', () => {
+	// Each bound is the weakest parser behind the format on either side, so a
+	// document at the bound reads on both servers and one past it is refused
+	// by both with the same words before either parser sees it.
+	const errorsOf = (): {
+		errors: string[];
+		onParseError: (m: string) => void;
+	} => {
+		const errors: string[] = [];
+		return { errors, onParseError: (message) => errors.push(message) };
+	};
+
+	it('TOML: 80 levels read, 81 refused', () => {
+		const deep = (n: number): string =>
+			`a = ${'{ b = '.repeat(n)}"x"${' }'.repeat(n)}`;
+		const { errors, onParseError } = errorsOf();
+		expect(extractStrings(deep(80), 'toml', { onParseError })).toEqual(['x']);
+		expect(extractStrings(deep(81), 'toml', { onParseError })).toEqual([]);
+		expect(errors).toEqual(['Invalid TOML: nested deeper than 80 levels']);
+	});
+
+	it('YAML: 98 levels read, 99 refused', () => {
+		const deep = (n: number): string => `${'['.repeat(n)}"x"${']'.repeat(n)}`;
+		const { errors, onParseError } = errorsOf();
+		expect(extractStrings(deep(98), 'yaml', { onParseError })).toEqual(['x']);
+		expect(extractStrings(deep(99), 'yaml', { onParseError })).toEqual([]);
+		expect(errors).toEqual(['Invalid YAML: nested deeper than 98 levels']);
+	});
+
+	it('JSONC: counted on the raw text, comments included, as the crate counts it', () => {
+		const { errors, onParseError } = errorsOf();
+		expect(
+			extractStrings(`// ${'['.repeat(600)}\n["x"]`, 'jsonc', { onParseError }),
+		).toEqual([]);
+		expect(errors).toEqual(['Invalid JSON: nested deeper than 512 levels']);
 	});
 });
 

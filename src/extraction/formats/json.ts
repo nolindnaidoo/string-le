@@ -1,5 +1,6 @@
 import type { Extractor } from '../../types';
 import { collectStrings } from '../collect';
+import { nestsTooDeep, tooDeep } from './nesting';
 
 const EMPTY_RESULT: readonly string[] = Object.freeze([]);
 
@@ -8,6 +9,12 @@ const EMPTY_RESULT: readonly string[] = Object.freeze([]);
  * Reports parse errors via options.onParseError if provided.
  */
 export const extractJson: Extractor = (text, options): readonly string[] => {
+	// Before the parser: `JSON.parse` reads past the depth the crate's parser
+	// refuses, and the collector then stopped without a word.
+	if (nestsTooDeep(text, 'JSON')) {
+		options?.onParseError?.(tooDeep('JSON'));
+		return EMPTY_RESULT;
+	}
 	const parsed = parseJson(text, options?.onParseError);
 
 	if (parsed === null) {

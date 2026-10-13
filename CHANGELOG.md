@@ -78,6 +78,12 @@ separate product on its own cadence and keeps its own
   through the notifier so `notificationsLevel` governs them and paths are
   redacted, and a unit test refuses a literal handed to a notification, a
   flash, a prompt or a dialog button.
+- A JSON document nested deeper than 512 levels, a TOML document deeper
+  than 80 or a YAML document deeper than 98 was read as empty without a
+  word, because the parser read on and the collector stopped at depth
+  1,000, while the Rust CLI and its server refused the same document. Both
+  refuse it before parsing, with the same message, and a document at the
+  bound reads on both.
 - The rating prompt's Rate button opened the Marketplace review page for
   every install, including one from Open VSX in VSCodium, Cursor or
   Windsurf, because it told the registries apart by a publisher name the

@@ -15,6 +15,8 @@
 use jsonc_parser::ast::{Object, Value as Node};
 use jsonc_parser::{CollectOptions, ParseOptions, parse_to_ast};
 
+use super::nesting;
+
 /// The values, each with the byte offset of the source text that
 /// produced it — the opening quote's content, not the quote.
 ///
@@ -24,6 +26,9 @@ use jsonc_parser::{CollectOptions, ParseOptions, parse_to_ast};
 /// family's own repositories that was every unlocated value in the
 /// largest format.
 pub(crate) fn extract_spanned(text: &str, comments: bool) -> Vec<(String, usize)> {
+    if nesting::depth(text) > nesting::MAX_NESTING_JSON {
+        return Vec::new();
+    }
     let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &options(comments)) else {
         return Vec::new();
     };
@@ -60,6 +65,11 @@ fn visit_spanned(node: &Node, values: &mut Vec<(String, usize)>) {
 }
 
 pub(crate) fn extract(text: &str, comments: bool) -> Vec<String> {
+    // Before the parser, so the refusal is the shared one and not this
+    // parser's own words for the same limit.
+    if nesting::depth(text) > nesting::MAX_NESTING_JSON {
+        return Vec::new();
+    }
     let Ok(result) = parse_to_ast(text, &CollectOptions::default(), &options(comments)) else {
         // A parse failure is nothing found, matching the extension: it
         // reports the error through `onParseError` and returns an empty
@@ -121,6 +131,9 @@ fn visit_object(object: &Object, values: &mut Vec<String>) {
 
 /// Why the document yielded nothing, when the reason is a parse failure.
 pub(crate) fn parse_error(text: &str, comments: bool) -> Option<String> {
+    if nesting::depth(text) > nesting::MAX_NESTING_JSON {
+        return Some(nesting::too_deep("JSON", nesting::MAX_NESTING_JSON));
+    }
     parse_to_ast(text, &CollectOptions::default(), &options(comments))
         .err()
         .map(|error| format!("Invalid JSON: {error}"))
@@ -128,6 +141,29 @@ pub(crate) fn parse_error(text: &str, comments: bool) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
+    /// The bound is the weakest parser on either side, this crate's own
+    /// here; past it the extension's parser read on and its collector
+    /// stopped without a word.
+    #[test]
+    fn a_document_nested_deeper_than_the_bound_is_refused() {
+        let deep = |n: usize| format!("{}\"x\"{}", "[".repeat(n), "]".repeat(n));
+        assert_eq!(extract(&deep(512), false), ["x"]);
+        assert!(parse_error(&deep(512), false).is_none());
+        assert!(extract(&deep(513), false).is_empty());
+        assert_eq!(
+            parse_error(&deep(513), false),
+            Some("Invalid JSON: nested deeper than 512 levels".to_string())
+        );
+        assert!(extract_spanned(&deep(513), false).is_empty());
+        // Counted on the raw text, comments included, as the extension counts it.
+        let commented = format!("// {}\n[\"x\"]", "[".repeat(600));
+        assert!(extract(&commented, true).is_empty());
+        assert_eq!(
+            parse_error(&commented, true),
+            Some("Invalid JSON: nested deeper than 512 levels".to_string())
+        );
+    }
+
     use super::*;
 
     #[test]

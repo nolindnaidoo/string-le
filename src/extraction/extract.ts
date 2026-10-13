@@ -5,6 +5,7 @@ import { extractFallback } from './formats/fallback';
 import { extractIni } from './formats/ini';
 import { extractJson } from './formats/json';
 import { stripJsonc } from './formats/jsonc';
+import { nestsTooDeep, tooDeep } from './formats/nesting';
 import { SOURCE_EXTRACTORS } from './formats/source';
 import { extractToml } from './formats/toml';
 import { extractYaml } from './formats/yaml';
@@ -18,6 +19,12 @@ import { extractYaml } from './formats/yaml';
  * comments are blanked, so its own empty-document guard never sees it.
  */
 const extractJsonc: Extractor = (text, options) => {
+	// Counted on the raw text, comments included, because the crate counts
+	// it that way; stripping first would read a document the crate refuses.
+	if (nestsTooDeep(text, 'JSON')) {
+		options?.onParseError?.(tooDeep('JSON'));
+		return EMPTY_RESULT;
+	}
 	const stripped = stripJsonc(text);
 	if (stripped.trim().length === 0) return EMPTY_RESULT;
 	return extractJson(stripped, options);

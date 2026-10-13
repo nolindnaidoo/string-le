@@ -10,8 +10,12 @@
 use saphyr::{LoadableYamlNode, Yaml};
 
 use super::collect::{Value, collect};
+use super::nesting;
 
 pub(crate) fn extract(text: &str) -> Vec<String> {
+    if nesting::depth(text) > nesting::MAX_NESTING_YAML {
+        return Vec::new();
+    }
     let Ok(documents) = Yaml::load_from_str(text) else {
         return Vec::new();
     };
@@ -32,6 +36,9 @@ fn convert(value: &Yaml<'_>) -> Value {
 }
 
 pub(crate) fn parse_error(text: &str) -> Option<String> {
+    if nesting::depth(text) > nesting::MAX_NESTING_YAML {
+        return Some(nesting::too_deep("YAML", nesting::MAX_NESTING_YAML));
+    }
     Yaml::load_from_str(text)
         .err()
         .map(|error| format!("Invalid YAML: {error}"))
@@ -40,6 +47,20 @@ pub(crate) fn parse_error(text: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Here the extension's parser is the weakest: js-yaml refuses past 98
+    /// levels of flow nesting, saphyr past 255. The bound is the weakest side.
+    #[test]
+    fn a_document_nested_deeper_than_the_bound_is_refused() {
+        let deep = |n: usize| format!("{}\"x\"{}", "[".repeat(n), "]".repeat(n));
+        assert_eq!(extract(&deep(98)), ["x"]);
+        assert!(parse_error(&deep(98)).is_none());
+        assert!(extract(&deep(99)).is_empty());
+        assert_eq!(
+            parse_error(&deep(99)),
+            Some("Invalid YAML: nested deeper than 98 levels".to_string())
+        );
+    }
 
     #[test]
     fn plain_quoted_and_single_quoted_scalars_are_all_values() {

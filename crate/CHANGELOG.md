@@ -35,6 +35,12 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   handles it: a parse error for the first three, in the same words, and no
   reply for the last, which is a notification. The unknown-method and
   unknown-tool refusals use the npm server's words too.
+- A document nested deeper than its parser follows was refused in the
+  parser's own words, where the extension read it as empty, and a YAML
+  document between 99 and 255 levels of flow nesting was read here and
+  refused there. Both sides count the nesting before parsing and refuse
+  past one bound per format, 512 for JSON, 80 for TOML, 98 for YAML, in
+  the same words. SPEC.md "Nesting limits, held equal".
 - The MCP server held a frame whole until its newline, so input with no
   newline grew the process by its own size. A frame over 16 MiB is refused
   with a JSON-RPC parse error, in the npm server's words, and the server
