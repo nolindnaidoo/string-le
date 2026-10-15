@@ -52,7 +52,7 @@ string-le --values --dedupe src/ > strings.txt
 ## Sixty seconds
 
 ```bash
-string-le .                      # every string in the tree, as JSON
+string-le .                      # every string in the tree; JSON on stdout when piped
 string-le --values src/          # just the values, one per line
 string-le --dedupe --values .    # each distinct string once
 cat config.toml | string-le --stdin --format toml
@@ -68,6 +68,10 @@ diff before.txt after.txt        # what changed in the copy this release
 ./src/messages.ts:3:11  Never mind
 3 strings in 3 files
 ```
+
+The listing above is stderr. The JSON report, one object per line, goes to
+stdout when it is piped or redirected and is left out at a terminal.
+`--values` prints the values on stdout either way.
 
 **Exit codes follow grep** — `0` strings found, `1` none found, `2` the
 question was malformed. Finding none is an answer, not an error.

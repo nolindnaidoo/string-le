@@ -239,7 +239,10 @@ the whole reason it earned spans.
 ## Output contract
 
 **stdout is protocol, stderr is human.** One JSON report per line, one
-line per file.
+line per file. stdout carries the reports when it is piped or redirected
+and stays silent when it is a terminal, where the stderr listing already
+says the same thing. `--values` is not a report: asking for the values
+is asking to see them, so they print to stdout whatever it is.
 
 ```json
 {
