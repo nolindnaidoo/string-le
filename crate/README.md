@@ -81,9 +81,11 @@ question was malformed. Finding none is an answer, not an error.
 | Route | Command | Worth knowing |
 |---|---|---|
 | **cargo** | `cargo install string-le` | Any platform, needs **Rust 1.88+**. |
+| **npm** | `npm install -g string-le` or `npx string-le` | Needs **Node 20+**. The same command, held to this one byte for byte apart from a parser's own error wording. |
 | **From source** | `git clone https://github.com/nolindnaidoo/string-le`<br>`cd string-le/crate && cargo build --release` | The same build CI runs. |
 
-No runtime, no network, nothing written.
+The cargo build needs no runtime. Neither one touches the network or
+writes a file.
 
 ## Source files are the main event
 

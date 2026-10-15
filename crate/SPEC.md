@@ -295,6 +295,18 @@ another tool — a spellchecker, a diff against last release, a
 translation memory — and making them run `jq` first is a tax on the
 person this was built for.
 
+**Held equal: this surface and the npm one.** The npm package
+`string-le` installs a command of the same name, built from the
+extension's `src/cli/` over the extension's engine, and nobody running
+`string-le` can tell which one they have. It is held to everything in
+this section byte for byte — flags, walk, positions, exit codes,
+stdout, stderr, and both tools `string-le mcp` serves — by
+`scripts/check-cli-parity.ts`. A change to this surface changes
+`src/cli/` in the same commit. That includes `--version`: every surface
+in the repository carries one version. The exception is the one under
+"Where this deliberately differs": the words after `Invalid <FORMAT>: `
+when a parser refuses a document.
+
 ## The MCP surface
 
 - **`extract_strings` belongs to both servers.** The npm server and this
