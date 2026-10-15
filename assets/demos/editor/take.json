@@ -1,0 +1,16 @@
+{
+  "files": [
+    "messages.ts"
+  ],
+  "steps": [
+    {
+      "wait": 1500
+    },
+    {
+      "command": "String-LE: Extract Strings"
+    },
+    {
+      "wait": 5000
+    }
+  ]
+}
