@@ -1,0 +1,48 @@
+{
+	"name": "string-le",
+	"version": "2.6.0",
+	"description": "Get every string value out of a codebase and into one place a person can read.",
+	"keywords": [
+		"strings",
+		"copy",
+		"i18n",
+		"localization",
+		"audit",
+		"json",
+		"yaml",
+		"cli",
+		"string-le",
+		"nolindnaidoo",
+		"letools"
+	],
+	"license": "MIT",
+	"author": {
+		"name": "Nolin Naidoo",
+		"url": "https://nolindnaidoo.com"
+	},
+	"homepage": "https://letools.dev/tools/string-le",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nolindnaidoo/string-le.git",
+		"directory": "cli"
+	},
+	"bugs": {
+		"url": "https://github.com/nolindnaidoo/string-le/issues"
+	},
+	"type": "commonjs",
+	"bin": {
+		"string-le": "cli.js"
+	},
+	"files": [
+		"cli.js",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
+}
