@@ -50,7 +50,7 @@ Open a file, run `String-LE: Extract Strings`, and every string value in the doc
 |---|---|---|
 | **VS Code** | The same extraction, in your editor, on a keystroke | [Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le) |
 | **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/nolindnaidoo/string-le) |
-| **A terminal or a CI step** | The same run over a whole tree, with exit codes | `cargo install string-le` · [crates.io](https://crates.io/crates/string-le) |
+| **A terminal or a CI step** | The same run over a whole tree, with exit codes | `npx string-le` · [npm](https://www.npmjs.com/package/string-le) or `cargo install string-le` · [crates.io](https://crates.io/crates/string-le) |
 | **Any MCP agent, via Node** | `extract_strings` over stdio | `npx string-le-mcp` · [npm](https://www.npmjs.com/package/string-le-mcp) |
 
 ## Use it from an AI agent
@@ -227,7 +227,10 @@ The settings that shape a scan are under [Settings](#settings).
 The same extraction runs from a terminal or a shell pipeline: a Rust CLI
 in [`crate/`](crate/README.md), sharing one corpus with the extension —
 [`crate/fixtures/`](crate/fixtures/) — so the two can never read a
-document differently.
+document differently. Install it from npm with `npm install -g string-le` (or
+run it with `npx string-le`) or from crates.io with `cargo install string-le`.
+Both install the same command and are held to the same output byte for byte,
+apart from the words a parser uses to refuse a broken document.
 
 ```bash
 string-le .                      # every string in the tree; JSON on stdout when piped
@@ -357,12 +360,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 92.32% |
-| Branches | 85.42% |
-| Functions | 98.89% |
-| Lines | 93.89% |
+| Statements | 88.63% |
+| Branches | 82.54% |
+| Functions | 91.75% |
+| Lines | 90.84% |
 
-486 test cases across 40 files, plus an integration suite that runs
+508 test cases across 41 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 
