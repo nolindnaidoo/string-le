@@ -235,14 +235,14 @@ string-le --values src/          # just the values, one per line
 string-le --dedupe --values .    # each distinct string once
 string-le mcp                    # the same extraction over MCP on stdio
 
-<p align="center">
-  <img src="assets/demos/cli.gif" alt="string-le in a terminal" style="max-width: 100%; height: auto;" />
-</p>
-
 # the point of the whole thing:
 string-le --values --dedupe src/ | sort > after.txt
 diff before.txt after.txt        # what changed in the copy this release
 ```
+
+<p align="center">
+  <img src="assets/demos/cli.gif" alt="string-le in a terminal" style="max-width: 100%; height: auto;" />
+</p>
 
 **The reader is not the author.** The extension answers for the buffer
 you have open. Someone still has to read every user-visible string before
