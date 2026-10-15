@@ -7,6 +7,16 @@ this repository release on their own cadence.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2026-10-15
+
+### Changed
+
+- **stdout is silent at a terminal.** The JSON reports printed on the same
+  screen as the stderr listing and said the same thing again. Piped or
+  redirected, stdout carries every report exactly as before. `--values`
+  still prints the values at a terminal, because it is a request to see
+  them.
+
 ## [0.4.3] - 2026-10-13
 
 The crate's half of a bug fix and hardening pass over the whole repository.
@@ -334,6 +344,7 @@ auditor saw it. A contract test asserts no flag asks for a judgment.
   vanish from the report entirely, which reads to whoever ran it as
   "that file was clean".
 
+[0.4.4]: https://crates.io/crates/string-le/0.4.4
 [0.4.3]: https://crates.io/crates/string-le/0.4.3
 [0.4.2]: https://crates.io/crates/string-le/0.4.2
 [0.4.1]: https://crates.io/crates/string-le/0.4.1
