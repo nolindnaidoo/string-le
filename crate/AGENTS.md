@@ -117,6 +117,11 @@ crate/src/
   string that appears forty times is a different finding from one that
   appears once.
 - **stdout is protocol, stderr is human. There is no `--json` flag.**
+  stdout stays silent when it is a terminal, because the stderr listing
+  already covers a person reading it. Anything that can parse gets every
+  report, and the human listing is a projection of the same reports so
+  the two cannot drift. `--values` is the exception: it is a request to
+  see the values, not a report, and prints them at a terminal too.
 - **Parity scope is extraction only** — `src/extraction/**`. Positions
   are outside it: the shared tool carries none, and the extension's
   opt-in positions come from its own scanner, not from this crate's

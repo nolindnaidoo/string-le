@@ -230,7 +230,7 @@ in [`crate/`](crate/README.md), sharing one corpus with the extension —
 document differently.
 
 ```bash
-string-le .                      # every string in the tree, as JSON
+string-le .                      # every string in the tree; JSON on stdout when piped
 string-le --values src/          # just the values, one per line
 string-le --dedupe --values .    # each distinct string once
 string-le mcp                    # the same extraction over MCP on stdio
