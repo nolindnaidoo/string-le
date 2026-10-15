@@ -28,7 +28,7 @@
 ---
 
 <p align="center">
-  <img src="src/assets/images/demo.gif" alt="String-LE Demo" style="max-width: 100%; height: auto;" />
+  <img src="assets/demos/editor.gif" alt="Strings-LE in VS Code" style="max-width: 100%; height: auto;" />
 </p>
 
 > **Useful?** A star or rating is how other developers find it —
@@ -62,6 +62,10 @@ The same engine runs as an [MCP](https://modelcontextprotocol.io) server, so an 
 | **VS Code** 1.101+ | Nothing to install — the extension registers `extract_strings` with agent mode |
 | **Claude Code** | `claude mcp add string-le -- npx -y string-le-mcp` |
 | **Cursor, Windsurf, anything else** | point it at `npx string-le-mcp` |
+
+<p align="center">
+  <img src="assets/demos/mcp.gif" alt="An agent in Claude Code calling the string-le MCP server" style="max-width: 100%; height: auto;" />
+</p>
 
 ```
 extract_strings(content, format?, filename?, dedupe?, multiline?, maxResults?)
@@ -230,6 +234,10 @@ string-le .                      # every string in the tree, as JSON
 string-le --values src/          # just the values, one per line
 string-le --dedupe --values .    # each distinct string once
 string-le mcp                    # the same extraction over MCP on stdio
+
+<p align="center">
+  <img src="assets/demos/cli.gif" alt="string-le in a terminal" style="max-width: 100%; height: auto;" />
+</p>
 
 # the point of the whole thing:
 string-le --values --dedupe src/ | sort > after.txt

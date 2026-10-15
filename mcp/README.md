@@ -15,6 +15,8 @@
   </a>
 </p>
 
+![An agent in Claude Code calling the string-le MCP server](https://raw.githubusercontent.com/nolindnaidoo/string-le/main/assets/demos/mcp.gif)
+
 An [MCP](https://modelcontextprotocol.io) server that extracts every string value from
 configuration, data files and source code — the extraction engine behind the
 [String-LE](https://letools.dev/tools/string-le)
