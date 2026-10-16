@@ -38,8 +38,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const ROOT = join(import.meta.dir, '..');
-const RUST = process.env.STRING_LE_BIN ?? join(ROOT, 'crate', 'target', 'debug', 'string-le');
+const RUST =
+	process.env.STRING_LE_BIN ??
+	join(ROOT, 'crate', 'target', 'debug', `string-le${process.platform === 'win32' ? '.exe' : ''}`);
 const NODE_CLI = join(ROOT, 'cli', 'cli.js');
+/**
+ * Node, by name, not `process.execPath`: this script runs under Bun, and the
+ * package is run by Node wherever `npx` runs it. Bun's errors are not Node's.
+ */
+const NODE = process.env.NODE_BIN ?? 'node';
 
 interface Case {
 	readonly args: readonly string[];
@@ -150,7 +157,8 @@ function build(): void {
 	file('repo/bad.csv', 'a,"unterminated\n');
 	file('repo/deep.json', `${'['.repeat(513)}"x"${']'.repeat(513)}\n`);
 	file('repo/ünïcode.json', '{"k": "ünïcode"}\n');
-	file('repo/od\\d.json', '{"k": "backslash"}\n');
+	// A backslash is a separator on Windows, so the name cannot exist there.
+	if (process.platform !== 'win32') file('repo/od\\d.json', '{"k": "backslash"}\n');
 	dir('repo/a');
 	file('repo/a/b.json', '{"k": "nested"}\n');
 	file('repo/a.json', '{"k": "sibling"}\n');
@@ -163,8 +171,12 @@ function build(): void {
 	file('repo/.hidden.json', '{"h": "hidden"}\n');
 	dir('repo/.hiddendir');
 	file('repo/.hiddendir/in.json', '{"h": "hidden dir"}\n');
-	symlinkSync(join(tree, 'repo', 'a.json'), join(tree, 'repo', 'link.json'));
-	created.push(join(tree, 'repo', 'link.json'));
+	// Windows grants symlinks to administrators and developer mode only, and
+	// both binaries then see the same tree without the link.
+	try {
+		symlinkSync(join(tree, 'repo', 'a.json'), join(tree, 'repo', 'link.json'));
+		created.push(join(tree, 'repo', 'link.json'));
+	} catch {}
 
 	dir('loose');
 	file('loose/.gitignore', 'not-a-repo.txt\n');
@@ -230,6 +242,7 @@ function cases(): readonly Case[] {
 		{ args: [at('notes.txt'), '--multiline'] },
 		{ args: [join(tree, 'loose')] },
 		{ args: [join(tree, 'missing')] },
+		{ args: [join(tree, 'no', 'such', 'place')] },
 		{ args: [repo, '--dedup'] },
 		{ args: [repo, '--help'] },
 		{ args: [repo, '-'] },
@@ -320,7 +333,7 @@ function compareCli(): string[] {
 	const failures: string[] = [];
 	for (const testCase of cases()) {
 		const rust = comparableOutcome([RUST], testCase);
-		const node = comparableOutcome([process.execPath, NODE_CLI], testCase);
+		const node = comparableOutcome([NODE, NODE_CLI], testCase);
 		for (const field of ['status', 'stdout', 'stderr'] as const) {
 			if (rust[field] === node[field]) continue;
 			failures.push(
@@ -389,7 +402,7 @@ function compareMcp(): string[] {
 	const list = { jsonrpc: '2.0', id: 0, method: 'tools/list', params: {} };
 	const requests = [list, ...mcpRequests()];
 	const rust = serve([RUST], requests) as Record<string, unknown>[];
-	const node = serve([process.execPath, NODE_CLI], requests) as Record<string, unknown>[];
+	const node = serve([NODE, NODE_CLI], requests) as Record<string, unknown>[];
 	// By id, not by line: the npm server answers each call as it finishes,
 	// which JSON-RPC allows, so its replies need not arrive in request order.
 	const byId = (replies: Record<string, unknown>[], id: unknown) =>

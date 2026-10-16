@@ -10,6 +10,20 @@ npm command line. The Rust CLI in `crate/` keeps its own
 [CHANGELOG](crate/CHANGELOG.md). From 2.6.0 every surface carries one
 version and releases from one tag.
 
+## [2.6.2] - 2026-10-16
+
+### Fixed
+
+- **The npm command line words an OS error as the Rust one does on
+  Windows.** It said `No such file or directory (os error 4058)` where the
+  crate said `The system cannot find the file specified. (os error 2)`,
+  because Node hands over libuv's POSIX name for a Windows error. It now
+  recovers Windows' code and sentence from that name. On Linux it words
+  `EBUSY` as glibc does.
+- The command-line parity check ran the npm package under Bun rather than
+  Node, and only on Linux. It runs Node, as `npx` does, on macOS, Windows
+  and Linux.
+
 ## [2.6.1] - 2026-10-16
 
 ### Changed
