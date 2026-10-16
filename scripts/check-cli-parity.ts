@@ -157,7 +157,8 @@ function build(): void {
 	file('repo/bad.csv', 'a,"unterminated\n');
 	file('repo/deep.json', `${'['.repeat(513)}"x"${']'.repeat(513)}\n`);
 	file('repo/ünïcode.json', '{"k": "ünïcode"}\n');
-	file('repo/od\\d.json', '{"k": "backslash"}\n');
+	// A backslash is a separator on Windows, so the name cannot exist there.
+	if (process.platform !== 'win32') file('repo/od\\d.json', '{"k": "backslash"}\n');
 	dir('repo/a');
 	file('repo/a/b.json', '{"k": "nested"}\n');
 	file('repo/a.json', '{"k": "sibling"}\n');
