@@ -10,6 +10,15 @@ npm command line. The Rust CLI in `crate/` keeps its own
 [CHANGELOG](crate/CHANGELOG.md). From 2.6.0 every surface carries one
 version and releases from one tag.
 
+## [2.6.1] - 2026-10-16
+
+### Changed
+
+- **The npm command line is published as `strings-le`.** npm refused
+  `string-le` as too close to an older package, `stringle`, so 2.6.0 was
+  tagged but never published to any registry. The command it installs is
+  still `string-le`, the same as the crate's.
+
 ## [2.6.0] - 2026-10-15
 
 ### Changed
@@ -26,8 +35,8 @@ version and releases from one tag.
   flags, walk, positions, exit codes, JSON Lines and stderr summary, and
   `string-le mcp` serves the same two tools. `scripts/check-cli-parity.ts`
   runs both binaries over one tree and fails on any byte of difference
-  other than the words a parser uses to refuse a broken document. It is
-  published as `string-le` on npm, beside `string-le-mcp`.
+  other than the words a parser uses to refuse a broken document. It was to be
+  published as `string-le` on npm, which refused the name. See 2.6.1.
 
 ## [2.5.1] - 2026-10-13
 

@@ -39,7 +39,7 @@ with its own `CLAUDE.md`.
   divergences" is the bar for a new one.
 - Write regression tests for every bug you fix; keep unit tests free of
   clocks, randomness, and the filesystem outside `walk`/`scan`.
-- **The command line has a twin.** The npm package `string-le`, built
+- **The command line has a twin.** The npm package `strings-le`, built
   from the extension's `src/cli/`, mirrors `cli.rs`, `scan.rs`,
   `walk.rs`, `extract/locate.rs`, `extract/position.rs` and
   `mcp/mod.rs` byte for byte, and `bun ../scripts/check-cli-parity.ts`
