@@ -5,9 +5,9 @@ the QA lead checking messages, the reviewer looking for a claim the product
 may not make, the localisation owner finding what never reached a catalog.
 
 ```bash
-npx string-le src/
-npx string-le --values --dedupe src/ > strings.txt
-cat config.toml | npx string-le --stdin --format toml
+npx strings-le src/
+npx strings-le --values --dedupe src/ > strings.txt
+cat config.toml | npx strings-le --stdin --format toml
 ```
 
 This is the same command line as the Rust crate
@@ -16,6 +16,9 @@ same flags, same walk, same output, same exit codes. Install whichever
 toolchain you already have. The one difference is the words a parser uses to
 refuse a broken document: both report it as unparsed under the same
 `Invalid JSON: ` prefix, and the rest is each parser's own description.
+
+The package is `strings-le` because npm holds `string-le` too close to an
+older name. The command it installs is `string-le`, the same as the crate's.
 
 ## What it reads
 

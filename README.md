@@ -50,7 +50,7 @@ Open a file, run `String-LE: Extract Strings`, and every string value in the doc
 |---|---|---|
 | **VS Code** | The same extraction, in your editor, on a keystroke | [Marketplace](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.string-le) |
 | **Cursor, VSCodium, Windsurf** | The same extension | [Open VSX](https://open-vsx.org/extension/nolindnaidoo/string-le) |
-| **A terminal or a CI step** | The same run over a whole tree, with exit codes | `npx string-le` · [npm](https://www.npmjs.com/package/string-le) or `cargo install string-le` · [crates.io](https://crates.io/crates/string-le) |
+| **A terminal or a CI step** | The same run over a whole tree, with exit codes | `npx strings-le` · [npm](https://www.npmjs.com/package/strings-le) or `cargo install string-le` · [crates.io](https://crates.io/crates/string-le) |
 | **Any MCP agent, via Node** | `extract_strings` over stdio | `npx string-le-mcp` · [npm](https://www.npmjs.com/package/string-le-mcp) |
 
 ## Use it from an AI agent
@@ -227,8 +227,8 @@ The settings that shape a scan are under [Settings](#settings).
 The same extraction runs from a terminal or a shell pipeline: a Rust CLI
 in [`crate/`](crate/README.md), sharing one corpus with the extension —
 [`crate/fixtures/`](crate/fixtures/) — so the two can never read a
-document differently. Install it from npm with `npm install -g string-le` (or
-run it with `npx string-le`) or from crates.io with `cargo install string-le`.
+document differently. Install it from npm with `npm install -g strings-le` (or
+run it with `npx strings-le`) or from crates.io with `cargo install string-le`.
 Both install the same command and are held to the same output byte for byte,
 apart from the words a parser uses to refuse a broken document.
 

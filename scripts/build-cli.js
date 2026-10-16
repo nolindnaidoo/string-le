@@ -18,10 +18,12 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 
 // The npm package installs the command `string-le`, the name the crate
 // installs too. A manifest naming anything else would publish a second
-// command nobody documented.
-if (manifest.name !== root.name || manifest.bin?.[root.name] !== 'cli.js') {
+// command nobody documented. The package name is free to differ: npm refused
+// `string-le`, so it publishes as `strings-le`.
+const commands = Object.keys(manifest.bin ?? {});
+if (commands.length !== 1 || manifest.bin[root.name] !== 'cli.js') {
 	console.error(
-		`FAIL: cli/package.json must be named "${root.name}" with bin "${root.name}": "cli.js"`,
+		`FAIL: cli/package.json must install exactly one command, "${root.name}": "cli.js"`,
 	);
 	process.exit(1);
 }

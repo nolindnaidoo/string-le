@@ -8,6 +8,14 @@ in this repository carries one version and releases from one tag.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2026-10-16
+
+### Changed
+
+- No change to the crate. The version moves with the npm command line,
+  which publishes as `strings-le` because npm refused `string-le`. 2.6.0
+  was tagged but never reached crates.io.
+
 ## [2.6.0] - 2026-10-15
 
 ### Changed

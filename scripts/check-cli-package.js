@@ -3,7 +3,7 @@
  * npm command-line package gate.
  *
  * Packs `cli/`, installs the tarball into a clean throwaway project, and runs
- * the *installed* `string-le` over a real file. That is what `npx string-le`
+ * the *installed* `string-le` over a real file. That is what `npx strings-le`
  * does, minus the registry, so it catches what a source-level test cannot: a
  * missing `files` entry, a bin path that does not resolve, a lost shebang, or
  * a bundle that still reaches for a dev dependency.
@@ -32,6 +32,18 @@ const npm = (args, cwd) => cp.execFileSync('npm', args, { cwd, encoding: 'utf8',
 
 if (manifest.version !== root.version) {
 	fail(`cli/package.json is ${manifest.version}, package.json is ${root.version}`);
+}
+
+// The package and the command it installs have different names, because npm
+// refused `string-le`. A README telling people to `npx` the command name would
+// fetch nothing, so every `npx` must name a package this repo publishes.
+const published = [manifest.name, JSON.parse(fs.readFileSync('mcp/package.json', 'utf8')).name];
+for (const readme of ['README.md', 'cli/README.md', 'crate/README.md', 'mcp/README.md']) {
+	for (const [, named] of fs.readFileSync(readme, 'utf8').matchAll(/npx (?:-\S+ )*([\w@/.-]+)/g)) {
+		if (!published.includes(named)) {
+			fail(`${readme} says \`npx ${named}\``, `the published packages are ${published.join(' and ')}`);
+		}
+	}
 }
 
 const packed = JSON.parse(
