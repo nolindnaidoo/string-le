@@ -3,7 +3,7 @@
 	"publisher": "nolindnaidoo",
 	"displayName": "Strings-LE",
 	"description": "Extract every string in a codebase, so a person can read them",
-	"version": "2.6.1",
+	"version": "2.6.2",
 	"license": "MIT",
 	"author": {
 		"name": "nolindnaidoo",

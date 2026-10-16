@@ -177,7 +177,46 @@ describe('ioError', () => {
 			new Error("ENOENT: no such file or directory, stat 'x'"),
 			{ code: 'ENOENT', errno: -2 },
 		);
-		expect(rustIoMessage(error)).toBe('No such file or directory (os error 2)');
+		expect(rustIoMessage(error, 'darwin')).toBe(
+			'No such file or directory (os error 2)',
+		);
+	});
+
+	const failure = (code: string, errno: number, path?: string) =>
+		Object.assign(new Error(`${code}: failed`), { code, errno, path });
+
+	it('speaks as Rust does on Linux and Windows too', () => {
+		expect(rustIoMessage(failure('EBUSY', -16), 'darwin')).toBe(
+			'Resource busy (os error 16)',
+		);
+		expect(rustIoMessage(failure('EBUSY', -16), 'linux')).toBe(
+			'Device or resource busy (os error 16)',
+		);
+		expect(rustIoMessage(failure('EPERM', -4048), 'win32')).toBe(
+			'Access is denied. (os error 5)',
+		);
+	});
+
+	/** libuv folds both Windows codes into ENOENT, numbered -4058. */
+	it('tells a missing file from a missing directory on Windows', () => {
+		const root = mkdtempSync(join(tmpdir(), 'io-error-'));
+		writeFileSync(join(root, 'file'), '');
+		const missing = (...parts: string[]) =>
+			rustIoMessage(failure('ENOENT', -4058, join(root, ...parts)), 'win32');
+		try {
+			expect(missing('gone')).toBe(
+				'The system cannot find the file specified. (os error 2)',
+			);
+			expect(missing('no', 'gone')).toBe(
+				'The system cannot find the path specified. (os error 3)',
+			);
+			expect(missing('file', 'gone')).toBe(
+				'The system cannot find the path specified. (os error 3)',
+			);
+		} finally {
+			unlinkSync(join(root, 'file'));
+			rmdirSync(root);
+		}
 	});
 });
 
