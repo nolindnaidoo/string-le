@@ -144,26 +144,24 @@ export function createResponder(
 	): Promise<JsonRpcResponse | null> {
 		const { method, params } = request;
 		const id = request.id ?? null;
-		// Notifications carry no id and take no reply.
-		const isNotification = request.id === undefined || request.id === null;
+		// Notifications carry no id, or a null one, and take no reply, whatever
+		// the method. The crate's server answers the same way.
+		if (request.id === undefined || request.id === null) return null;
 
 		try {
+			// The crate's answer: its own revision whatever the client asked
+			// for, which a client then accepts or disconnects on.
 			if (method === 'initialize') {
-				const asked = params?.protocolVersion;
 				return {
 					jsonrpc: '2.0' as const,
 					id,
 					result: {
-						protocolVersion:
-							typeof asked === 'string' ? asked : SUPPORTED_PROTOCOL,
-						capabilities: { tools: { listChanged: false } },
+						protocolVersion: SUPPORTED_PROTOCOL,
+						capabilities: { tools: {} },
 						serverInfo: info,
 					},
 				};
 			}
-
-			if (method === 'notifications/initialized') return null;
-			if (isNotification) return null;
 
 			if (method === 'ping') {
 				return { jsonrpc: '2.0' as const, id, result: {} };
@@ -242,7 +240,7 @@ export function serve(
 		// Process every complete line; keep the partial tail for the next chunk.
 		let newline = buffer.indexOf('\n');
 		while (newline !== -1) {
-			const line = buffer.slice(0, newline).trim();
+			const line = rustTrim(buffer.slice(0, newline));
 			buffer = buffer.slice(newline + 1);
 			newline = buffer.indexOf('\n');
 			if (!line) continue;
@@ -286,4 +284,15 @@ export function serve(
 			write(frameRefusal());
 		}
 	});
+}
+
+/**
+ * Rust's `str::trim`, which the crate's server reads a line with. JavaScript's
+ * also strips a byte order mark and keeps U+0085, so a frame led by a BOM was
+ * read here and refused there.
+ */
+function rustTrim(line: string): string {
+	const space =
+		'[\\t\\n\\v\\f\\r \\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]';
+	return line.replace(new RegExp(`^${space}+|${space}+$`, 'g'), '');
 }

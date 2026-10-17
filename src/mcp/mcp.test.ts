@@ -261,14 +261,15 @@ describe('protocol', () => {
 		TOOLS,
 	);
 
-	it('echoes the protocol version the client asked for', async () => {
+	it("answers with its own protocol version, as the crate's server does", async () => {
 		const reply = await respond({
 			jsonrpc: '2.0',
 			id: 1,
 			method: 'initialize',
 			params: { protocolVersion: '2024-11-05' },
 		});
-		expect(reply?.result?.protocolVersion).toBe('2024-11-05');
+		expect(reply?.result?.protocolVersion).toBe('2025-06-18');
+		expect(reply?.result?.capabilities).toEqual({ tools: {} });
 		expect(reply?.result?.serverInfo).toEqual({
 			name: 'string-le',
 			version: '1.0.0',

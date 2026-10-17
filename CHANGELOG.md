@@ -14,6 +14,15 @@ version and releases from one tag.
 
 ### Fixed
 
+- **The npm `mcp` server answers `initialize` and notifications as the
+  crate does.** It echoed the client's protocol version and advertised
+  `listChanged`, answered `initialize` sent with a null id, and ignored
+  `notifications/initialized` sent with an id. It now answers with
+  `2025-06-18` and `{ tools: {} }`, treats a null id as a notification,
+  and refuses the method like any other it does not implement. A frame led
+  by a byte order mark is refused as not JSON, as the crate refuses it,
+  where JavaScript's `trim` used to strip the mark. `check:cli-pipes` now
+  feeds both servers eighteen malformed frames and requests.
 - **Every parsed format now reads exactly as the Rust crate does.** The
   extension, the npm MCP server and the npm command line parsed JSON,
   JSONC, YAML, TOML, INI and CSV with npm libraries (`JSON.parse`,
