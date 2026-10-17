@@ -21,6 +21,7 @@ const STRERROR: Readonly<Record<string, string>> = Object.freeze({
 	ENAMETOOLONG: 'File name too long',
 	EBUSY: 'Resource busy',
 	EIO: 'Input/output error',
+	EPIPE: 'Broken pipe',
 });
 
 const INVALID_UTF8 = 'INVALID_UTF8';
@@ -93,6 +94,8 @@ const WINDOWS: Readonly<Record<string, readonly [number, string]>> =
 		],
 		ENAMETOOLONG: [206, 'The filename or extension is too long.'],
 		ELOOP: [1921, 'The name of the file cannot be resolved by the system.'],
+		// A write to a pipe whose reader has closed it: ERROR_NO_DATA.
+		EPIPE: [232, 'The pipe is being closed.'],
 	});
 
 function windowsMessage(code: string, error: unknown): string | undefined {
