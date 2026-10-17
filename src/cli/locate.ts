@@ -11,8 +11,7 @@
  * Columns are UTF-16 code units, which is what a JavaScript string index
  * already counts, so an offset here is a column without conversion.
  */
-import { stripJsonc } from '../extraction/formats/jsonc';
-import { nestsTooDeep } from '../extraction/formats/nesting';
+import { jsonStrings } from '../extraction/formats/json';
 
 export interface Position {
 	readonly line: number;
@@ -54,45 +53,10 @@ export function jsonSpans(
 	trimmed: string,
 	comments: boolean,
 ): { value: string; offset: number }[] {
-	if (nestsTooDeep(trimmed, 'JSON')) return [];
-	// Comments are blanked to spaces, not removed, so every offset still
-	// points into the document as written.
-	const source = comments ? stripJsonc(trimmed) : trimmed;
-	if (!parses(source)) return [];
-	const spans: { value: string; offset: number }[] = [];
-	const token = /"(?:[^"\\]|\\.)*"/y;
-	let at = 0;
-	while (at < source.length) {
-		if (source[at] !== '"') {
-			at += 1;
-			continue;
-		}
-		token.lastIndex = at;
-		const literal = token.exec(source)?.[0];
-		if (literal === undefined) return [];
-		const value = (JSON.parse(literal) as string).trim();
-		if (!isKey(source, at + literal.length) && value.length > 0) {
-			spans.push({ value, offset: at + 1 });
-		}
-		at += literal.length;
-	}
-	return spans;
-}
-
-function parses(source: string): boolean {
-	if (source.trim().length === 0) return false;
-	try {
-		JSON.parse(source);
-		return true;
-	} catch {
-		return false;
-	}
-}
-
-function isKey(source: string, after: number): boolean {
-	let next = after;
-	while (/\s/.test(source[next] ?? '')) next += 1;
-	return source[next] === ':';
+	return (jsonStrings(trimmed, comments) ?? []).map((found) => ({
+		value: found.value,
+		offset: found.start + 1,
+	}));
 }
 
 /** Lines start after `\n`. A lone `\r` is an ordinary character, as in the crate. */

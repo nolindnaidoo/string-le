@@ -111,14 +111,19 @@ describe('runtime strings and the bundle agree', () => {
 		const DIRECT =
 			/(?:\.(?:info|warn|error|flash)|show(?:Information|Warning|Error)Message|showQuickPick|showInputBox)\(\s*(['"`])/g;
 		const BUTTON = /\{\s*modal:\s*true\s*\}\s*,\s*(['"`])/g;
-		const offenders = sourceFiles(join(root, 'src')).flatMap((file) => {
-			const text = readFileSync(file, 'utf8');
-			return [DIRECT, BUTTON].flatMap((pattern) =>
-				[...text.matchAll(pattern)].map(
-					(match) => `${file}:${text.slice(0, match.index).split('\n').length}`,
-				),
-			);
-		});
+		// src/parsers/ builds refusals in the original crates' words, which
+		// are data the report quotes, not text this extension says.
+		const offenders = sourceFiles(join(root, 'src'))
+			.filter((file) => !file.includes(join('src', 'parsers')))
+			.flatMap((file) => {
+				const text = readFileSync(file, 'utf8');
+				return [DIRECT, BUTTON].flatMap((pattern) =>
+					[...text.matchAll(pattern)].map(
+						(match) =>
+							`${file}:${text.slice(0, match.index).split('\n').length}`,
+					),
+				);
+			});
 		expect(offenders).toEqual([]);
 	});
 

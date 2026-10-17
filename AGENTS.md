@@ -21,11 +21,16 @@ commands/               one file per command; deps injected as a frozen bag
                         postProcessHelper shares new-file-vs-in-place output)
 extraction/extract.ts   dispatcher: fileType -> extractor (unknown -> fallback)
 extraction/collect.ts   THE shared value-collection heuristics for parsed formats
-extraction/formats/*.ts one extractor per format:
-                        json (JSON.parse), yaml (js-yaml loadAll),
-                        toml (@iarna/toml), ini (ini), csv (csv-parse,
-                        + streamCsvStrings + readCsvHeader), dotenv
+extraction/formats/*.ts one extractor per format, over the crate's own
+                        parsers: json/jsonc, yaml, toml, ini, csv (+
+                        streamCsvStrings + readCsvHeader), dotenv
                         (line-based), fallback (quoted-string regex)
+parsers/                jsonc-parser, saphyr, toml, rust-ini and csv,
+                        transcribed, as typed loaders reporting each crate's
+                        own error. Shared byte for byte with units-le,
+                        numbers-le, paths-le and urls-le, held there by
+                        letools-site's fleet check, and held to the pinned
+                        crates by parsers.test.ts
 ui/                     notifier (window messages, gated by notificationsLevel:
                         all -> everything, important -> warn+error, silent -> error only;
                         error/warn text sanitized), statusBar, prompts
@@ -207,7 +212,7 @@ most valuable line in the file, and it is what keeps the next person from
 - **Every declared setting must have a consumer.** v1 shipped 12 no-op settings (`performance.*`, `keyboard.*`, `presets.*`); don't add a setting without wiring it.
 - **Extractor behavior is pinned by golden snapshots** (`extraction/characterization.test.ts` + `__fixtures__/`). Any output change must update goldens in the same commit and be listed in the CHANGELOG.
 - **Claimed formats get real parsers.** v1 claimed YAML/TOML/INI but routed them to the quoted-string fallback, silently missing unquoted values. If a format is in the README table, it must have a real extractor in `extraction/formats/`.
-- **CSV is parsed by csv-parse everywhere.** Column pickers and fan-out counting go through `readCsvHeader()` (same parser and options as extraction); never re-implement CSV line splitting.
+- **CSV is parsed by `src/parsers/csv.ts` everywhere.** Column pickers and fan-out counting go through `readCsvHeader()` (same reader as extraction); never re-implement CSV line splitting.
 - **Errors are never suppressed.** `notificationsLevel` gates info/warnings only; `notifier.error` always shows (and sanitizes).
 - **nls catalogues stay in key-parity:** all 12 locale files carry exactly the keys of `package.nls.json`.
 

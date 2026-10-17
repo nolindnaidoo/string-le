@@ -8,12 +8,10 @@
  * positions, the exit codes, stdout and stderr byte for byte, and the two
  * tools `string-le mcp` serves.
  *
- * One thing is not compared, and SPEC.md names it: the words a parser uses to
- * refuse a document. Both binaries report the same file as unparsed under the
- * same `Invalid <FORMAT>: ` prefix, and what follows is jsonc-parser, saphyr
- * or the `toml` crate on one side and `JSON.parse`, js-yaml or `@iarna/toml`
- * on the other. That text is cut back to its prefix before comparing, except
- * the nesting refusal, which both sides word identically and which is held.
+ * Nothing is masked: the extension reads JSON, YAML, TOML, INI and CSV with
+ * transcriptions of the crate's own parsers, so a refused document is
+ * refused in the same words, and the tree holds broken documents of each
+ * format to prove it.
  *
  * Every case runs both binaries over one generated tree with stdout piped,
  * which is how a script sees them. `--version` is compared too: every surface
@@ -85,7 +83,35 @@ function file(relative: string, content: string | Buffer): void {
 
 const canLock = process.platform !== 'win32' && process.getuid?.() !== 0;
 
+/** One document of each parsed format that its parser refuses, plus near misses. */
+function broken(): void {
+	dir('broken');
+	const documents: Record<string, string> = {
+		'a.json': '{"a": "x",',
+		'b.json': '{"a": "x", "b": }',
+		'dup.json': '{"2": "b", "1": "a", "1": "c"}',
+		'a.jsonc': '{\n  // c\n  "a": "x",,\n}',
+		'a.yaml': 'a: [x\n',
+		'b.yaml': 'a: b: c\n',
+		'c.yml': '\t- x\n',
+		'dup.yaml': 'a: x\na: y\n',
+		'a.toml': '[a\nb = "x"\n',
+		'b.toml': 'a = \n',
+		'mixed.toml': 'a = [1, "x", 2.5]\n',
+		'a.csv': 'a,b\n"x,y\n',
+		'b.csv': ' "x" , y \nz,"w"v\n',
+		'a.tsv': 'a\tb\n"x\n',
+		'a.ini': '[a\nb=x\n',
+		'dup.ini': '[s]\nk = one\nj = two\nk = three\n',
+		'a.env': 'A="unterminated\nB=x\nB=y\nexport C = z # c\n',
+	};
+	for (const [name, content] of Object.entries(documents)) {
+		file(`broken/${name}`, content);
+	}
+}
+
 function build(): void {
+	broken();
 	dir('repo');
 	dir('repo/.git');
 	dir('repo/.git/info');
@@ -215,9 +241,9 @@ function cases(): readonly Case[] {
 		{ args: [repo, '--multiline'] },
 		{ args: [repo, '--format', 'json'] },
 		{ args: [repo, '--format', 'JSONC'] },
-		// Not the whole tree: config.json repeats a key, which js-yaml refuses
-		// and saphyr reads, a parser strictness SPEC.md already names.
-		{ args: [at('app.yaml'), at('settings.ini'), at('main.py'), '--format', '.yml'] },
+		{ args: [repo, '--format', '.yml'] },
+		{ args: ['broken'] },
+		{ args: ['broken', '--strict'] },
 		{ args: [repo, '--format', 'klingon'] },
 		{ args: [repo, '--format', 'fallback', '--multiline'] },
 		{ args: [repo, '--format'] },
@@ -263,41 +289,6 @@ function cases(): readonly Case[] {
 	];
 }
 
-/**
- * Cut a parser's own words back to the shared prefix. The nesting refusal is
- * the one parse message both sides word identically, so it is left whole.
- */
-function shared(message: string): string {
-	if (/^Invalid [A-Z]+: nested deeper than \d+ levels$/.test(message)) return message;
-	const prefix = /^Invalid [A-Z]+: /.exec(message)?.[0];
-	return prefix ? `${prefix}<parser's words>` : message;
-}
-
-function withSharedMessages(value: unknown): unknown {
-	if (Array.isArray(value)) return value.map(withSharedMessages);
-	if (typeof value !== 'object' || value === null) return value;
-	return Object.fromEntries(
-		Object.entries(value).map(([key, item]) => [
-			key,
-			key === 'message' && typeof item === 'string' ? shared(item) : withSharedMessages(item),
-		]),
-	);
-}
-
-/** The parse messages a binary reported for a case, read from its own JSON. */
-function parseMessages(command: readonly string[], testCase: Case): string[] {
-	const reports = run(command, {
-		...testCase,
-		args: testCase.args.filter((arg) => arg !== '--values'),
-	}).stdout;
-	return reports
-		.split('\n')
-		.filter((line) => line.startsWith('{'))
-		.flatMap((line) => (JSON.parse(line) as { diagnostics?: { code: string; message: string }[] }).diagnostics ?? [])
-		.filter((diagnostic) => diagnostic.code === 'unparsed')
-		.map((diagnostic) => diagnostic.message);
-}
-
 function run(command: readonly string[], testCase: Case): Outcome {
 	const [program, ...rest] = command as [string, ...string[]];
 	const result = spawnSync(program, [...rest, ...testCase.args], {
@@ -311,29 +302,11 @@ function run(command: readonly string[], testCase: Case): Outcome {
 	};
 }
 
-/**
- * A line carrying a parse message is compared re-serialized with the message
- * cut back; every other line is compared exactly as written.
- */
-function comparableOutcome(command: readonly string[], testCase: Case): Outcome {
-	const outcome = run(command, testCase);
-	const messages = parseMessages(command, testCase);
-	const stdout = outcome.stdout
-		.split('\n')
-		.map((line) => {
-			if (!line.startsWith('{') || !line.includes('"unparsed"')) return line;
-			return JSON.stringify(withSharedMessages(JSON.parse(line)));
-		})
-		.join('\n');
-	const stderr = messages.reduce((text, message) => text.replaceAll(message, shared(message)), outcome.stderr);
-	return { status: outcome.status, stdout, stderr };
-}
-
 function compareCli(): string[] {
 	const failures: string[] = [];
 	for (const testCase of cases()) {
-		const rust = comparableOutcome([RUST], testCase);
-		const node = comparableOutcome([NODE, NODE_CLI], testCase);
+		const rust = run([RUST], testCase);
+		const node = run([NODE, NODE_CLI], testCase);
 		for (const field of ['status', 'stdout', 'stderr'] as const) {
 			if (rust[field] === node[field]) continue;
 			failures.push(
@@ -362,7 +335,7 @@ function comparable(response: Record<string, unknown>): unknown {
 	const content = result?.content as { type: string; text: string }[] | undefined;
 	if (!content || result?.isError === true) return canonical(response);
 	const parsed = content.map((item) => ({ ...item, text: JSON.parse(item.text) }));
-	return canonical(withSharedMessages({ ...response, result: { ...result, content: parsed } }));
+	return canonical({ ...response, result: { ...result, content: parsed } });
 }
 
 function mcpRequests(): readonly Record<string, unknown>[] {

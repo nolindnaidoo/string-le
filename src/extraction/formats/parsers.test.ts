@@ -31,7 +31,7 @@ describe('extractIni', () => {
 		expect(extractIni('  \n\t\n', {})).toHaveLength(0);
 	});
 
-	it('refuses nothing: the documents other parsers reject are read, and onParseError is never called', () => {
+	it('reads dotted keys and refuses what rust-ini refuses', () => {
 		// The `ini` package reads an unclosed header as a key and a dotted key
 		// beside its section as a value, so no document reaches the catch in
 		// `parseIni`. The test this replaces claimed to exercise a parse
@@ -44,10 +44,14 @@ describe('extractIni', () => {
 		expect(
 			extractIni('a.b = 1\na = 2\na.c = 3\n', { onParseError } as never),
 		).toEqual(['1', '2', '3']);
-		expect(
-			extractIni('[unclosed\nname = x\n', { onParseError } as never),
-		).toEqual(['x']);
 		expect(errors).toEqual([]);
+		// rust-ini refuses an unclosed section header, as the crate does.
+		expect(
+			extractIni('[unclosed\nname = x', { onParseError } as never),
+		).toEqual([]);
+		expect(errors).toEqual([
+			`Invalid INI: 2:9 expecting "[Some(']')]" but found EOF.`,
+		]);
 		expect(() => extractIni('a.b = 1\na = 2\na.c = 3\n', {})).not.toThrow();
 	});
 

@@ -3,32 +3,14 @@ import { extractCsv, extractTsv } from './formats/csv';
 import { extractDotenv } from './formats/dotenv';
 import { extractFallback } from './formats/fallback';
 import { extractIni } from './formats/ini';
-import { extractJson } from './formats/json';
-import { stripJsonc } from './formats/jsonc';
-import { nestsTooDeep, tooDeep } from './formats/nesting';
+import { extractJson, readJson } from './formats/json';
 import { SOURCE_EXTRACTORS } from './formats/source';
 import { extractToml } from './formats/toml';
 import { extractYaml } from './formats/yaml';
 
-/**
- * JSONC: the comments and trailing commas blanked, then the strict reader.
- *
- * A document that is all comment strips to whitespace, which `JSON.parse`
- * refuses; it is an empty document, not a broken one, and the crate reads
- * it as empty. Checked here because `extractStrings` trims before the
- * comments are blanked, so its own empty-document guard never sees it.
- */
-const extractJsonc: Extractor = (text, options) => {
-	// Counted on the raw text, comments included, because the crate counts
-	// it that way; stripping first would read a document the crate refuses.
-	if (nestsTooDeep(text, 'JSON')) {
-		options?.onParseError?.(tooDeep('JSON'));
-		return EMPTY_RESULT;
-	}
-	const stripped = stripJsonc(text);
-	if (stripped.trim().length === 0) return EMPTY_RESULT;
-	return extractJson(stripped, options);
-};
+/** JSONC: jsonc-parser with comments and trailing commas allowed. */
+const extractJsonc: Extractor = (text, options) =>
+	readJson(text, true, options);
 
 const EXTRACTORS: Readonly<Record<string, Extractor>> = Object.freeze({
 	json: extractJson,

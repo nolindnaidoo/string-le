@@ -122,11 +122,8 @@ pub(crate) fn run(arguments: &Value) -> Result<Value, String> {
 /// clean result that never ran — where the other server said the
 /// document could not be read and why.
 ///
-/// The severity and the code are the contract. The message tail is the
-/// parser's: jsonc-parser and `JSON.parse` are different programs and
-/// word the same failure differently, so both sides promise the
-/// `Invalid JSON: ` prefix and neither promises what follows it. See
-/// SPEC.md, "Where this deliberately differs".
+/// The message is the contract too: the npm server parses with a
+/// transcription of the same parser, so it refuses in the same words.
 fn parse_diagnostics(content: &str, format: &str) -> Vec<Value> {
     extract::parse_error(content, format)
         .map(|message| json!({ "severity": "error", "code": "parsing", "message": message }))
@@ -277,13 +274,9 @@ mod tests {
         );
         assert_eq!(result["diagnostics"][0]["severity"], "error");
         assert_eq!(result["diagnostics"][0]["code"], "parsing");
-        assert!(
-            result["diagnostics"][0]["message"]
-                .as_str()
-                .expect("a message")
-                .starts_with("Invalid JSON: "),
-            "the prefix is the shared half of the message: {}",
-            result["diagnostics"][0]["message"]
+        assert_eq!(
+            result["diagnostics"][0]["message"],
+            "Invalid JSON: Expected string for object property on line 1 column 2"
         );
     }
 

@@ -40,10 +40,13 @@ describe('exactPositions', () => {
 		]);
 	});
 
-	it('places none when JSON reports its values in another order than they are written', () => {
+	it('reads JSON in source order, an integer-like key included, as the crate does', () => {
 		const text = '{"2": "b", "1": "a"}';
-		expect(extractStrings(text, 'json')).toEqual(['a', 'b']);
-		expect(positionsOf(text, 'json')).toBeUndefined();
+		expect(extractStrings(text, 'json')).toEqual(['b', 'a']);
+		expect(positionsOf(text, 'json')).toEqual([
+			{ line: 1, column: 7 },
+			{ line: 1, column: 17 },
+		]);
 	});
 
 	it('places none for a format whose parser already resolved the values', () => {

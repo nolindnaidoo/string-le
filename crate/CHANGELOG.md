@@ -8,6 +8,16 @@ in this repository carries one version and releases from one tag.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-10-17
+
+### Changed
+
+- "Where this deliberately differs" no longer lists parsing: the extension
+  now reads with transcriptions of this crate's parsers, so the words a
+  parser refuses in and the four documents the two used to read
+  differently are held equal. The MCP test asserts a refusal's full
+  message. No behaviour of this crate changed.
+
 ## [2.6.4] - 2026-10-17
 
 ### Changed
