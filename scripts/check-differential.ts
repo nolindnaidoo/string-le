@@ -17,13 +17,12 @@
  * not compared here. What is compared is the one thing both servers
  * promise to answer identically.
  *
- * Documents are drawn only from the formats with no parse-failure path —
- * the ten source languages, dotenv and the fallback — because those
- * answer with values alone. The parsed formats reach their failure
- * through a parser written twice in two languages, and that half is
- * checked separately below for the part both sides do promise: the same
- * `ok`, the same severity and code, and the same `Invalid <FORMAT>: `
- * prefix. The words after it belong to the parser.
+ * Documents are generated for the formats with no parse-failure path —
+ * the ten source languages, dotenv and the fallback. The parsed formats
+ * read with transcriptions of the crate's own parsers, which
+ * `src/parsers/parsers.test.ts` holds to the crates themselves; here a set
+ * of broken and once-divergent documents is held whole, refusal text
+ * included, through both servers.
  *
  *   bun scripts/check-differential.ts [--seed <n>] [--cases <n>]
  */
@@ -113,15 +112,6 @@ const GENERATED_FORMATS: readonly string[] = Object.freeze([
 	'typescript',
 	'env',
 	'fallback',
-]);
-
-/** Formats whose parser can refuse the document. */
-const PARSED_FORMATS: readonly string[] = Object.freeze([
-	'json',
-	'yaml',
-	'csv',
-	'toml',
-	'ini',
 ]);
 
 const TAGS: readonly string[] = Object.freeze(['EOF', 'EOT', 'NOW', 'END', '_X']);
@@ -406,160 +396,51 @@ async function checkGeneratedDocuments(): Promise<void> {
 }
 
 /**
- * A document the parser refuses. The two servers run two parsers written
- * in two languages, so the words they use differ; what they promise is
- * that the check is reported as not having run, with the same severity,
- * the same code, and the same `Invalid <FORMAT>: ` prefix.
- *
- * `ini` is the exception and is pinned as one rather than skipped: the
- * `ini` package accepts everything a line has to offer and `rust-ini`
- * refuses a section header that never closes. Two parsers, two
- * tolerances, and no way to have the stricter one be lenient without
- * writing a third. It is recorded in crate/SPEC.md, and asserted here in
- * the direction it actually goes — so the day either parser changes its
- * mind, this goes red and somebody updates the document.
+ * Documents a parser refuses, and documents the two servers once read
+ * differently when the extension parsed with npm libraries: a repeated YAML
+ * key, a TOML array of mixed types, a lone surrogate escape in JSON and an
+ * INI section header that never closes. Every one must now answer
+ * identically, refusal text included.
  */
-const BROKEN: Readonly<Record<string, string>> = Object.freeze({
-	json: '{not json',
-	yaml: 'a:\n- b\n  c: [',
-	toml: 'a = = 1',
-	ini: '[unclosed\nkey',
-	csv: '"never closed\n',
-});
-
-/** Formats where only one parser refuses, and which one. */
-const STRICTER: Readonly<Record<string, 'crate' | 'extension'>> = Object.freeze({
-	ini: 'crate',
-});
-
-/**
- * Documents one parser refuses and the other reads, within a format where
- * both parsers refuse the ordinary broken document above. Each was found
- * by hand against both built servers, is recorded in crate/SPEC.md under
- * "How strict a parser is", and is pinned in the direction it goes, so
- * the day either parser changes its mind the build says so.
- */
-const DIVERGENT: ReadonlyArray<{
-	readonly what: string;
-	readonly format: string;
-	readonly content: string;
-	readonly stricter: 'crate' | 'extension';
-}> = Object.freeze([
-	{
-		what: 'a duplicated YAML mapping key',
-		format: 'yaml',
-		content: 'a: 1\na: "two"\n',
-		stricter: 'extension',
-	},
-	{
-		what: 'a TOML array mixing types',
-		format: 'toml',
-		content: 'a = ["x", 1]\n',
-		stricter: 'extension',
-	},
-	{
-		what: 'a JSON string holding a lone surrogate escape',
-		format: 'json',
-		content: '{"a": "\\ud800"}',
-		stricter: 'crate',
-	},
-]);
+const AGREE: ReadonlyArray<{ readonly format: string; readonly content: string }> =
+	Object.freeze([
+		{ format: 'json', content: '{not json' },
+		{ format: 'json', content: '{"a": "\\ud800"}' },
+		{ format: 'jsonc', content: '{"a": "x",,}' },
+		{ format: 'yaml', content: 'a:\n- b\n  c: [' },
+		{ format: 'yaml', content: 'a: 1\na: "two"\n' },
+		{ format: 'toml', content: 'a = = 1' },
+		{ format: 'toml', content: 'a = ["x", 1]\n' },
+		{ format: 'ini', content: '[unclosed\nkey' },
+		{ format: 'csv', content: '"never closed\n' },
+		{ format: 'tsv', content: 'a\t"b\n' },
+	]);
 
 async function checkRefusalsAgree(): Promise<void> {
-	const formats = PARSED_FORMATS.filter((format) => BROKEN[format]);
 	const replies = await askTheCrate(
-		formats.map((format, index) => ({
-			id: index + 1,
-			arguments: { content: BROKEN[format], format },
-		})),
-	);
-
-	for (const [index, format] of formats.entries()) {
-		const fromExtension = (await tool.handler({
-			content: BROKEN[format],
-			format,
-		})) as Envelope;
-		const fromCrate = replies.get(index + 1) as Envelope;
-
-		const stricter = STRICTER[format];
-		if (stricter) {
-			const refused = stricter === 'crate' ? fromCrate : fromExtension;
-			const accepted = stricter === 'crate' ? fromExtension : fromCrate;
-			if (!refused.ok && accepted.ok) continue;
-			failures.push(
-				`refusal for ${format} — SPEC.md records the ${stricter}'s parser as the stricter one, and it no longer is:\n` +
-					`  extension: ${canonical(fromExtension)}\n` +
-					`  crate:     ${canonical(fromCrate)}`,
-			);
-			continue;
-		}
-
-		const problem = disagreement(fromExtension, fromCrate, format);
-		if (!problem) continue;
-		failures.push(
-			`refusal for ${format} — the SHARED extract_strings tool disagrees: ${problem}\n` +
-				`  extension: ${canonical(fromExtension)}\n` +
-				`  crate:     ${canonical(fromCrate)}`,
-		);
-	}
-}
-
-/** The hand-found documents, each still refused by the side SPEC.md names. */
-async function checkDivergencesHold(): Promise<void> {
-	const replies = await askTheCrate(
-		DIVERGENT.map((pinned, index) => ({
+		AGREE.map((pinned, index) => ({
 			id: index + 1,
 			arguments: { content: pinned.content, format: pinned.format },
 		})),
 	);
-	for (const [index, pinned] of DIVERGENT.entries()) {
-		const fromExtension = (await tool.handler({
+	for (const [index, pinned] of AGREE.entries()) {
+		const fromExtension = await tool.handler({
 			content: pinned.content,
 			format: pinned.format,
-		})) as Envelope;
-		const fromCrate = replies.get(index + 1) as Envelope;
-		const refused = pinned.stricter === 'crate' ? fromCrate : fromExtension;
-		const accepted = pinned.stricter === 'crate' ? fromExtension : fromCrate;
-		if (!refused.ok && accepted.ok) continue;
+		});
+		const fromCrate = replies.get(index + 1);
+		if (canonical(fromExtension) === canonical(fromCrate)) continue;
 		failures.push(
-			`${pinned.what} — SPEC.md records the ${pinned.stricter}'s parser as the one that refuses it, and that no longer holds:\n` +
+			`${pinned.format} ${JSON.stringify(pinned.content)} — the SHARED extract_strings tool disagrees\n` +
 				`  extension: ${canonical(fromExtension)}\n` +
 				`  crate:     ${canonical(fromCrate)}`,
 		);
 	}
-}
-
-interface Envelope {
-	readonly ok: boolean;
-	readonly diagnostics: readonly {
-		severity: string;
-		code: string;
-		message: string;
-	}[];
-}
-
-function disagreement(
-	extension: Envelope,
-	crate: Envelope,
-	format: string,
-): string | null {
-	if (extension.ok !== crate.ok) return `ok differs`;
-	const a = extension.diagnostics[0];
-	const b = crate.diagnostics[0];
-	if (!a || !b) return 'one side carries no diagnostic';
-	if (a.severity !== b.severity) return 'severity differs';
-	if (a.code !== b.code) return 'code differs';
-	const prefix = `Invalid ${format.toUpperCase()}: `;
-	if (!a.message.startsWith(prefix) || !b.message.startsWith(prefix)) {
-		return `the shared ${JSON.stringify(prefix)} prefix is missing`;
-	}
-	return null;
 }
 
 console.log(`differential: seed ${SEED}, ${CASES} generated documents`);
 await checkGeneratedDocuments();
 await checkRefusalsAgree();
-await checkDivergencesHold();
 
 if (failures.length > 0) {
 	console.error(

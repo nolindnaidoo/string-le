@@ -171,7 +171,7 @@ A project writes the same string in many places, so the report is the distinct s
 
 ## Could not be read (1)
 
-- `bad.json`: Invalid JSON: Unexpected end of JSON input
+- `bad.json`: Invalid JSON: Expected value after colon in object property on line 1 column 6
 ```
 
 Positions follow `string-le.showPositions`. With it off, each line is the file and how many times the string is in it: `src/a.ts (2)`. The copy on the clipboard follows `string-le.clipboardIncludesPositions`, as it does for Extract.
@@ -360,12 +360,12 @@ a build only tells you how busy the runner was.
 <!-- coverage:start -->
 | Metric | Coverage |
 | --- | --- |
-| Statements | 88.64% |
-| Branches | 82.43% |
-| Functions | 91.80% |
-| Lines | 90.90% |
+| Statements | 81.57% |
+| Branches | 72.80% |
+| Functions | 89.50% |
+| Lines | 83.13% |
 
-510 test cases across 41 files, plus an integration suite that runs
+525 test cases across 43 files, plus an integration suite that runs
 in a real VS Code extension host and an end-to-end test that installs the
 built `.vsix` into a clean profile.
 

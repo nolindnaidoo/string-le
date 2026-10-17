@@ -303,9 +303,8 @@ this section byte for byte — flags, walk, positions, exit codes,
 stdout, stderr, and both tools `string-le mcp` serves — by
 `scripts/check-cli-parity.ts`. A change to this surface changes
 `src/cli/` in the same commit. That includes `--version`: every surface
-in the repository carries one version. The exception is the one under
-"Where this deliberately differs": the words after `Invalid <FORMAT>: `
-when a parser refuses a document.
+in the repository carries one version, and so are the words a parser
+refuses a document in.
 
 ## The MCP surface
 
@@ -332,18 +331,14 @@ consent notice is exactly the copy an audit least wants to miss. The
 extension has the same switch, `string-le.fallback.multiline`, and the
 shared `extract_strings` tool takes it as `multiline` on both servers.
 
-**Nesting limits, held equal.** Each parser guards its own depth, and the
-two sides' limits differed: jsonc-parser gives up past 512 levels and the
-`toml` crate past 80, where `JSON.parse` and `@iarna/toml` read thousands
-and the extension's collector then stopped at depth 1,000 without a word;
-js-yaml refuses past 98 levels of flow nesting where saphyr reads 255. A
-deep document was a reported parse failure on one side and a silently
-half-read document on the other. Both now count brackets and braces
+**Nesting limits, held equal.** Both sides count brackets and braces
 outside quoted strings before parsing (`nesting.rs`, `nesting.ts`) and
-refuse past the weakest parser's bound with one message, `Invalid JSON:
-nested deeper than 512 levels` and its TOML and YAML twins at 80 and 98;
-a document at the bound reads on both. YAML nested by indentation alone
-has no bracket to count and keeps each parser's own limit.
+refuse past one bound with one message, `Invalid JSON: nested deeper than
+512 levels` and its TOML and YAML twins at 80 and 98; a document at the
+bound reads on both. The bounds were set when the extension parsed with
+npm libraries, to the weakest parser of each pair, and are kept so the
+answer does not move. YAML nested by indentation alone has no bracket to
+count, and both sides read it as saphyr does.
 
 **Positions.** The shared tool carries none on either server. Each
 surface places values for its own reader. The extension, when
@@ -353,24 +348,12 @@ format. This crate places them from JSON spans and a forward cursor for
 every other format, with no position where a value cannot be located.
 Neither guesses, and nothing holds the two equal.
 
-**The words a parser uses to refuse.** Both servers report a broken
-document the same way — `ok: false`, one diagnostic, severity `error`,
-code `parsing`, and a message opening `Invalid JSON: ` — and neither
-promises what comes after that prefix, because jsonc-parser and
-`JSON.parse` are different programs that word the same failure
-differently. `scripts/check-differential.ts` asserts the half that is
-shared.
-
-**How strict a parser is.** `rust-ini` refuses a section header that
-never closes; the `ini` package accepts it and reads the line. Two
-parsers, two tolerances, and no way to have the stricter one be lenient
-without writing a third. Three more documents divide the parsers the
-same way, inside formats where both refuse the ordinary broken document:
-js-yaml refuses a duplicated mapping key and saphyr reads the last value;
-`@iarna/toml` refuses an array that mixes types and the crate's parser
-reads it; `JSON.parse` reads a string holding a lone surrogate escape and
-serde refuses it. The differential check pins each in the direction it
-goes, so the day either parser changes its mind the build says so.
+**Parsing.** None differs any more. The extension used to parse with
+npm libraries, which worded refusals differently and read four kinds of
+document differently: an unclosed INI section header, a repeated YAML
+key, a TOML array of mixed types and a JSON lone surrogate escape. It
+now parses with transcriptions of this crate's own parsers, and the
+differential and the CLI parity hold every refusal word for word.
 
 Everything else is parity, and the corpus is what proves it.
 

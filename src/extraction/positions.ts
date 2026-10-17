@@ -3,6 +3,7 @@ import {
 	QUOTED_MULTILINE_REGEX,
 	QUOTED_STRING_REGEX,
 } from './formats/fallback';
+import { jsonStrings } from './formats/json';
 import { isSourceFileType, scanSourceSpanned } from './formats/source';
 
 export type Position = Readonly<{ line: number; column: number }>;
@@ -61,7 +62,7 @@ function spannedValues(
 ): readonly Spanned[] | undefined {
 	const key = fileType.trim().toLowerCase();
 	if (isSourceFileType(key)) return scanSourceSpanned(text, key);
-	if (key === 'json') return jsonStrings(text);
+	if (key === 'json') return jsonValues(text);
 	if (PARSED.has(key)) return undefined;
 	return kept(
 		[
@@ -75,32 +76,12 @@ function spannedValues(
 	);
 }
 
-const JSON_STRING = /"(?:[^"\\]|\\.)*"/y;
-
 /** Every string that is a value and not a key, in document order. */
-function jsonStrings(text: string): readonly Spanned[] | undefined {
-	const out: Spanned[] = [];
-	let at = 0;
-	while (at < text.length) {
-		if (text[at] !== '"') {
-			at += 1;
-			continue;
-		}
-		JSON_STRING.lastIndex = at;
-		const token = JSON_STRING.exec(text)?.[0];
-		if (token === undefined) return undefined;
-		let next = at + token.length;
-		while (/\s/.test(text[next] ?? '')) next += 1;
-		if (text[next] !== ':') {
-			try {
-				out.push({ value: JSON.parse(token) as string, offset: at });
-			} catch {
-				return undefined;
-			}
-		}
-		at += token.length;
-	}
-	return kept(out);
+function jsonValues(text: string): readonly Spanned[] | undefined {
+	return jsonStrings(text, false)?.map((found) => ({
+		value: found.value,
+		offset: found.start,
+	}));
 }
 
 /** The collection rule every format shares: trimmed, and never empty. */
