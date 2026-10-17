@@ -17,6 +17,9 @@
   <a href="https://www.npmjs.com/package/string-le-mcp">
     <img src="https://img.shields.io/npm/v/string-le-mcp?style=for-the-badge&label=MCP%20server&color=blue&logo=npm" alt="string-le-mcp on npm" />
   </a>
+  <a href="https://www.npmjs.com/package/strings-le">
+    <img src="https://img.shields.io/npm/v/strings-le?style=for-the-badge&label=npm%20CLI&color=blue&logo=npm" alt="strings-le on npm" />
+  </a>
   <a href="https://crates.io/crates/string-le">
     <img src="https://img.shields.io/crates/v/string-le?style=for-the-badge&label=Rust%20CLI&color=blue&logo=rust" alt="string-le on crates.io" />
   </a>
@@ -246,6 +249,22 @@ diff before.txt after.txt        # what changed in the copy this release
 <p align="center">
   <img src="assets/demos/cli.gif" alt="string-le in a terminal" style="max-width: 100%; height: auto;" />
 </p>
+
+**Install it from npm** ([`strings-le`](https://www.npmjs.com/package/strings-le)) **or from crates.io** ([`string-le`](https://crates.io/crates/string-le)). Both install the same `string-le` command.
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/strings-le">
+    <img src="https://img.shields.io/npm/v/strings-le?style=for-the-badge&label=npm%20CLI&color=blue&logo=npm" alt="strings-le on npm" />
+  </a>
+  <a href="https://crates.io/crates/string-le">
+    <img src="https://img.shields.io/crates/v/string-le?style=for-the-badge&label=Rust%20CLI&color=blue&logo=rust" alt="string-le on crates.io" />
+  </a>
+</p>
+
+```bash
+npm install -g strings-le   # or run it once: npx strings-le
+cargo install string-le
+```
 
 **The reader is not the author.** The extension answers for the buffer
 you have open. Someone still has to read every user-visible string before
