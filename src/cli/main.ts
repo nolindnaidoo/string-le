@@ -5,7 +5,7 @@
 import { name, version } from '../mcp/info';
 import { TOOLS } from '../mcp/tools';
 import { serve } from '../mcp/transport';
-import { exitWhenDrained } from './exit';
+import { crateOutput } from './output';
 import { run } from './run';
 import { SCAN_TOOL } from './scanTool';
 
@@ -16,17 +16,28 @@ async function readStdin(): Promise<Uint8Array> {
 }
 
 function main(args: readonly string[]): void {
+	const output = crateOutput(name);
 	if (args[0] === 'mcp') {
+		// The crate's server stops at the first reply it cannot write.
+		process.stdout.once('error', () => output.exit(2, null));
 		serve({ name, version }, [...TOOLS, SCAN_TOOL]);
 		return;
 	}
 	run(args, {
-		stdout: (text) => process.stdout.write(text),
-		stderr: (text) => process.stderr.write(text),
+		stdout: output.stdout,
+		stderr: output.stderr,
 		stdoutIsTerminal: process.stdout.isTTY === true,
 		readStdin,
 		version,
-	}).then(exitWhenDrained);
+	}).then((code) =>
+		output.exit(
+			code,
+			// `--values` writes bare values, and the crate names them so.
+			args.includes('--values')
+				? 'could not write the values'
+				: 'could not write the report',
+		),
+	);
 }
 
 main(process.argv.slice(2));

@@ -1,5 +1,5 @@
-# Publishes the npm package `strings-le` from cli/, which installs the
-# command `string-le`. npm refuses `string-le` as too close to `stringle`.
+# Publishes the npm command line from cli/, under the package name in
+# cli/package.json, which installs the command `string-le`.
 # Its own workflow rather than a job in release.yml, because release.yml
 # is byte-identical across the *-le repos (letools-site's fleet check)
 # and not every one of them has a command line on npm.
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish strings-le to npm (off runs the full dry run only)
+        description: Publish the cli/ package to npm (off runs the full dry run only)
         type: boolean
         default: false
 
@@ -86,6 +86,7 @@ jobs:
       - run: cargo build --locked
         working-directory: crate
       - run: bun run check:cli-parity
+      - run: bun run check:cli-pipes
 
   publish:
     needs: preflight

@@ -1,6 +1,6 @@
 {
 	"name": "strings-le",
-	"version": "2.6.3",
+	"version": "2.6.4",
 	"description": "Get every string value out of a codebase and into one place a person can read.",
 	"keywords": [
 		"strings",
