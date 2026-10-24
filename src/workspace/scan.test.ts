@@ -160,6 +160,18 @@ describe('listFiles', () => {
 		expect(labels).toEqual(['a.txt', 'skip.txt']);
 	});
 
+	it('reads only the files the patterns name', async () => {
+		openWorkspace({ '/w/a.ts': 'a', '/w/b.md': 'b', '/w/sub/c.ts': 'c' });
+		const listed = await listFiles(undefined, {
+			...LIMITS,
+			patterns: ['**/*.ts'],
+		});
+		expect(listed.files.map((uri) => uri.path)).toEqual([
+			'/w/a.ts',
+			'/w/sub/c.ts',
+		]);
+	});
+
 	it('says when more files matched than the limit', async () => {
 		openWorkspace({ '/w/a': 'a', '/w/b': 'b', '/w/c': 'c' });
 		const two = await listFiles(undefined, { ...LIMITS, maxFiles: 2 });
@@ -303,18 +315,17 @@ describe('scanFiles', () => {
 	});
 
 	it('counts a file that could not be read apart from one that is not text', async () => {
-		// Listed, then gone or refused: the mock throws for a path it does not
-		// hold. This was counted as `notText`, and the report then said the
-		// deleted file "is not UTF-8 text".
+		// A file listed and then gone, or unreadable, threw out of the read and
+		// was counted as `notText`, so the report said it "is not UTF-8 text".
+		// A deleted file is not a binary file, and the note was false.
 		openWorkspace({ '/w/a.txt': 'small', '/w/bin': new Uint8Array([0, 1]) });
-		const files = [
-			Uri.file('/w/a.txt'),
-			Uri.file('/w/gone.txt'),
-			Uri.file('/w/bin'),
-		] as never[];
 		const summary = await scanFiles(
 			undefined,
-			files,
+			[
+				Uri.file('/w/a.txt'),
+				Uri.file('/w/bin'),
+				Uri.file('/w/gone.txt'),
+			] as never[],
 			LIMITS,
 			TOKEN as never,
 			() => {},
