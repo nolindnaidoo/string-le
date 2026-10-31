@@ -53,18 +53,22 @@ export interface ServerInfo {
 /**
  * The protocol revision this server speaks.
  *
- * Echoed back only when the client asks for it; otherwise the client's own
- * version is returned, which is what the specification requires for forward
- * compatibility.
+ * Answered whatever the client asked for, as the crate's server answers it;
+ * a client then accepts the revision or disconnects. Echoing the client's
+ * own version, which this did, had the two servers answer one handshake
+ * differently.
  */
 const SUPPORTED_PROTOCOL = '2025-06-18';
 
 /**
- * The most bytes one frame may hold before it is refused.
+ * The most one frame may hold before the server gives up on it.
  *
- * Input with no newline grew the buffer without bound: 64 MiB of it held
- * the process at 980 MB and answered nothing. The same figure and message
- * as the crate's server, so a caller diffing the two finds nothing.
+ * Input is held until a newline arrives, and without a ceiling a client that
+ * streamed bytes with no newline grew the process without bound: 64 MiB of
+ * such input held a server in this family near a gigabyte resident, and no
+ * error was ever written. Counted in UTF-16 code units, which is never more
+ * than the bytes. Sixteen MiB is far past any message a tool here can use;
+ * `maxResults` caps the answer at a few thousand rows.
  */
 export const MAX_FRAME_BYTES = 16 * 1024 * 1024;
 
@@ -115,11 +119,15 @@ export function createResponder(
 			});
 		}
 
+		// Absent or null arguments are an empty object, which the tool then
+		// refuses for what it lacks, in the same words the crate's server uses.
 		const args = (params?.arguments ?? {}) as Record<string, unknown>;
 
-		// A tool that throws is a tool-level failure, not a protocol failure: the
-		// client gets a result carrying isError so a model can read the reason,
-		// rather than a JSON-RPC error that reads as "the server is broken".
+		// An argument that does not fit the tool's schema is a protocol error,
+		// thrown with its code, which the responder answers as `-32602`. A tool
+		// that fails on what it was given at run time is a result carrying
+		// isError, so a model can read the reason rather than a JSON-RPC error
+		// that reads as "the server is broken".
 		try {
 			const data = await tool.handler(args);
 			return {
@@ -128,6 +136,7 @@ export function createResponder(
 				isError: false,
 			};
 		} catch (error) {
+			if ((error as { code?: unknown })?.code === INVALID_PARAMS) throw error;
 			const message = error instanceof Error ? error.message : String(error);
 			return {
 				content: [{ type: 'text', text: message }],
@@ -143,14 +152,12 @@ export function createResponder(
 		request: JsonRpcRequest,
 	): Promise<JsonRpcResponse | null> {
 		const { method, params } = request;
-		const id = request.id ?? null;
 		// Notifications carry no id, or a null one, and take no reply, whatever
 		// the method. The crate's server answers the same way.
 		if (request.id === undefined || request.id === null) return null;
+		const id = request.id;
 
 		try {
-			// The crate's answer: its own revision whatever the client asked
-			// for, which a client then accepts or disconnects on.
 			if (method === 'initialize') {
 				return {
 					jsonrpc: '2.0' as const,
@@ -214,9 +221,21 @@ export function serve(
 	// as it arrives, so the oversized message is never held.
 	let discarding = false;
 
+	// A client that reads slowly fills the pipe, and every reply after that
+	// sits in this process until it drains. Reading stops while the pipe is
+	// full, so what is held is bounded by the requests already in flight
+	// rather than by everything the client has sent.
+	let waitingForDrain = false;
 	const write = (message: unknown): void => {
-		output.write(`${JSON.stringify(message)}\n`);
+		if (output.write(`${JSON.stringify(message)}\n`) || waitingForDrain) return;
+		waitingForDrain = true;
+		input.pause();
+		output.once('drain', () => {
+			waitingForDrain = false;
+			input.resume();
+		});
 	};
+
 	const frameRefusal = () => ({
 		jsonrpc: '2.0' as const,
 		id: null,

@@ -10,6 +10,20 @@ npm command line. The Rust CLI in `crate/` keeps its own
 [CHANGELOG](crate/CHANGELOG.md). From 2.6.0 every surface carries one
 version and releases from one tag.
 
+## [Unreleased]
+
+### Fixed
+
+- The extension's MCP server, the one `string-le-mcp` and the editor run, died
+  on an unhandled EPIPE with a Node stack trace when the client closed the
+  pipe, which a host logs as the server crashing. It exits 2 quietly at the
+  first reply it cannot write, as the crate's server and the npm command
+  line do.
+- The extension's MCP server read on while the pipe to a slow client was
+  full, so every reply after that sat in the process until the client
+  drained it. It stops reading while the pipe is full now, so what it holds
+  is bounded by the requests in flight.
+
 ## [2.7.0] - 2026-10-17
 
 ### Fixed
